@@ -1,23 +1,36 @@
 <div class="files-page">
   <div class="files-header-row">
-    <div>
+    <div class="header-titles">
+      <div class="header-badge-row">
+        <span class="page-category-badge">Statement Archive</span>
+        <span class="live-counter-pill" *ngIf="!isLoading">{{ statements.length }} Total Processed</span>
+      </div>
       <h1 class="files-title">My Statements &amp; Spreadsheets</h1>
-      <p class="files-subtitle">Persistent archive of processed bank statements and generated Excel ledgers.</p>
+      <p class="files-subtitle">Persistent repository of processed bank statements, ingestion metadata, and generated Excel ledgers.</p>
     </div>
-    <a routerLink="/converter" class="btn btn-excel">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-      <span>Convert New Statement</span>
-    </a>
+    <div class="header-actions">
+      <a routerLink="/converter" class="btn btn-primary btn-header-cta">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span>Convert New Statement</span>
+      </a>
+    </div>
   </div>
 
   <div class="card files-card">
     <div class="files-toolbar">
       <div class="search-box">
-        <input type="text" [(ngModel)]="searchQuery" class="form-control" placeholder="Search statements by name or client...">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" [(ngModel)]="searchQuery" class="form-control search-input" placeholder="Search statements by file name, client, or status...">
+          <button *ngIf="searchQuery" class="search-clear-btn" (click)="searchQuery = ''" title="Clear search">&times;</button>
+        </div>
       </div>
       <div class="filter-controls">
-        <button class="btn btn-secondary btn-sm" (click)="loadStatements()" [disabled]="isLoading">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button class="btn btn-secondary btn-sm" (click)="loadStatements()" [disabled]="isLoading" title="Reload statements from database">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" [class.spinning]="isLoading">
             <polyline points="23 4 23 10 17 10"></polyline>
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
           </svg>

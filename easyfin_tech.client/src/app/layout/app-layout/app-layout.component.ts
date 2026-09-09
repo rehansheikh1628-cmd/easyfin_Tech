@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, HostListener, ElementRef } from '@angular/core';
 import { AuthService, UserProfileDto } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
 
@@ -9,13 +9,15 @@ import { Subscription } from 'rxjs';
   standalone: false
 })
 export class AppLayoutComponent implements OnInit, OnDestroy {
-  sidebarOpen = false;
+  mobileMenuOpen = false;
+  profileMenuOpen = false;
   currentUser: UserProfileDto | null = null;
   private authSub?: Subscription;
 
   constructor(
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private elementRef: ElementRef
   ) {}
 
   ngOnInit(): void {
@@ -59,15 +61,65 @@ export class AppLayoutComponent implements OnInit, OnDestroy {
     return 'EF';
   }
 
-  toggleSidebar(): void {
-    this.sidebarOpen = !this.sidebarOpen;
+  toggleProfileMenu(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.profileMenuOpen = !this.profileMenuOpen;
+    this.cdr.markForCheck();
   }
 
+  closeProfileMenu(): void {
+    if (this.profileMenuOpen) {
+      this.profileMenuOpen = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+    if (this.mobileMenuOpen) {
+      this.profileMenuOpen = false;
+    }
+    this.cdr.markForCheck();
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+    this.cdr.markForCheck();
+  }
+
+  // Backwards compatibility alias
+  get sidebarOpen(): boolean {
+    return this.mobileMenuOpen;
+  }
+  toggleSidebar(): void {
+    this.toggleMobileMenu();
+  }
   closeSidebar(): void {
-    this.sidebarOpen = false;
+    this.closeMobileMenu();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.profileMenuOpen) {
+      const target = event.target as HTMLElement;
+      if (!this.elementRef.nativeElement.querySelector('.profile-menu-container')?.contains(target)) {
+        this.profileMenuOpen = false;
+        this.cdr.markForCheck();
+      }
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    this.closeProfileMenu();
+    this.closeMobileMenu();
   }
 
   logout(): void {
+    this.closeProfileMenu();
+    this.closeMobileMenu();
     this.authService.logout().subscribe();
   }
 }
