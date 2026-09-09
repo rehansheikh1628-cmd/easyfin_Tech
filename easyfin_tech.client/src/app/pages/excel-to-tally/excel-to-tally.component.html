@@ -1,0 +1,457 @@
+<div class="excel-to-tally-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="module-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        <span>Official .XLSM Client Workflow</span>
+      </div>
+      <h1 class="page-title">Excel → Tally XML Converter</h1>
+      <p class="page-subtitle">
+        Download the official EasyFin Macro-Enabled (.XLSM) template, enter your transactions, and validate your data for Tally accounting vouchers.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="downloadTemplate()" [disabled]="isDownloadingTemplate" id="headerDownloadTemplateBtn">
+        <svg *ngIf="!isDownloadingTemplate" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span *ngIf="!isDownloadingTemplate">Download XLSM Template</span>
+        <span *ngIf="isDownloadingTemplate">Preparing XLSM...</span>
+      </button>
+
+      <button *ngIf="validationResult" class="btn btn-outline" (click)="reset()" id="uploadAnotherBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1 4 1 10 7 10"></polyline>
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+        </svg>
+        <span>Upload Another XLSM</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Global Alerts -->
+  <div *ngIf="successMessage" class="alert alert-success" id="successAlert">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error" id="errorAlert">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- 6-Step Workflow Roadmap Bar -->
+  <div class="workflow-stepper">
+    <div class="step-node" [class.completed]="true">
+      <div class="step-num">1</div>
+      <div class="step-label">Download Template</div>
+    </div>
+    <div class="step-connector" [class.active]="true"></div>
+    <div class="step-node" [class.completed]="selectedFile != null">
+      <div class="step-num">2</div>
+      <div class="step-label">Fill Template</div>
+    </div>
+    <div class="step-connector" [class.active]="selectedFile != null"></div>
+    <div class="step-node" [class.completed]="selectedFile != null">
+      <div class="step-num">3</div>
+      <div class="step-label">Upload XLSM</div>
+    </div>
+    <div class="step-connector" [class.active]="validationResult != null"></div>
+    <div class="step-node" [class.completed]="validationResult != null" [class.error-node]="validationResult && !validationResult.isReadyForXmlGeneration">
+      <div class="step-num">4</div>
+      <div class="step-label">Validate</div>
+    </div>
+    <div class="step-connector" [class.active]="validationResult != null"></div>
+    <div class="step-node" [class.completed]="validationResult != null">
+      <div class="step-num">5</div>
+      <div class="step-label">Preview</div>
+    </div>
+    <div class="step-connector" [class.active]="validationResult && validationResult.isReadyForXmlGeneration"></div>
+    <div class="step-node" [class.completed]="validationResult && validationResult.isReadyForXmlGeneration">
+      <div class="step-num">6</div>
+      <div class="step-label">Generate XML</div>
+    </div>
+  </div>
+
+  <!-- Steps 1 to 3 View (Shown when no validation result) -->
+  <div *ngIf="!validationResult" class="workflow-initial-view">
+    <!-- Step 1 & Step 2 Instruction Grid -->
+    <div class="steps-grid">
+      <!-- Step 1 Card -->
+      <div class="step-card step-card-download">
+        <div class="step-card-header">
+          <span class="step-tag">Step 1</span>
+          <h3>Download EasyFin Excel Template</h3>
+        </div>
+        <p class="step-desc">
+          Get the official generic Macro-Enabled <code>.XLSM</code> template. Pre-formatted with 9 canonical columns, instructions sheet, and validation rules.
+        </p>
+        <div class="step-action">
+          <button class="btn btn-primary btn-large" (click)="downloadTemplate()" [disabled]="isDownloadingTemplate" id="step1DownloadBtn">
+            <svg *ngIf="!isDownloadingTemplate" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span *ngIf="!isDownloadingTemplate">Download XLSM Template</span>
+            <span *ngIf="isDownloadingTemplate">Preparing Download...</span>
+          </button>
+        </div>
+        <div class="step-meta">
+          <span>Format: <strong>.XLSM</strong></span>
+          <span>•</span>
+          <span>Version: <strong>1.0 Official</strong></span>
+        </div>
+      </div>
+
+      <!-- Step 2 Card -->
+      <div class="step-card step-card-fill">
+        <div class="step-card-header">
+          <span class="step-tag">Step 2</span>
+          <h3>Fill the Template</h3>
+        </div>
+        <p class="step-desc">
+          Open the template in Excel and paste or enter your transaction data into the <strong>Transactions</strong> sheet. Sample rows marked with <code>[SAMPLE]</code> are automatically ignored.
+        </p>
+        <div class="columns-chips-container">
+          <span class="chip chip-req">1. Date</span>
+          <span class="chip chip-opt">2. Narration</span>
+          <span class="chip chip-opt">3. Cheque / Ref No.</span>
+          <span class="chip chip-opt">4. Value Date</span>
+          <span class="chip chip-cond">5. Dr Amount</span>
+          <span class="chip chip-cond">6. Cr Amount</span>
+          <span class="chip chip-opt">7. Closing Balance</span>
+          <span class="chip chip-req">8. Ledger Name</span>
+          <span class="chip chip-req">9. Bank Name</span>
+        </div>
+        <div class="step-meta">
+          <span>One row = one transaction</span>
+          <span>•</span>
+          <span>Ledger & Bank preserved exactly</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 Card: Upload XLSM Dropzone -->
+    <div class="step-card step-card-upload">
+      <div class="step-card-header">
+        <span class="step-tag">Step 3</span>
+        <h3>Upload Completed XLSM</h3>
+      </div>
+
+      <div
+        class="upload-card"
+        (dragover)="onDragOver($event)"
+        (drop)="onDrop($event)"
+      >
+        <input
+          type="file"
+          id="excelFileInput"
+          accept=".xlsm, .xlsx, .xls"
+          (change)="onFileSelected($event)"
+          class="file-input-hidden"
+        />
+        <label for="excelFileInput" class="upload-dropzone">
+          <div class="upload-icon-wrapper">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <path d="M8 13h8"></path>
+              <path d="M8 17h8"></path>
+              <path d="M10 9h4"></path>
+            </svg>
+          </div>
+
+          <div class="upload-text">
+            <h4>Upload Completed EasyFin Template</h4>
+            <p>Drag and drop your filled <code>.xlsm</code> file here, or click to browse</p>
+          </div>
+
+          <button type="button" class="btn btn-secondary upload-browse-btn" onclick="document.getElementById('excelFileInput').click()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <span>Upload XLSM</span>
+          </button>
+
+          <div class="upload-meta">
+            <span>Official Format: <strong>.XLSM</strong> (.xlsx supported for testing)</span>
+            <span>•</span>
+            <span>Max Size: 50MB</span>
+            <span>•</span>
+            <span>VBA macros treated as untrusted static input</span>
+          </div>
+        </label>
+
+        <!-- Loading Overlay -->
+        <div *ngIf="isValidating" class="validation-overlay" id="validationOverlay">
+          <div class="spinner"></div>
+          <p>Reading and validating Excel transaction records...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Steps 4, 5, 6 View (Shown when validationResult exists) -->
+  <div *ngIf="validationResult" class="results-container">
+    <!-- STEP 4: EasyFin Validates the Workbook -->
+    <div class="section-title-wrapper">
+      <span class="step-tag">Step 4</span>
+      <h2 class="section-title">Validation Summary</h2>
+      <span *ngIf="validationResult.hasOfficialTemplateSignature" class="integrity-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        Official EasyFin Template Verified
+      </span>
+      <span *ngIf="validationResult.sampleRowsSkipped > 0" class="sample-badge">
+        {{ validationResult.sampleRowsSkipped }} Sample Row(s) Safely Ignored
+      </span>
+    </div>
+
+    <!-- Summary Cards Grid -->
+    <div class="summary-cards-grid">
+      <div class="summary-card" id="totalTxCard">
+        <span class="card-label">Total Transactions</span>
+        <span class="card-value">{{ validationResult.totalRows }}</span>
+        <span class="card-subtext">Excel records parsed</span>
+      </div>
+
+      <div class="summary-card success" id="validTxCard">
+        <span class="card-label">Valid</span>
+        <span class="card-value">{{ validationResult.validRows }}</span>
+        <span class="card-subtext">Clean accounting rows</span>
+      </div>
+
+      <div class="summary-card warning" id="warningTxCard">
+        <span class="card-label">Warnings</span>
+        <span class="card-value">{{ validationResult.warningRows }}</span>
+        <span class="card-subtext">Non-blocking duplicates</span>
+      </div>
+
+      <div class="summary-card danger" id="invalidTxCard">
+        <span class="card-label">Errors</span>
+        <span class="card-value">{{ validationResult.invalidRows }}</span>
+        <span class="card-subtext">Must fix to generate XML</span>
+      </div>
+
+      <div class="summary-card status" [class.ready]="validationResult.isReadyForXmlGeneration" [class.blocked]="!validationResult.isReadyForXmlGeneration" id="readinessCard">
+        <span class="card-label">Ready for XML</span>
+        <div class="status-indicator">
+          <span *ngIf="validationResult.isReadyForXmlGeneration" class="badge badge-success">READY</span>
+          <span *ngIf="!validationResult.isReadyForXmlGeneration" class="badge badge-danger">BLOCKED</span>
+        </div>
+        <span class="card-subtext">
+          {{ validationResult.isReadyForXmlGeneration ? 'All validation checks passed' : 'Resolve fatal errors first' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Validation Issues List (Fatal & Warnings) -->
+    <div *ngIf="validationResult.validationMessages.length > 0" class="issues-panel" id="issuesPanel">
+      <div class="issues-header">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          Validation Issues ({{ validationResult.validationMessages.length }})
+        </h3>
+        <span class="issues-hint">Every error specifies the exact Excel row number for immediate correction.</span>
+      </div>
+
+      <div class="issues-list">
+        <div
+          *ngFor="let msg of validationResult.validationMessages"
+          class="issue-item"
+          [class.fatal]="isFatal(msg.severity)"
+          [class.warning]="isWarning(msg.severity)"
+        >
+          <span class="issue-badge" [class.badge-fatal]="isFatal(msg.severity)" [class.badge-warn]="isWarning(msg.severity)">
+            {{ isFatal(msg.severity) ? 'FATAL' : 'WARNING' }}
+          </span>
+          <span *ngIf="msg.rowNumber" class="row-tag">Row {{ msg.rowNumber }}</span>
+          <span *ngIf="msg.column" class="col-tag">{{ msg.column }}</span>
+          <span class="issue-text">{{ msg.message }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5: Preview Transactions -->
+    <div class="section-title-wrapper" style="margin-top: 2rem;">
+      <span class="step-tag">Step 5</span>
+      <h2 class="section-title">Transaction Preview</h2>
+      <span class="section-sub">Inspect parsed transactions before XML generation</span>
+    </div>
+
+    <div class="preview-card" id="previewSection">
+      <div class="preview-toolbar">
+        <div class="filter-tabs">
+          <button
+            class="tab-btn"
+            [class.active]="activeFilter === 'ALL'"
+            (click)="setFilter('ALL')"
+            id="filterAllBtn"
+          >
+            All ({{ validationResult.totalRows }})
+          </button>
+          <button
+            class="tab-btn success"
+            [class.active]="activeFilter === 'VALID'"
+            (click)="setFilter('VALID')"
+            id="filterValidBtn"
+          >
+            Valid ({{ validationResult.validRows }})
+          </button>
+          <button
+            class="tab-btn warning"
+            [class.active]="activeFilter === 'WARNING'"
+            (click)="setFilter('WARNING')"
+            id="filterWarnBtn"
+          >
+            Warnings ({{ validationResult.warningRows }})
+          </button>
+          <button
+            class="tab-btn danger"
+            [class.active]="activeFilter === 'INVALID'"
+            (click)="setFilter('INVALID')"
+            id="filterInvalidBtn"
+          >
+            Errors ({{ validationResult.invalidRows }})
+          </button>
+        </div>
+
+        <div class="search-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search narration, ledger, bank..."
+            [(ngModel)]="searchTerm"
+            id="tableSearchInput"
+          />
+        </div>
+      </div>
+
+      <!-- Transaction Preview Table -->
+      <div class="table-responsive">
+        <table class="preview-table" id="transactionPreviewTable">
+          <thead>
+            <tr>
+              <th>Row #</th>
+              <th>Date</th>
+              <th>Narration / Particulars</th>
+              <th>Cheque / Ref No.</th>
+              <th>Value Date</th>
+              <th class="text-right">Dr Amount</th>
+              <th class="text-right">Cr Amount</th>
+              <th class="text-right">Closing Balance</th>
+              <th>Ledger Name</th>
+              <th>Bank Name</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let tx of filteredTransactions"
+              [class.row-invalid]="tx.status === 'Invalid'"
+              [class.row-warning]="tx.status === 'Warning'"
+            >
+              <td class="row-num"><strong>#{{ tx.rowNumber }}</strong></td>
+              <td>{{ tx.date ? (tx.date | date:'dd/MM/yyyy') : (tx.rawDate || '—') }}</td>
+              <td class="narration-cell" [title]="tx.narration || ''">{{ tx.narration || '—' }}</td>
+              <td><code>{{ tx.chequeRefNo || '—' }}</code></td>
+              <td>{{ tx.valueDate ? (tx.valueDate | date:'dd/MM/yyyy') : '—' }}</td>
+              <td class="text-right text-debit">{{ tx.drAmount != null ? (tx.drAmount | number:'1.2-2') : (tx.rawDrAmount || '—') }}</td>
+              <td class="text-right text-credit">{{ tx.crAmount != null ? (tx.crAmount | number:'1.2-2') : (tx.rawCrAmount || '—') }}</td>
+              <td class="text-right">{{ tx.closingBalance != null ? (tx.closingBalance | number:'1.2-2') : (tx.rawClosingBalance || '—') }}</td>
+              <td><span class="ledger-tag">{{ tx.ledgerName || '—' }}</span></td>
+              <td>{{ tx.bankName || '—' }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-success]="tx.status === 'Valid'"
+                  [class.badge-warn]="tx.status === 'Warning'"
+                  [class.badge-fatal]="tx.status === 'Invalid'"
+                >
+                  {{ tx.status }}
+                </span>
+              </td>
+            </tr>
+
+            <tr *ngIf="filteredTransactions.length === 0">
+              <td colspan="11" class="empty-table-cell">
+                No transactions match the selected filter criteria.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STEP 6: Generate Tally XML -->
+    <div class="step6-card" id="step6Card">
+      <div class="step6-content">
+        <div class="step-tag">Step 6</div>
+        <div class="step6-details">
+          <h4>Generate Tally XML</h4>
+          <p *ngIf="isGeneratingXml" class="text-info">
+            Generating Tally XML...
+          </p>
+          <p *ngIf="!isGeneratingXml && validationResult.isReadyForXmlGeneration && !xmlSuccessMessage && !xmlErrorMessage">
+            Workbook successfully validated. Transactions are ready for Tally XML export.
+          </p>
+          <p *ngIf="xmlSuccessMessage" class="text-success">
+            {{ xmlSuccessMessage }}
+          </p>
+          <p *ngIf="xmlErrorMessage" class="text-warning">
+            {{ xmlErrorMessage }}
+          </p>
+          <p *ngIf="!isGeneratingXml && !validationResult.isReadyForXmlGeneration && !xmlErrorMessage" class="text-warning">
+            XML generation is disabled. Please fix the {{ validationResult.invalidRows }} fatal row error(s) identified in Step 4 to proceed.
+          </p>
+        </div>
+      </div>
+      <button
+        class="btn btn-primary btn-large"
+        [disabled]="!validationResult.isReadyForXmlGeneration || isGeneratingXml"
+        (click)="generateTallyXml()"
+        id="generateXmlBtn"
+        title="{{ validationResult.isReadyForXmlGeneration ? (isGeneratingXml ? 'Generating XML...' : 'Generate Tally XML') : 'Blocked by validation errors' }}"
+      >
+        <div *ngIf="isGeneratingXml" class="btn-spinner"></div>
+        <svg *ngIf="!isGeneratingXml && !xmlSuccessMessage" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+        <svg *ngIf="xmlSuccessMessage" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span *ngIf="isGeneratingXml">Generating Tally XML...</span>
+        <span *ngIf="!isGeneratingXml && !xmlSuccessMessage">Generate Tally XML</span>
+        <span *ngIf="xmlSuccessMessage">Tally XML Generated ✓</span>
+      </button>
+    </div>
+  </div>
+</div>

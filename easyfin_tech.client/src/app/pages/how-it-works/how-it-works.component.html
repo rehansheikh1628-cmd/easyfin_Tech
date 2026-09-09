@@ -1,0 +1,161 @@
+<app-public-nav></app-public-nav>
+
+<main class="page-body">
+  <div class="page-header">
+    <div class="container text-center">
+      <span class="badge badge-accent">Processing Architecture</span>
+      <h1 class="page-title">How EasyFin Statement Processing Works</h1>
+      <p class="page-subtitle">
+        A step-by-step breakdown of how raw PDF statements are parsed, verified, and mapped into structured Excel spreadsheets.
+      </p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <!-- Roadmap Note Banner -->
+      <div class="phase-notice-box">
+        <div class="notice-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        </div>
+        <div class="notice-text">
+          <h4>Engineering Transparency: Phase 1 vs Phase 2</h4>
+          <p>
+            You are viewing the <strong>Phase 1 UI &amp; Foundation</strong>. The visual workflow and interactive review components shown below represent the exact user interface and pipeline. The core PDF extraction and machine bank detection engines are scheduled for Phase 2 integration.
+          </p>
+        </div>
+      </div>
+
+      <!-- Steps Detailed Breakdown -->
+      <div class="workflow-steps-vertical">
+        <!-- Step 1 -->
+        <div class="step-row">
+          <div class="step-marker">
+            <span class="marker-circle">1</span>
+            <div class="marker-line"></div>
+          </div>
+          <div class="step-detail-card card">
+            <div class="card-tag">Ingestion</div>
+            <h2>1. Statement Upload &amp; Header Parsing</h2>
+            <p>
+              Users upload raw bank statement PDFs (single page, multi-page, or password-protected files). EasyFin identifies the source bank, statement date range, opening balance, and account identifiers from document headers.
+            </p>
+            <div class="tech-spec-grid">
+              <div class="spec-item">
+                <span class="spec-label">Input Formats</span>
+                <span class="spec-val">PDF (Digital &amp; Scanned)</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Page Handling</span>
+                <span class="spec-val">1 to 500+ Pages</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Header Metadata</span>
+                <span class="spec-val">Account No, Period, Opening Balance</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-row">
+          <div class="step-marker">
+            <span class="marker-circle">2</span>
+            <div class="marker-line"></div>
+          </div>
+          <div class="step-detail-card card">
+            <div class="card-tag">Extraction</div>
+            <h2>2. Table Boundary Detection &amp; Narration Joining</h2>
+            <p>
+              Bank statements frequently break descriptions across 2 to 4 lines. EasyFin's parsing engine aligns multi-line transaction narratives (UTR numbers, merchant codes, payer names) into cohesive single rows rather than fragmented records.
+            </p>
+            <div class="tech-spec-grid">
+              <div class="spec-item">
+                <span class="spec-label">Multi-Line Handling</span>
+                <span class="spec-val">Auto-concatenated narrations</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Debit/Credit Detection</span>
+                <span class="spec-val">Split columns or signed amounts</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Date Normalization</span>
+                <span class="spec-val">ISO &amp; Local formats (DD/MM/YYYY)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-row">
+          <div class="step-marker">
+            <span class="marker-circle">3</span>
+            <div class="marker-line"></div>
+          </div>
+          <div class="step-detail-card card">
+            <div class="card-tag">Verification</div>
+            <h2>3. Interactive Verification &amp; Balance Reconciliation</h2>
+            <p>
+              Before any file is exported, accountants can inspect the transactions in a high-speed verification table. Running balance checks ensure that:
+              <br><code>Opening Balance + Credits - Debits = Closing Balance</code>. Any arithmetic discrepancies are highlighted instantly.
+            </p>
+            <div class="tech-spec-grid">
+              <div class="spec-item">
+                <span class="spec-label">Audit Control</span>
+                <span class="spec-val">In-browser transaction editor</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Running Balance Check</span>
+                <span class="spec-val">100% mathematical match</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Warning Flags</span>
+                <span class="spec-val">Out-of-order dates or missing balances</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step-row">
+          <div class="step-marker">
+            <span class="marker-circle">4</span>
+          </div>
+          <div class="step-detail-card card">
+            <div class="card-tag">Export</div>
+            <h2>4. Clean Excel (.xlsx) &amp; Accounting Export</h2>
+            <p>
+              Generate clean, formula-ready Microsoft Excel workbooks. Numbers are exported as real floating-point numbers (not strings masquerading as numbers), allowing immediate pivot tables, VLOOKUPs, and accounting imports.
+            </p>
+            <div class="tech-spec-grid">
+              <div class="spec-item">
+                <span class="spec-label">File Types</span>
+                <span class="spec-val">Microsoft Excel (.xlsx), CSV</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Accounting Presets</span>
+                <span class="spec-val">Standard Ledger, Tally XML format</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Summary Sheet</span>
+                <span class="spec-val">Monthly Debit/Credit breakdown</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="page-cta-box text-center">
+        <h3>Ready to test the preview workflow?</h3>
+        <p>You can test the interactive converter interface right now.</p>
+        <div class="cta-actions">
+          <a routerLink="/converter" class="btn btn-primary btn-lg">Launch Converter UI</a>
+          <a routerLink="/features" class="btn btn-secondary btn-lg">Explore Feature Matrix</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-public-footer></app-public-footer>

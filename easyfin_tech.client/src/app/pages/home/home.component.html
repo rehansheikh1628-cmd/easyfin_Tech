@@ -1,0 +1,369 @@
+<app-public-nav></app-public-nav>
+
+<main class="home-main">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-background-glow"></div>
+    <div class="hero-grid-pattern"></div>
+    
+    <div class="container hero-container">
+      <!-- Left Column: Clear Value Proposition -->
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge-pulse"></span>
+          <span class="badge-text">Financial Statement Automation</span>
+        </div>
+
+        <h1 class="hero-title">
+          Convert Bank Statements. <br class="hero-br" />
+          <span class="text-gradient">Get Clean Excel.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          Upload your bank statement PDF and get a structured Excel file with verified balances, ready for accounting.
+        </p>
+
+        <div class="hero-actions">
+          <a routerLink="/converter" class="btn btn-lg btn-primary btn-hero-primary" id="hero-convert-btn">
+            <span>Convert Statement</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+          <a routerLink="/how-it-works" class="btn btn-lg btn-secondary btn-hero-secondary" id="hero-how-it-works-btn">
+            <span>How It Works</span>
+          </a>
+        </div>
+
+        <!-- Lightweight Trust & Benefit Row -->
+        <div class="hero-benefits">
+          <div class="benefit-item">
+            <svg class="benefit-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Accurate Math</span>
+          </div>
+          <span class="benefit-sep">&bull;</span>
+          <div class="benefit-item">
+            <svg class="benefit-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Multi-Line Narration</span>
+          </div>
+          <span class="benefit-sep">&bull;</span>
+          <div class="benefit-item">
+            <svg class="benefit-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Accounting Ready</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Product Transformation Visual (PDF -> EasyFin -> Excel) -->
+      <div class="hero-visual">
+        <div class="transformation-stage">
+          <!-- Left Visual: Source PDF Card -->
+          <div class="stage-card card-pdf">
+            <div class="card-header">
+              <div class="card-tag tag-pdf">
+                <span class="tag-icon">PDF</span>
+                <span>Bank Statement</span>
+              </div>
+            </div>
+            <div class="pdf-document-body">
+              <div class="pdf-meta-row">
+                <span class="pdf-meta-label">A/C: *******4912</span>
+                <span class="pdf-meta-badge">Multi-Page</span>
+              </div>
+              <div class="pdf-text-lines">
+                <div class="pdf-line">
+                  <span class="p-date">04/08</span>
+                  <span class="p-text">UPI-728192-AWS CLOUD HOSTING</span>
+                  <span class="p-amt p-dr">-14,890.00</span>
+                </div>
+                <div class="pdf-line-wrap">
+                  <span class="p-sub">Ref: UPI/62910248/Payment</span>
+                </div>
+                <div class="pdf-line">
+                  <span class="p-date">12/08</span>
+                  <span class="p-text">RTGS CR-SBI002-CLIENT SETTLEMENT</span>
+                  <span class="p-amt p-cr">+2,10,000.00</span>
+                </div>
+              </div>
+              <div class="pdf-footer-note">Raw Coordinate Data</div>
+            </div>
+          </div>
+
+          <!-- Center Visual: EasyFin Processing Bridge -->
+          <div class="stage-connector">
+            <div class="connector-line">
+              <span class="flow-particle"></span>
+            </div>
+            <div class="connector-node">
+              <div class="node-glow"></div>
+              <div class="node-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+              </div>
+              <span class="node-label">EasyFin</span>
+            </div>
+            <div class="connector-line">
+              <span class="flow-particle delay"></span>
+            </div>
+          </div>
+
+          <!-- Right Visual: Structured Excel Card -->
+          <div class="stage-card card-excel">
+            <div class="card-header">
+              <div class="card-tag tag-excel">
+                <span class="tag-icon">XLSX</span>
+                <span>Structured Excel</span>
+              </div>
+              <span class="file-name">Statement_Ledger.xlsx</span>
+            </div>
+            <div class="excel-document-body">
+              <div class="mini-table">
+                <div class="mini-table-head">
+                  <span class="col-th">Date</span>
+                  <span class="col-th col-desc">Particulars</span>
+                  <span class="col-th text-right">Debit</span>
+                  <span class="col-th text-right">Credit</span>
+                  <span class="col-th text-right">Balance</span>
+                </div>
+                <div class="mini-table-row">
+                  <span class="col-td mono">04/08/2026</span>
+                  <span class="col-td col-desc">UPI: AWS Cloud Hosting</span>
+                  <span class="col-td mono text-danger text-right">14,890.00</span>
+                  <span class="col-td mono text-muted text-right">-</span>
+                  <span class="col-td mono text-right">3,27,960.00</span>
+                </div>
+                <div class="mini-table-row">
+                  <span class="col-td mono">12/08/2026</span>
+                  <span class="col-td col-desc">RTGS: Client Settlement</span>
+                  <span class="col-td mono text-muted text-right">-</span>
+                  <span class="col-td mono text-success text-right">2,10,000.00</span>
+                  <span class="col-td mono text-right">5,37,960.00</span>
+                </div>
+              </div>
+              <div class="excel-status-banner">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Balance Parity: ₹0.00 Variance &bull; Tally Ready</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 1: 3-Step Transformation Pipeline -->
+  <section class="section pipeline-section" id="how-it-works-preview">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="badge badge-accent">Workflow</span>
+        <h2 class="section-title">From PDF to Clean Excel in 3 Steps</h2>
+        <p class="section-desc">
+          A deterministic engine built to convert complex, multi-page financial statements without manual typing.
+        </p>
+      </div>
+
+      <div class="pipeline-grid">
+        <div class="pipeline-card">
+          <div class="pipeline-step-header">
+            <span class="pipeline-step-num">01</span>
+            <div class="pipeline-step-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+          </div>
+          <h3>Upload Statement</h3>
+          <p>
+            Drop your bank statement PDF. The engine scans digital glyphs, detects column coordinates, and identifies the bank format.
+          </p>
+          <div class="pipeline-feature-tag">Single or Multi-Page</div>
+        </div>
+
+        <div class="pipeline-card">
+          <div class="pipeline-step-header">
+            <span class="pipeline-step-num">02</span>
+            <div class="pipeline-step-icon icon-teal">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+          </div>
+          <h3>Parse &amp; Verify</h3>
+          <p>
+            Extract transactions with cross-page narration continuation. Continuous mathematical balance checksums flag discrepancies.
+          </p>
+          <div class="pipeline-feature-tag">Running Balance Integrity</div>
+        </div>
+
+        <div class="pipeline-card">
+          <div class="pipeline-step-header">
+            <span class="pipeline-step-num">03</span>
+            <div class="pipeline-step-icon icon-green">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+              </svg>
+            </div>
+          </div>
+          <h3>Export Clean Excel</h3>
+          <p>
+            Download your structured <code>.xlsx</code> workbook with true numeric cells, verified dates, and standard accounting schema.
+          </p>
+          <div class="pipeline-feature-tag">ClosedXML OpenXML Schema</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Core Accounting Features -->
+  <section class="section features-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="badge badge-primary">Engineered For Accounting</span>
+        <h2 class="section-title">Accuracy You Can Audit</h2>
+        <p class="section-desc">
+          Built specifically for finance professionals who cannot afford rounding errors or disordered text.
+        </p>
+      </div>
+
+      <div class="features-compact-grid">
+        <div class="feature-compact-card">
+          <div class="f-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="f-text">
+            <h3>Mathematical Checksums</h3>
+            <p>Verifies Opening Balance + Credits &minus; Debits = Closing Balance row-by-row before export.</p>
+          </div>
+        </div>
+
+        <div class="feature-compact-card">
+          <div class="f-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="21" y1="10" x2="3" y2="10"></line>
+              <line x1="21" y1="6" x2="3" y2="6"></line>
+              <line x1="21" y1="14" x2="3" y2="14"></line>
+              <line x1="21" y1="18" x2="3" y2="18"></line>
+            </svg>
+          </div>
+          <div class="f-text">
+            <h3>Narration Reconstruction</h3>
+            <p>Joins multi-line particulars, UTR numbers, and UPI handles into a single unified row.</p>
+          </div>
+        </div>
+
+        <div class="feature-compact-card">
+          <div class="f-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <div class="f-text">
+            <h3>Native Spreadsheet Data</h3>
+            <p>Formatted with authentic numeric decimals and calendar dates—no green triangle text errors.</p>
+          </div>
+        </div>
+
+        <div class="feature-compact-card">
+          <div class="f-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <div class="f-text">
+            <h3>Private Tenant Processing</h3>
+            <p>Statements are isolated strictly to your account. Your client data is never used to train models.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Supported Banks & Conversion Call-to-Action -->
+  <section class="section banks-cta-section">
+    <div class="container">
+      <div class="banks-cta-card">
+        <div class="banks-cta-glow"></div>
+        <div class="banks-cta-content">
+          <!-- Supported Bank Badges -->
+          <div class="supported-banks-strip">
+            <span class="strip-label">Supported Bank Parsers:</span>
+            <div class="strip-badges">
+              <span class="bank-pill">
+                <span class="bank-pill-dot"></span>
+                <strong>HDFC Bank</strong>
+              </span>
+              <span class="bank-pill">
+                <span class="bank-pill-dot"></span>
+                <strong>YES BANK</strong>
+              </span>
+              <span class="bank-pill">
+                <span class="bank-pill-dot"></span>
+                <strong>Axis Bank</strong>
+              </span>
+              <span class="bank-pill">
+                <span class="bank-pill-dot"></span>
+                <strong>Central Bank of India</strong>
+              </span>
+              <span class="bank-pill">
+                <span class="bank-pill-dot"></span>
+                <strong>ICICI Bank</strong>
+              </span>
+              <span class="bank-pill">
+                <span class="bank-pill-dot"></span>
+                <strong>State Bank of India</strong>
+              </span>
+              <span class="bank-pill">
+                <span class="bank-pill-dot"></span>
+                <strong>Bank of India</strong>
+              </span>
+            </div>
+          </div>
+
+          <h2 class="cta-heading">Ready to Convert Your Statement?</h2>
+          <p class="cta-subheading">
+            Upload your bank statement PDF and inspect extracted transactions immediately.
+          </p>
+
+          <div class="cta-actions-row">
+            <a routerLink="/converter" class="btn btn-lg btn-accent" id="cta-bottom-convert-btn">
+              <span>Convert Statement Now</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+            <a routerLink="/how-it-works" class="btn btn-lg btn-outline text-white" id="cta-bottom-how-btn">
+              <span>Explore Architecture</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-public-footer></app-public-footer>

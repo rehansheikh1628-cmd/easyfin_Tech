@@ -1,0 +1,197 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  transition: all var(--ef-transition-fast);
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 4.25rem;
+  width: 100%;
+}
+
+/* Brand */
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  transition: opacity var(--ef-transition-fast);
+}
+
+.brand-link:hover {
+  opacity: 0.92;
+}
+
+.brand-mark {
+  width: 2.375rem;
+  height: 2.375rem;
+  border-radius: var(--ef-radius-md);
+  background: linear-gradient(135deg, #050a14 0%, #0f1c34 100%);
+  color: var(--ef-accent-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(5, 10, 20, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--ef-primary-950);
+  line-height: 1.15;
+}
+
+.brand-accent {
+  color: var(--ef-accent-600);
+}
+
+.brand-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ef-text-muted);
+}
+
+/* Desktop Nav Links */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ef-text-secondary);
+  transition: all var(--ef-transition-fast);
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--ef-radius-md);
+  position: relative;
+}
+
+.nav-link:hover {
+  color: var(--ef-primary-950);
+  background-color: rgba(15, 23, 42, 0.04);
+}
+
+.nav-link.active {
+  color: var(--ef-accent-700);
+  background-color: var(--ef-accent-50);
+  font-weight: 600;
+}
+
+/* Desktop Actions */
+.desktop-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.desktop-actions .btn-primary {
+  background: linear-gradient(135deg, var(--ef-primary-950) 0%, var(--ef-primary-850) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 6px rgba(5, 10, 20, 0.12);
+}
+
+.desktop-actions .btn-primary:hover {
+  background: linear-gradient(135deg, var(--ef-primary-900) 0%, var(--ef-primary-800) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 10, 20, 0.18);
+}
+
+/* Mobile Toggle */
+.mobile-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--ef-radius-md);
+  color: var(--ef-text-secondary);
+  border: 1px solid var(--ef-border);
+  background-color: var(--ef-bg-surface);
+  transition: all var(--ef-transition-fast);
+}
+
+.mobile-toggle:hover {
+  background-color: var(--ef-bg-subtle);
+  color: var(--ef-text-primary);
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  background-color: var(--ef-bg-surface);
+  border-bottom: 1px solid var(--ef-border);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--ef-shadow-lg);
+}
+
+.mobile-menu.open {
+  display: flex;
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.mobile-nav-link {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ef-text-secondary);
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--ef-radius-md);
+  transition: all var(--ef-transition-fast);
+}
+
+.mobile-nav-link:hover {
+  background-color: var(--ef-bg-subtle);
+  color: var(--ef-text-primary);
+}
+
+.mobile-nav-link.active {
+  color: var(--ef-accent-700);
+  background-color: var(--ef-accent-50);
+  font-weight: 700;
+}
+
+.mobile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .desktop-nav,
+  .desktop-actions {
+    display: none;
+  }
+
+  .mobile-toggle {
+    display: flex;
+  }
+}

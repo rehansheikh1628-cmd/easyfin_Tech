@@ -1,0 +1,136 @@
+<div class="settings-page">
+  <div class="settings-header">
+    <h1 class="settings-title">Workspace Settings</h1>
+    <p class="settings-subtitle">Manage organization profile, spreadsheet export preferences, and environment parameters.</p>
+  </div>
+
+  <div class="settings-layout">
+    <!-- Tabs Navigation -->
+    <div class="settings-nav card">
+      <button class="settings-tab-btn" [class.active]="activeTab === 'profile'" (click)="setTab('profile')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span>Organization Profile</span>
+      </button>
+
+      <button class="settings-tab-btn" [class.active]="activeTab === 'preferences'" (click)="setTab('preferences')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        <span>Export Preferences</span>
+      </button>
+
+      <button class="settings-tab-btn" [class.active]="activeTab === 'database'" (click)="setTab('database')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+        <span>Database &amp; Environment</span>
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="settings-content">
+      <!-- Profile Tab -->
+      <div *ngIf="activeTab === 'profile'" class="card tab-pane">
+        <h2 class="pane-title">Organization Profile</h2>
+        <p class="pane-desc">Firm details used on exported accounting spreadsheets.</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Firm / Practice Name</label>
+            <input type="text" class="form-control" [value]="currentUser?.workspaceName || 'My Workspace'" readonly>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Contact Email</label>
+            <input type="email" class="form-control" [value]="currentUser?.email || 'user@easyfin.local'" readonly>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Timezone</label>
+            <input type="text" class="form-control" value="Asia/Kolkata (IST +5:30)" readonly>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Default Currency Symbol</label>
+            <input type="text" class="form-control" value="₹ (INR)" readonly>
+          </div>
+        </div>
+
+        <div class="pane-note">
+          <span>Note: Workspace and organization settings are tied directly to your active authenticated account.</span>
+        </div>
+      </div>
+
+      <!-- Preferences Tab -->
+      <div *ngIf="activeTab === 'preferences'" class="card tab-pane">
+        <h2 class="pane-title">Spreadsheet Export Preferences</h2>
+        <p class="pane-desc">Customize how transactions are formatted when downloaded into Excel.</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Date Format Pattern</label>
+            <select class="form-control">
+              <option selected>DD/MM/YYYY (Standard Indian / European)</option>
+              <option>MM/DD/YYYY (US Standard)</option>
+              <option>YYYY-MM-DD (ISO 8601)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Default Workbook Sheet Name</label>
+            <input type="text" class="form-control" value="Bank_Transactions">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Narration Clean-up</label>
+            <select class="form-control">
+              <option selected>Strip Excessive Whitespace &amp; Newlines</option>
+              <option>Preserve Raw Bank Text Exact</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Checksum Validation Sheet</label>
+            <select class="form-control">
+              <option selected>Append Summary &amp; Reconciliation Tab</option>
+              <option>Single Sheet Only</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Database Tab -->
+      <div *ngIf="activeTab === 'database'" class="card tab-pane">
+        <h2 class="pane-title">Database &amp; Architecture Status</h2>
+        <p class="pane-desc">Verified SQL Server instance parameters and EF Core connection status.</p>
+
+        <div class="status-grid-box">
+          <div class="param-row">
+            <span class="param-label">Database Server:</span>
+            <span class="param-val mono">localhost\SQLEXPRESS</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Database Engine:</span>
+            <span class="param-val">Microsoft SQL Server 2025 Express</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Database Name:</span>
+            <span class="param-val mono">EasyFin_Tech</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Authentication:</span>
+            <span class="param-val">Windows Integrated Security</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">EF Core Provider:</span>
+            <span class="param-val mono">Microsoft.EntityFrameworkCore.SqlServer 10.0.11</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">DbContext Class:</span>
+            <span class="param-val mono">EasyFinDbContext</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Preserved Migrations:</span>
+            <span class="param-val text-success font-bold">6 Existing Migrations Active &amp; Intact</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

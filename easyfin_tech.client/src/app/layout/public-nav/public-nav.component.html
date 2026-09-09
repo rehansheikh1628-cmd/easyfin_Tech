@@ -1,0 +1,69 @@
+<header class="site-header">
+  <div class="container nav-container">
+    <!-- Brand Logo -->
+    <a routerLink="/" class="brand-link" (click)="closeMobileMenu()">
+      <div class="brand-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">EasyFin<span class="brand-accent">Tech</span></span>
+        <span class="brand-tag">Statement Automation</span>
+      </div>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav" aria-label="Main Navigation">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
+      <a routerLink="/how-it-works" routerLinkActive="active" class="nav-link">How It Works</a>
+      <a routerLink="/features" routerLinkActive="active" class="nav-link">Features</a>
+      <a routerLink="/supported-banks" routerLinkActive="active" class="nav-link">Supported Banks</a>
+      <a routerLink="/pricing" routerLinkActive="active" class="nav-link">Pricing</a>
+    </nav>
+
+    <!-- Desktop Action Buttons -->
+    <div class="desktop-actions">
+      <a routerLink="/login" class="btn btn-sm btn-outline">Sign In</a>
+      <a routerLink="/converter" class="btn btn-sm btn-primary">
+        <span>Convert Statement</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="mobile-toggle" (click)="toggleMobileMenu()" [attr.aria-expanded]="mobileMenuOpen" aria-label="Toggle navigation menu">
+      <svg *ngIf="!mobileMenuOpen" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+      <svg *ngIf="mobileMenuOpen" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Drawer Menu -->
+  <div class="mobile-menu" [class.open]="mobileMenuOpen">
+    <div class="mobile-nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()" class="mobile-nav-link">Home</a>
+      <a routerLink="/how-it-works" routerLinkActive="active" (click)="closeMobileMenu()" class="mobile-nav-link">How It Works</a>
+      <a routerLink="/features" routerLinkActive="active" (click)="closeMobileMenu()" class="mobile-nav-link">Features</a>
+      <a routerLink="/supported-banks" routerLinkActive="active" (click)="closeMobileMenu()" class="mobile-nav-link">Supported Banks</a>
+      <a routerLink="/pricing" routerLinkActive="active" (click)="closeMobileMenu()" class="mobile-nav-link">Pricing</a>
+    </div>
+    <div class="mobile-actions">
+      <a routerLink="/login" (click)="closeMobileMenu()" class="btn btn-secondary w-full">Sign In</a>
+      <a routerLink="/converter" (click)="closeMobileMenu()" class="btn btn-primary w-full">Convert Statement</a>
+    </div>
+  </div>
+</header>

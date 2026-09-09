@@ -1,0 +1,131 @@
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.settings-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--ef-primary-950);
+}
+
+.settings-subtitle {
+  font-size: 0.875rem;
+  color: var(--ef-text-muted);
+}
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.settings-nav {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.settings-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--ef-radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ef-text-secondary);
+  transition: all var(--ef-transition-fast);
+  text-align: left;
+  width: 100%;
+}
+
+.settings-tab-btn:hover {
+  background-color: var(--ef-bg-subtle);
+  color: var(--ef-primary-950);
+}
+
+.settings-tab-btn.active {
+  background-color: var(--ef-primary-50);
+  color: var(--ef-primary-700);
+}
+
+.tab-pane {
+  padding: 2.25rem;
+}
+
+.pane-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.pane-desc {
+  font-size: 0.875rem;
+  color: var(--ef-text-muted);
+  margin-bottom: 1.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--ef-border);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.pane-note {
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  color: var(--ef-text-muted);
+  font-style: italic;
+}
+
+.status-grid-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: var(--ef-bg-subtle);
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-md);
+  padding: 1.5rem;
+}
+
+.param-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--ef-border);
+  padding-bottom: 0.75rem;
+}
+
+.param-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.param-label {
+  color: var(--ef-text-muted);
+}
+
+.param-val {
+  font-weight: 600;
+  color: var(--ef-text-primary);
+}
+
+@media (max-width: 900px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

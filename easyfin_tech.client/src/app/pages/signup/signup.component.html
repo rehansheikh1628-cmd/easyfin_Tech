@@ -1,0 +1,54 @@
+<app-public-nav></app-public-nav>
+
+<main class="auth-page">
+  <div class="container-narrow">
+    <div class="auth-card card">
+      <div class="auth-header text-center">
+        <div class="auth-brand-mark">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7.5" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+        </div>
+        <h1 class="auth-title">Create EasyFin Workspace</h1>
+        <p class="auth-subtitle">Phase 1 preview for accounting teams</p>
+      </div>
+
+      <div *ngIf="errorMessage" class="auth-error-alert" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 10px 14px; border-radius: 8px; font-size: 0.875rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <form (ngSubmit)="onSignup()" class="auth-form">
+        <div class="form-group">
+          <label class="form-label" for="signupName">Full Name</label>
+          <input type="text" id="signupName" name="fullName" [(ngModel)]="fullName" class="form-control" placeholder="e.g. Ramesh Sharma" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signupEmail">Work Email</label>
+          <input type="email" id="signupEmail" name="email" [(ngModel)]="email" class="form-control" placeholder="name@firm.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signupOrg">Accounting Practice / Business Name</label>
+          <input type="text" id="signupOrg" name="organization" [(ngModel)]="organization" class="form-control" placeholder="e.g. Sharma &amp; Associates CA">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signupPassword">Create Password</label>
+          <input type="password" id="signupPassword" name="password" [(ngModel)]="password" class="form-control" placeholder="At least 6 characters" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-full" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Create Workspace &rarr;</span>
+          <span *ngIf="isLoading">Creating Workspace...</span>
+        </button>
+      </form>
+
+      <div class="auth-footer text-center">
+        <span>Already have an account? </span>
+        <a routerLink="/login" class="auth-link">Sign In &rarr;</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<app-public-footer></app-public-footer>

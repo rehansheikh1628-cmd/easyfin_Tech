@@ -1,0 +1,1103 @@
+<div class="converter-page">
+  <!-- Stepper Header -->
+  <div class="stepper-card card">
+    <div class="stepper-wrapper">
+      <div class="step-node" [class.active]="currentStep === 1" [class.completed]="currentStep > 1" (click)="setStep(1)">
+        <div class="node-indicator">
+          <span *ngIf="currentStep <= 1">1</span>
+          <svg *ngIf="currentStep > 1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="node-info">
+          <span class="node-step">Step 1</span>
+          <span class="node-title">Upload Statement</span>
+        </div>
+      </div>
+
+      <div class="step-connector" [class.completed]="currentStep > 1"></div>
+
+      <div class="step-node" [class.active]="currentStep === 2" [class.completed]="currentStep > 2" (click)="setStep(2)">
+        <div class="node-indicator">
+          <span *ngIf="currentStep <= 2">2</span>
+          <svg *ngIf="currentStep > 2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="node-info">
+          <span class="node-step">Step 2</span>
+          <span class="node-title">Processing &amp; Detection</span>
+        </div>
+      </div>
+
+      <div class="step-connector" [class.completed]="currentStep > 2"></div>
+
+      <div class="step-node" [class.active]="currentStep === 3" [class.completed]="currentStep > 3" (click)="setStep(3)">
+        <div class="node-indicator">
+          <span *ngIf="currentStep <= 3">3</span>
+          <svg *ngIf="currentStep > 3" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="node-info">
+          <span class="node-step">Step 3</span>
+          <span class="node-title">Review Transactions</span>
+        </div>
+      </div>
+
+      <div class="step-connector" [class.completed]="currentStep > 3"></div>
+
+      <div class="step-node" [class.active]="currentStep === 4" (click)="setStep(4)">
+        <div class="node-indicator">
+          <span>4</span>
+        </div>
+        <div class="node-info">
+          <span class="node-step">Step 4</span>
+          <span class="node-title">Download Excel</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 3 Architecture Banner -->
+  <div class="phase-banner">
+    <div class="phase-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+    </div>
+    <div class="phase-text">
+      <strong>Phase 3 Extraction Active:</strong>
+      Generic Digital PDF Extraction Engine is live. It deterministically analyzes pages, word geometries, top-left normalized coordinates, reading order, line grouping, and candidate table structures, persisting the structural artifact and SQL Server metadata. Phase 4 will introduce bank-specific parsers.
+    </div>
+  </div>
+
+  <!-- STEP 1: UPLOAD -->
+  <div *ngIf="currentStep === 1" class="step-content">
+    <div class="upload-grid">
+      <div class="card upload-main-card">
+        <h2 class="upload-header-title">Upload Bank Statement PDF</h2>
+        <p class="upload-header-desc">Supports single or multi-page bank statements from any recognized institution.</p>
+
+        <!-- Dropzone (IDLE state) -->
+        <div class="dropzone"
+             *ngIf="uploadState === 'IDLE'"
+             [class.dragging]="isDragging"
+             (dragover)="onDragOver($event)"
+             (dragleave)="onDragLeave($event)"
+             (drop)="onFileDropped($event)">
+          <div class="drop-icon">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          </div>
+          <div class="drop-text">
+            <h3>Drag &amp; drop bank statement PDF here</h3>
+            <p>or click to browse files from your computer</p>
+          </div>
+          <label class="btn btn-primary btn-file">
+            <span>Browse Computer</span>
+            <input type="file" accept=".pdf" (change)="onFileSelected($event)" hidden>
+          </label>
+          <div class="drop-subtext">PDF format supported &bull; Maximum 50MB &bull; 100% confidential &bull; Magic Byte Verified</div>
+        </div>
+
+        <!-- File Selected Panel -->
+        <div class="state-card selected-file-panel" *ngIf="uploadState === 'FILE_SELECTED' && selectedFile">
+          <div class="file-icon-box">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+          </div>
+          <div class="selected-file-info">
+            <div class="selected-file-name font-bold">{{ selectedFile.name }}</div>
+            <div class="selected-file-meta">
+              <span class="mono">{{ statementService.formatBytes(selectedFile.size) }}</span>
+              <span class="dot-sep">&bull;</span>
+              <span class="badge badge-accent">PDF Ready for Ingestion</span>
+            </div>
+          </div>
+          <div class="selected-file-actions">
+            <button class="btn btn-secondary" (click)="resetUpload()">Cancel</button>
+            <button class="btn btn-primary" (click)="startUpload()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <span>Upload to Server</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Real Uploading Progress Panel -->
+        <div class="state-card uploading-panel" *ngIf="uploadState === 'UPLOADING'">
+          <div class="uploading-header">
+            <div>
+              <h4 class="uploading-title">Uploading Statement to Ingestion Engine...</h4>
+              <p class="uploading-subtext" *ngIf="selectedFile">
+                {{ selectedFile.name }} &bull; {{ statementService.formatBytes(selectedFile.size) }}
+              </p>
+            </div>
+            <span class="upload-pct mono font-bold">{{ uploadProgress }}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+          </div>
+          <div class="uploading-footer text-muted">
+            Streaming securely to isolated server storage outside webroot &bull; Calculating SHA-256 hash
+          </div>
+        </div>
+
+        <!-- Upload Error Panel -->
+        <div class="state-card upload-error-panel" *ngIf="uploadState === 'ERROR'">
+          <div class="error-icon-box">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <div class="error-content">
+            <h4>Upload Validation Error</h4>
+            <p>{{ uploadError }}</p>
+          </div>
+          <div class="error-actions">
+            <button class="btn btn-primary" (click)="resetUpload()">Try Another File</button>
+          </div>
+        </div>
+
+        <!-- Upload Success Panel -->
+        <div class="state-card upload-success-panel" *ngIf="uploadState === 'UPLOADED' && uploadResult">
+          <div class="success-header">
+            <div class="success-icon-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3 class="success-title">Statement Ingested Successfully</h3>
+              <p class="text-muted text-xs">Stored securely in isolated storage outside web root &bull; FileRecord saved to SQL Server</p>
+            </div>
+          </div>
+
+          <div class="duplicate-notice" *ngIf="uploadResult.isDuplicate">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>Notice: An identical file was previously ingested. Recorded as a separate ingestion instance.</span>
+          </div>
+
+          <div class="ingested-meta-grid">
+            <div class="meta-item">
+              <span class="meta-lbl">Original File</span>
+              <span class="meta-val font-bold">{{ uploadResult.originalFileName }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-lbl">File Size</span>
+              <span class="meta-val mono">{{ uploadResult.fileSizeFormatted }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-lbl">Processing Status</span>
+              <span class="badge badge-accent">ReadyForProcessing</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-lbl">Storage Reference ID</span>
+              <span class="meta-val mono text-xs">{{ uploadResult.fileId }}</span>
+            </div>
+            <div class="meta-item full-width" *ngIf="uploadResult.fileHash">
+              <span class="meta-lbl">SHA-256 Digest</span>
+              <span class="meta-val mono text-xs hash-val">{{ uploadResult.fileHash }}</span>
+            </div>
+          </div>
+
+          <!-- Phase 3 Extraction Action & Diagnostics Banner -->
+          <div class="extraction-card">
+            <div class="extraction-header">
+              <div class="extraction-header-text">
+                <h4 class="extraction-header-title">Generic Digital PDF Extraction</h4>
+                <p class="extraction-header-desc">
+                  Deterministically extracts page geometries, normalized top-left coordinates, visual lines, reading order, and candidate tables.
+                </p>
+              </div>
+              <div class="extraction-status-tag">
+                <span *ngIf="extractionState === 'IDLE'" class="badge badge-secondary">Extraction Ready</span>
+                <span *ngIf="extractionState === 'EXTRACTING'" class="badge badge-accent">Extracting...</span>
+                <span *ngIf="extractionState === 'EXTRACTED'" class="badge badge-success">Structure Extracted</span>
+                <span *ngIf="extractionState === 'NO_TEXT'" class="badge badge-warning">No Digital Text</span>
+                <span *ngIf="extractionState === 'PASSWORD_REQUIRED'" class="badge badge-warning">Password Needed</span>
+                <span *ngIf="extractionState === 'ERROR'" class="badge badge-danger">Extraction Failed</span>
+              </div>
+            </div>
+
+            <!-- In Progress Spinner -->
+            <div *ngIf="extractionState === 'EXTRACTING'" class="extraction-loading-bar">
+              <div class="spinner-small"></div>
+              <span>Analyzing pages, reading order, and candidate table structures with PdfPig...</span>
+            </div>
+
+            <!-- Password Protected Notice -->
+            <div *ngIf="extractionState === 'PASSWORD_REQUIRED'" class="extraction-alert alert-warning">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <div class="alert-content">
+                <strong>Password-Protected Document:</strong>
+                <span> {{ extractionError || 'Enter the PDF password in the Statement Options panel and click Extract PDF Structure.' }}</span>
+              </div>
+            </div>
+
+            <!-- No Digital Text Notice -->
+            <div *ngIf="extractionState === 'NO_TEXT'" class="extraction-alert alert-warning">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <div class="alert-content">
+                <strong>No Digital Text Detected:</strong>
+                <span> This document contains no extractable text (e.g. scanned or rasterized PDF). OCR is required in a future phase. Document structure has been preserved.</span>
+              </div>
+            </div>
+
+            <!-- Extraction Error Notice -->
+            <div *ngIf="extractionState === 'ERROR'" class="extraction-alert alert-danger">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <div class="alert-content">
+                <strong>Extraction Error:</strong>
+                <span> {{ extractionError }}</span>
+              </div>
+            </div>
+
+            <!-- Extraction Trigger & Navigation Buttons -->
+            <div class="extraction-buttons">
+              <button *ngIf="extractionState === 'IDLE' || extractionState === 'PASSWORD_REQUIRED' || extractionState === 'ERROR'"
+                      class="btn btn-primary"
+                      (click)="triggerExtraction()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                <span>Extract PDF Structure</span>
+              </button>
+
+              <button *ngIf="extractionState === 'EXTRACTED' || extractionState === 'NO_TEXT'"
+                      class="btn btn-primary"
+                      (click)="setStep(2)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <span>Inspect Extracted Structure &rarr;</span>
+              </button>
+
+              <button *ngIf="extractionState === 'EXTRACTED'"
+                      class="btn btn-secondary"
+                      (click)="triggerExtraction()">
+                <span>Re-Extract</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="success-actions">
+            <button class="btn btn-secondary" (click)="resetUpload()">Upload Another Statement</button>
+            <a routerLink="/files" class="btn btn-outline">
+              <span>View All Files &rarr;</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Sample Data Quick Test -->
+        <div class="sample-test-bar">
+          <div>
+            <strong>Want to test the review table right away?</strong>
+            <p>Load realistic multi-column bank statement data into the review grid.</p>
+          </div>
+          <button class="btn btn-accent" (click)="loadSampleData()">
+            <span>Load Sample Review Data &rarr;</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Upload Options / Metadata Panel -->
+      <div class="card upload-options-card">
+        <h3 class="options-title">Statement Options</h3>
+
+        <div class="form-group">
+          <label class="form-label">Source Bank Format</label>
+          <select class="form-control" [(ngModel)]="selectedBank">
+            <option value="auto">Auto-Detect Layout (Generic Phase 3)</option>
+            <option value="sbi">State Bank of India (SBI)</option>
+            <option value="boi">Bank of India (BOI)</option>
+            <option value="hdfc">HDFC Bank</option>
+            <option value="icici">ICICI Bank</option>
+            <option value="axis">Axis Bank</option>
+            <option value="kotak">Kotak Mahindra Bank</option>
+            <option value="other">Other / Standard Layout</option>
+          </select>
+          <small class="text-muted">Phase 3 extracts generic structure. Bank parsers are in Phase 4.</small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">PDF Password (if protected)</label>
+          <input type="password" class="form-control" [(ngModel)]="statementPassword" placeholder="Enter statement password">
+          <small class="text-muted">Used in memory only to decrypt protected statements. Never stored or logged.</small>
+        </div>
+
+        <div class="option-alert-box">
+          <div class="alert-title">Phase 3 Specs</div>
+          <div class="spec-row">
+            <span>Engine:</span>
+            <strong>PdfPig 0.1.16</strong>
+          </div>
+          <div class="spec-row">
+            <span>Coordinates:</span>
+            <strong>Top-Left Normalized</strong>
+          </div>
+          <div class="spec-row">
+            <span>Reading Order:</span>
+            <strong>Deterministic Visual</strong>
+          </div>
+          <div class="spec-row">
+            <span>Tables:</span>
+            <strong>Candidate Alignment</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: EXTRACTION INSPECTION (DEVELOPMENT VIEW) -->
+  <div *ngIf="currentStep === 2" class="step-content">
+    <!-- State A: No Extraction Performed Yet -->
+    <div *ngIf="!extractionResult" class="card processing-card text-center">
+      <div class="processing-spinner-wrap">
+        <div class="spinner"></div>
+      </div>
+      <h2>Extraction Pipeline Preview</h2>
+      <p class="processing-desc">
+        No statement has been extracted in this session. Upload a PDF in Step 1 and click <strong>Extract PDF Structure</strong> to inspect its page geometry, reading order, and candidate tables.
+      </p>
+
+      <div class="processing-actions">
+        <button class="btn btn-secondary" (click)="setStep(1)">
+          <span>&larr; Go to Step 1: Upload</span>
+        </button>
+        <button class="btn btn-accent" (click)="loadSampleData()">
+          <span>Load Sample Review Data &rarr;</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- State B: Extraction Inspection View -->
+    <div *ngIf="extractionResult" class="extraction-inspection-container">
+      <!-- Top Overview Card -->
+      <div class="card inspection-overview-card">
+        <div class="inspection-overview-header">
+          <div>
+            <div class="inspection-subtitle-tag">Phase 3 Generic Extraction Inspection</div>
+            <h2 class="inspection-title">{{ extractionResult.originalFileName }}</h2>
+            <div class="inspection-meta-row">
+              <span class="badge" [class.badge-success]="extractionResult.extractionStatus === 'DigitalTextExtracted'" [class.badge-warning]="extractionResult.extractionStatus === 'NoDigitalTextDetected'" [class.badge-danger]="extractionResult.extractionStatus === 'Failed'">
+                {{ extractionResult.extractionStatus }}
+              </span>
+              <span class="meta-dot">&bull;</span>
+              <span class="mono text-xs">Duration: {{ extractionResult.durationMs }}ms</span>
+              <span class="meta-dot">&bull;</span>
+              <span class="text-xs">Method: Deterministic Visual Line Grouping</span>
+              <span class="meta-dot">&bull;</span>
+              <span class="text-xs">Coords: Top-Left (Y = Height - Top)</span>
+            </div>
+          </div>
+          <div class="inspection-header-actions">
+            <button class="btn btn-secondary btn-sm" (click)="setStep(1)">
+              <span>&larr; Back to Upload</span>
+            </button>
+            <button class="btn btn-accent btn-sm" (click)="loadSampleData()">
+              <span>Sample Demo</span>
+            </button>
+            <button class="btn btn-primary btn-sm" [disabled]="parseState === 'PARSING'" (click)="triggerParsing()">
+              <span *ngIf="parseState !== 'PARSING'">⚡ Parse Transactions &amp; Review &rarr;</span>
+              <span *ngIf="parseState === 'PARSING'">Parsing Statement...</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Parse Error Banner -->
+        <div *ngIf="parseError" class="extraction-alert alert-warning mt-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <div class="alert-content">
+            <strong>Parsing Notice:</strong> {{ parseError }}
+          </div>
+        </div>
+
+        <!-- Strict Boundary Notice -->
+        <div class="inspection-boundary-notice">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <div>
+            <strong>Phase 3 Diagnostic Structure Only:</strong>
+            Raw text and coordinates are the source of truth. Candidate tables and rows are diagnostic heuristics. No bank-specific parsing, debit/credit classification, balance reconciliation, or Excel generation are performed in Phase 3.
+          </div>
+        </div>
+
+        <!-- Warnings Banner if present -->
+        <div *ngIf="extractionResult.warnings && extractionResult.warnings.length > 0" class="extraction-alert alert-warning mt-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <div class="alert-content">
+            <strong>Extraction Warnings:</strong>
+            <ul class="warning-list">
+              <li *ngFor="let warning of extractionResult.warnings">{{ warning }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="inspection-metrics-grid">
+          <div class="metric-box">
+            <span class="metric-label">Pages</span>
+            <span class="metric-val mono">{{ extractionResult.pageCount }}</span>
+            <span class="metric-sub">Document Pages</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Words</span>
+            <span class="metric-val mono">{{ extractionResult.wordCount | number }}</span>
+            <span class="metric-sub">Extracted Words</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Characters</span>
+            <span class="metric-val mono">{{ extractionResult.characterCount | number }}</span>
+            <span class="metric-sub">Raw Characters</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Text Blocks</span>
+            <span class="metric-val mono">{{ extractionResult.textBlockCount | number }}</span>
+            <span class="metric-sub">Bounded Blocks</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Candidate Rows</span>
+            <span class="metric-val mono text-accent">{{ extractionResult.candidateRowCount }}</span>
+            <span class="metric-sub">Heuristic Lines</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Candidate Tables</span>
+            <span class="metric-val mono text-accent">{{ extractionResult.candidateTableCount }}</span>
+            <span class="metric-sub">Detected Grids</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Card with Page Selector & Tabs -->
+      <div class="card inspection-detail-card">
+        <!-- Page Navigation Bar -->
+        <div class="page-nav-bar">
+          <div class="page-nav-left">
+            <span class="nav-label">Select Page:</span>
+            <div class="page-pills">
+              <button *ngFor="let page of extractionResult.pages"
+                      class="page-pill-btn"
+                      [class.active]="selectedPageNumber === page.pageNumber"
+                      (click)="selectInspectionPage(page.pageNumber)">
+                Page {{ page.pageNumber }}
+              </button>
+            </div>
+          </div>
+          <div class="page-nav-right" *ngIf="selectedPageResult">
+            <span class="page-dim-badge mono">
+              {{ selectedPageResult.width | number:'1.0-1' }} &times; {{ selectedPageResult.height | number:'1.0-1' }} pt
+            </span>
+            <span class="page-dim-badge">
+              {{ selectedPageResult.wordCount }} words &bull; {{ selectedPageResult.characterCount }} chars
+            </span>
+          </div>
+        </div>
+
+        <!-- Inspection Tabs -->
+        <div class="inspection-tab-bar">
+          <button class="inspect-tab-btn" 
+                  [class.active]="selectedInspectionTab === 'summary'" 
+                  (click)="setInspectionTab('summary')">
+            Page Overview
+          </button>
+          <button class="inspect-tab-btn" 
+                  [class.active]="selectedInspectionTab === 'rawText'" 
+                  (click)="setInspectionTab('rawText')">
+            Raw Page Text
+          </button>
+          <button class="inspect-tab-btn" 
+                  [class.active]="selectedInspectionTab === 'textBlocks'" 
+                  (click)="setInspectionTab('textBlocks')">
+            Text Blocks &amp; Coordinates ({{ selectedPageResult?.textBlocks?.length || 0 }})
+          </button>
+          <button class="inspect-tab-btn" 
+                  [class.active]="selectedInspectionTab === 'candidateRows'" 
+                  (click)="setInspectionTab('candidateRows')">
+            Candidate Rows ({{ selectedPageResult?.candidateRows?.length || 0 }})
+          </button>
+          <button class="inspect-tab-btn" 
+                  [class.active]="selectedInspectionTab === 'candidateTables'" 
+                  (click)="setInspectionTab('candidateTables')">
+            Candidate Tables ({{ selectedPageResult?.candidateTables?.length || 0 }})
+          </button>
+        </div>
+
+        <!-- TAB CONTENT: Page Overview / Summary -->
+        <div *ngIf="selectedInspectionTab === 'summary'" class="tab-pane">
+          <div class="summary-details-grid" *ngIf="selectedPageResult">
+            <div class="detail-group">
+              <h4>Page Header Diagnostics</h4>
+              <div *ngIf="selectedPageResult.repeatedHeaders && selectedPageResult.repeatedHeaders.length > 0">
+                <div class="diag-item" *ngFor="let h of selectedPageResult.repeatedHeaders">
+                  <code>{{ h }}</code>
+                </div>
+              </div>
+              <div *ngIf="!selectedPageResult.repeatedHeaders || selectedPageResult.repeatedHeaders.length === 0" class="text-muted text-xs">
+                No repeated headers identified on this page.
+              </div>
+            </div>
+
+            <div class="detail-group">
+              <h4>Page Footer Diagnostics</h4>
+              <div *ngIf="selectedPageResult.repeatedFooters && selectedPageResult.repeatedFooters.length > 0">
+                <div class="diag-item" *ngFor="let f of selectedPageResult.repeatedFooters">
+                  <code>{{ f }}</code>
+                </div>
+              </div>
+              <div *ngIf="!selectedPageResult.repeatedFooters || selectedPageResult.repeatedFooters.length === 0" class="text-muted text-xs">
+                No repeated footers identified on this page.
+              </div>
+            </div>
+
+            <div class="detail-group full-width">
+              <h4>Page Text Preview</h4>
+              <p class="preview-excerpt">
+                {{ selectedPageResult.rawText ? (selectedPageResult.rawText.substring(0, 300) + '...') : 'No text content on this page.' }}
+              </p>
+              <button class="btn btn-outline btn-sm mt-2" (click)="setInspectionTab('rawText')">
+                View Full Raw Text &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB CONTENT: Raw Text -->
+        <div *ngIf="selectedInspectionTab === 'rawText'" class="tab-pane">
+          <div class="raw-text-toolbar">
+            <span class="text-xs text-muted">Preserved visual lines and horizontal column spacing reconstructed from digital PDF.</span>
+            <label class="wrap-toggle-label text-xs">
+              <input type="checkbox" [(ngModel)]="wrapRawText">
+              <span>Wrap long lines</span>
+            </label>
+          </div>
+          <pre class="raw-text-box mono" [class.wrap-lines]="wrapRawText">{{ selectedPageResult?.rawText || 'No text extracted on this page.' }}</pre>
+        </div>
+
+        <!-- TAB CONTENT: Text Blocks & Coordinates -->
+        <div *ngIf="selectedInspectionTab === 'textBlocks'" class="tab-pane">
+          <div class="table-info-bar">
+            <span class="text-xs text-muted">
+              Words sorted by deterministic reading order. Coordinates are top-left normalized in points (pt).
+            </span>
+          </div>
+          <div class="table-scroll-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;"># Order</th>
+                  <th>Extracted Text</th>
+                  <th style="width: 100px;">X (Left)</th>
+                  <th style="width: 100px;">Y (Top)</th>
+                  <th style="width: 90px;">Width</th>
+                  <th style="width: 90px;">Height</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let block of selectedPageResult?.textBlocks">
+                  <td class="mono font-bold text-accent">{{ block.readingOrderIndex }}</td>
+                  <td class="font-medium word-cell">{{ block.text }}</td>
+                  <td class="mono text-xs">{{ block.x | number:'1.1-1' }}</td>
+                  <td class="mono text-xs">{{ block.y | number:'1.1-1' }}</td>
+                  <td class="mono text-xs">{{ block.width | number:'1.1-1' }}</td>
+                  <td class="mono text-xs">{{ block.height | number:'1.1-1' }}</td>
+                </tr>
+                <tr *ngIf="!selectedPageResult?.textBlocks || selectedPageResult.textBlocks.length === 0">
+                  <td colspan="6" class="text-center text-muted py-4">No text blocks found on this page.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB CONTENT: Candidate Rows -->
+        <div *ngIf="selectedInspectionTab === 'candidateRows'" class="tab-pane">
+          <div class="table-info-bar">
+            <span class="text-xs text-muted">
+              Heuristic visual line groups. Wrapped lines and individual fragments are strictly preserved.
+            </span>
+          </div>
+          <div class="candidate-rows-list" *ngIf="selectedPageResult?.candidateRows && selectedPageResult.candidateRows.length > 0">
+            <div class="candidate-row-card" *ngFor="let row of selectedPageResult.candidateRows">
+              <div class="cand-row-meta">
+                <span class="cand-row-idx font-bold">Row #{{ row.rowIndex }}</span>
+                <span class="badge badge-secondary mono text-xs">Y: {{ row.y | number:'1.1-1' }} pt</span>
+                <span class="badge badge-secondary mono text-xs">H: {{ row.height | number:'1.1-1' }} pt</span>
+                <span *ngIf="row.isHeader" class="badge badge-accent">Candidate Header</span>
+                <span *ngIf="row.isFooter" class="badge badge-warning">Candidate Footer</span>
+              </div>
+              <div class="cand-row-text mono">{{ row.rawLineText }}</div>
+              <div class="cand-cells-bar" *ngIf="row.cells && row.cells.length > 0">
+                <span class="cand-cell-chip" *ngFor="let cell of row.cells">
+                  <span class="cell-col">Col {{ cell.columnIndex }}:</span>
+                  <span class="cell-text">"{{ cell.text }}"</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!selectedPageResult?.candidateRows || selectedPageResult.candidateRows.length === 0" class="empty-state-box">
+            No candidate rows detected on this page.
+          </div>
+        </div>
+
+        <!-- TAB CONTENT: Candidate Tables -->
+        <div *ngIf="selectedInspectionTab === 'candidateTables'" class="tab-pane">
+          <div class="table-info-bar">
+            <span class="text-xs text-muted">
+              Best-effort candidate tables detected by recurring column alignments. Failure to detect a table does NOT invalidate extraction.
+            </span>
+          </div>
+          <div *ngIf="selectedPageResult?.candidateTables && selectedPageResult.candidateTables.length > 0">
+            <div class="candidate-table-card" *ngFor="let table of selectedPageResult.candidateTables">
+              <div class="cand-table-header">
+                <h4 class="font-bold">Candidate Table #{{ table.tableIndex }}</h4>
+                <div class="cand-table-tags">
+                  <span class="badge badge-accent">{{ table.columnCount }} Columns</span>
+                  <span class="badge badge-secondary">{{ table.rowCount }} Rows</span>
+                  <span class="badge badge-secondary mono text-xs">
+                    Bounding Box: ({{ table.boundingBox.x | number:'1.0-1' }}, {{ table.boundingBox.y | number:'1.0-1' }}) {{ table.boundingBox.width | number:'1.0-1' }} &times; {{ table.boundingBox.height | number:'1.0-1' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Columns -->
+              <div class="cand-cols-grid" *ngIf="table.columns && table.columns.length > 0">
+                <div class="cand-col-item" *ngFor="let col of table.columns">
+                  <div class="cand-col-idx">Column {{ col.columnIndex }}</div>
+                  <div class="cand-col-bounds mono text-xs">X: {{ col.leftX | number:'1.0-1' }} &ndash; {{ col.rightX | number:'1.0-1' }}</div>
+                  <div class="cand-col-hdr" *ngIf="col.headerText">Header: "{{ col.headerText }}"</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!selectedPageResult?.candidateTables || selectedPageResult.candidateTables.length === 0" class="empty-state-box">
+            <div class="empty-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            </div>
+            <h4>No Candidate Table Detected</h4>
+            <p>
+              No recurring column gutter pattern met the alignment threshold on this page. Extraction succeeded and preserved all {{ selectedPageResult?.wordCount || 0 }} raw words and coordinates.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: TRANSACTION REVIEW & VALIDATION -->
+  <div *ngIf="currentStep === 3" class="step-content">
+    <!-- Success Banner -->
+    <div *ngIf="successNotice" class="extraction-alert alert-success mb-3">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <div>{{ successNotice }}</div>
+    </div>
+
+    <!-- Error Banner -->
+    <div *ngIf="reviewError" class="extraction-alert alert-danger mb-3">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <div>{{ reviewError }}</div>
+    </div>
+
+    <!-- Export Error Banner -->
+    <div *ngIf="exportError" class="extraction-alert alert-danger mb-3">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <div>{{ exportError }}</div>
+    </div>
+
+    <!-- Real Validation Summary Dashboard (When Real Transactions Exist) -->
+    <div *ngIf="uploadResult?.fileId && reviewTransactions.length > 0" class="checksum-grid mb-3">
+      <div class="check-card card">
+        <span class="check-label">Total Transactions</span>
+        <span class="check-val mono">{{ validationSummary?.totalTransactions || reviewTotalCount }}</span>
+        <span class="check-status text-muted">
+          {{ validationSummary?.bankName || 'Detected Bank' }} &bull; {{ validationSummary?.parserVersion || 'v1' }}
+        </span>
+      </div>
+
+      <div class="check-card card">
+        <span class="check-label">Validation Health</span>
+        <div class="status-counts-row">
+          <span class="badge badge-success" title="Valid records ready for export">{{ validationSummary?.validCount || 0 }} Valid</span>
+          <span class="badge badge-warning" title="Records requiring attention">{{ validationSummary?.reviewCount || 0 }} Review</span>
+          <span class="badge badge-danger" title="Invalid records">{{ validationSummary?.invalidCount || 0 }} Invalid</span>
+          <span class="badge badge-accent" title="Corrected records">{{ validationSummary?.correctedCount || 0 }} Corrected</span>
+        </div>
+        <span class="check-status" [class.text-success]="validationSummary?.isReadyForExport" [class.text-danger]="!validationSummary?.isReadyForExport">
+          {{ validationSummary?.isReadyForExport ? '✓ Ready for Export' : '⚠ Action Required' }}
+        </span>
+      </div>
+
+      <div class="check-card card">
+        <span class="check-label">Total Debits (-)</span>
+        <span class="check-val mono text-danger">₹ {{ (validationSummary?.totalDebits || 0) | number:'1.2-2' }}</span>
+        <span class="check-status text-muted">{{ validationSummary?.debitCount || 0 }} Outflows</span>
+      </div>
+
+      <div class="check-card card">
+        <span class="check-label">Total Credits (+)</span>
+        <span class="check-val mono text-success">₹ {{ (validationSummary?.totalCredits || 0) | number:'1.2-2' }}</span>
+        <span class="check-status text-muted">{{ validationSummary?.creditCount || 0 }} Inflows</span>
+      </div>
+
+      <div class="check-card card">
+        <span class="check-label">Net Movement</span>
+        <span class="check-val mono font-bold" [class.text-success]="(validationSummary?.netMovement || 0) >= 0" [class.text-danger]="(validationSummary?.netMovement || 0) < 0">
+          {{ (validationSummary?.netMovement || 0) >= 0 ? '+' : '' }}₹ {{ (validationSummary?.netMovement || 0) | number:'1.2-2' }}
+        </span>
+        <span class="check-status" [class.text-success]="(validationSummary?.balanceMismatchedCount || 0) === 0" [class.text-warning]="(validationSummary?.balanceMismatchedCount || 0) > 0">
+          {{ (validationSummary?.balanceMismatchedCount || 0) === 0 ? '✓ Running Balance Matched' : '⚠ Balance Discrepancy Found' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Fallback Checksum Banner (For Demo Sample Data) -->
+    <div *ngIf="!uploadResult?.fileId || reviewTransactions.length === 0" class="checksum-grid">
+      <div class="check-card card">
+        <span class="check-label">Total Transactions</span>
+        <span class="check-val mono">{{ transactions.length }}</span>
+        <span class="check-status text-muted">Demo Sample Records</span>
+      </div>
+
+      <div class="check-card card">
+        <span class="check-label">Total Debits (-)</span>
+        <span class="check-val mono text-danger">₹ {{ totalDebits | number:'1.2-2' }}</span>
+        <span class="check-status text-muted">Outflow Total</span>
+      </div>
+
+      <div class="check-card card">
+        <span class="check-label">Total Credits (+)</span>
+        <span class="check-val mono text-success">₹ {{ totalCredits | number:'1.2-2' }}</span>
+        <span class="check-status text-muted">Inflow Total</span>
+      </div>
+
+      <div class="check-card card">
+        <span class="check-label">Net Movement</span>
+        <span class="check-val mono font-bold" [class.text-success]="netChange >= 0" [class.text-danger]="netChange < 0">
+          {{ netChange >= 0 ? '+' : '' }}₹ {{ netChange | number:'1.2-2' }}
+        </span>
+        <span class="check-status text-success">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Balance Verified
+        </span>
+      </div>
+    </div>
+
+    <!-- REAL REVIEW TABLE (When real transactions exist) -->
+    <div *ngIf="uploadResult?.fileId && reviewTransactions.length > 0" class="card review-card">
+      <div class="review-toolbar">
+        <div class="toolbar-left">
+          <div class="search-input-wrap">
+            <input type="text" [(ngModel)]="reviewSearch" (keyup.enter)="onReviewSearchChange()" placeholder="Search description, reference, UTR, date..." class="form-control table-search">
+            <button class="btn btn-outline btn-sm" (click)="onReviewSearchChange()">Search</button>
+          </div>
+          <div class="filter-pills">
+            <button class="pill-btn" [class.active]="reviewStatusFilter === 'all'" (click)="setReviewStatusFilter('all')">All ({{ validationSummary?.totalTransactions || reviewTotalCount }})</button>
+            <button class="pill-btn text-success font-bold" [class.active]="reviewStatusFilter === 'valid'" (click)="setReviewStatusFilter('valid')">Valid ({{ validationSummary?.validCount || 0 }})</button>
+            <button class="pill-btn text-warning font-bold" [class.active]="reviewStatusFilter === 'review'" (click)="setReviewStatusFilter('review')">Review ({{ validationSummary?.reviewCount || 0 }})</button>
+            <button class="pill-btn text-danger font-bold" [class.active]="reviewStatusFilter === 'invalid'" (click)="setReviewStatusFilter('invalid')">Invalid ({{ validationSummary?.invalidCount || 0 }})</button>
+            <button class="pill-btn text-accent font-bold" [class.active]="reviewStatusFilter === 'corrected'" (click)="setReviewStatusFilter('corrected')">Corrected ({{ validationSummary?.correctedCount || 0 }})</button>
+          </div>
+          <div class="filter-pills ml-2">
+            <button class="pill-btn" [class.active]="reviewTypeFilter === 'all'" (click)="setReviewTypeFilter('all')">All Types</button>
+            <button class="pill-btn" [class.active]="reviewTypeFilter === 'debit'" (click)="setReviewTypeFilter('debit')">Debits</button>
+            <button class="pill-btn" [class.active]="reviewTypeFilter === 'credit'" (click)="setReviewTypeFilter('credit')">Credits</button>
+          </div>
+        </div>
+
+        <div class="toolbar-right">
+          <button class="btn btn-secondary" (click)="setStep(2)">Extraction View</button>
+          <button class="btn btn-excel" (click)="downloadExcel()" [disabled]="isExportingExcel || (validationSummary && validationSummary.invalidCount > 0)" [title]="validationSummary && validationSummary.invalidCount > 0 ? 'Cannot export: statement contains invalid transactions' : 'Export verified transactions to Excel (.xlsx)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span *ngIf="!isExportingExcel">Export to Excel</span>
+            <span *ngIf="isExportingExcel">Exporting...</span>
+          </button>
+          <button class="btn btn-primary" (click)="setStep(4)">Next: Export Options &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Real Financial Table -->
+      <div class="table-responsive">
+        <table class="financial-table">
+          <thead>
+            <tr>
+              <th style="width: 105px;">Date</th>
+              <th style="width: 100px;">Value Date</th>
+              <th>Particulars / Narration</th>
+              <th style="width: 130px;">Ref / Cheque</th>
+              <th class="text-right" style="width: 130px;">Debit (-)</th>
+              <th class="text-right" style="width: 130px;">Credit (+)</th>
+              <th class="text-right" style="width: 130px;">Balance</th>
+              <th class="text-center" style="width: 110px;">Status</th>
+              <th class="text-center" style="width: 80px;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of reviewTransactions" [class.row-corrected]="t.isCorrected" [class.row-invalid]="t.validationStatus === 'INVALID'" [class.row-review]="t.validationStatus === 'REVIEW'">
+              <td class="mono font-bold">{{ t.transactionDate ? (t.transactionDate | date:'dd/MM/yyyy') : '-' }}</td>
+              <td class="mono text-muted text-xs">{{ t.valueDate ? (t.valueDate | date:'dd/MM/yyyy') : '-' }}</td>
+              <td class="narration-cell">
+                <div class="narration-main">{{ t.description }}</div>
+                <div *ngIf="t.isCorrected" class="text-xs text-accent mt-1">
+                  ✎ Corrected ({{ t.correctionCount }} edit{{ t.correctionCount > 1 ? 's' : '' }})
+                </div>
+                <div *ngIf="t.validationWarnings && t.validationWarnings.length > 0" class="text-xs text-warning mt-1">
+                  ⚠ {{ t.validationWarnings.join('; ') }}
+                </div>
+                <div *ngIf="t.validationErrors && t.validationErrors.length > 0" class="text-xs text-danger mt-1">
+                  ✖ {{ t.validationErrors.join('; ') }}
+                </div>
+              </td>
+              <td class="mono text-muted text-xs">{{ t.reference || t.utr || '-' }}</td>
+              <td class="text-right mono text-danger">
+                {{ t.debit ? ('₹ ' + (t.debit | number:'1.2-2')) : '-' }}
+              </td>
+              <td class="text-right mono text-success">
+                {{ t.credit ? ('₹ ' + (t.credit | number:'1.2-2')) : '-' }}
+              </td>
+              <td class="text-right mono font-bold">
+                {{ t.balance !== null && t.balance !== undefined ? ('₹ ' + (t.balance | number:'1.2-2')) : '-' }}
+              </td>
+              <td class="text-center">
+                <span *ngIf="t.validationStatus === 'VALID'" class="badge badge-success">VALID</span>
+                <span *ngIf="t.validationStatus === 'REVIEW'" class="badge badge-warning" [title]="t.validationWarnings.join('; ')">REVIEW</span>
+                <span *ngIf="t.validationStatus === 'INVALID'" class="badge badge-danger" [title]="t.validationErrors.join('; ')">INVALID</span>
+                <span *ngIf="t.validationStatus === 'CORRECTED'" class="badge badge-accent">CORRECTED</span>
+              </td>
+              <td class="text-center">
+                <button class="btn btn-outline btn-xs" (click)="openEditTransaction(t)">Edit</button>
+              </td>
+            </tr>
+            <tr *ngIf="reviewTransactions.length === 0 && !isLoadingReview">
+              <td colspan="9" class="text-center py-4 text-muted">
+                No statement transactions match your search filter.
+              </td>
+            </tr>
+            <tr *ngIf="isLoadingReview">
+              <td colspan="9" class="text-center py-4 text-muted">
+                Loading validated statement transactions...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="review-pagination-bar" *ngIf="reviewTotalCount > 0">
+        <div class="pagination-info text-xs text-muted">
+          Showing page {{ reviewCurrentPage }} of {{ reviewTotalPages }} ({{ reviewTotalCount }} total transactions)
+        </div>
+        <div class="pagination-buttons">
+          <button class="btn btn-secondary btn-sm" [disabled]="reviewCurrentPage <= 1" (click)="goToReviewPage(reviewCurrentPage - 1)">&larr; Previous</button>
+          <span class="page-current-pill mono">{{ reviewCurrentPage }}</span>
+          <button class="btn btn-secondary btn-sm" [disabled]="reviewCurrentPage >= reviewTotalPages" (click)="goToReviewPage(reviewCurrentPage + 1)">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEMO SAMPLE REVIEW TABLE (When no real file loaded) -->
+    <div *ngIf="!uploadResult?.fileId || reviewTransactions.length === 0" class="card review-card">
+      <div class="review-toolbar">
+        <div class="toolbar-left">
+          <input type="text" [(ngModel)]="searchQuery" placeholder="Search narration or UTR/Ref..." class="form-control table-search">
+          <div class="filter-pills">
+            <button class="pill-btn" [class.active]="typeFilter === 'all'" (click)="typeFilter = 'all'">All ({{ transactions.length }})</button>
+            <button class="pill-btn" [class.active]="typeFilter === 'debit'" (click)="typeFilter = 'debit'">Debits Only</button>
+            <button class="pill-btn" [class.active]="typeFilter === 'credit'" (click)="typeFilter = 'credit'">Credits Only</button>
+          </div>
+        </div>
+
+        <div class="toolbar-right">
+          <button class="btn btn-secondary" (click)="setStep(1)">Upload Another</button>
+          <button class="btn btn-excel" (click)="exportDemoExcel()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Download Excel (.csv/.xlsx)</span>
+          </button>
+          <button class="btn btn-primary" (click)="setStep(4)">Next: Export Options &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Financial Table -->
+      <div class="table-responsive">
+        <table class="financial-table">
+          <thead>
+            <tr>
+              <th style="width: 105px;">Date</th>
+              <th style="width: 105px;">Value Date</th>
+              <th>Particulars / Narration</th>
+              <th style="width: 130px;">Ref / UTR</th>
+              <th class="text-right" style="width: 140px;">Debit (-)</th>
+              <th class="text-right" style="width: 140px;">Credit (+)</th>
+              <th class="text-right" style="width: 140px;">Balance</th>
+              <th class="text-center" style="width: 90px;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of filteredTransactions">
+              <td class="mono font-bold">{{ t.date }}</td>
+              <td class="mono text-muted">{{ t.valueDate }}</td>
+              <td class="narration-cell">{{ t.narration }}</td>
+              <td class="mono text-muted text-xs">{{ t.reference }}</td>
+              <td class="text-right mono text-danger">
+                {{ t.debit ? ('₹ ' + (t.debit | number:'1.2-2')) : '-' }}
+              </td>
+              <td class="text-right mono text-success">
+                {{ t.credit ? ('₹ ' + (t.credit | number:'1.2-2')) : '-' }}
+              </td>
+              <td class="text-right mono font-bold">₹ {{ t.balance | number:'1.2-2' }}</td>
+              <td class="text-center">
+                <span class="badge badge-accent">Verified</span>
+              </td>
+            </tr>
+            <tr *ngIf="filteredTransactions.length === 0">
+              <td colspan="8" class="text-center py-4 text-muted">
+                No transactions match your search filter.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TRANSACTION CORRECTION MODAL -->
+    <div *ngIf="isEditingTransaction && editingTransaction" class="modal-backdrop">
+      <div class="modal-dialog card">
+        <div class="modal-header">
+          <div>
+            <h3 class="font-bold">Correct Transaction</h3>
+            <p class="text-xs text-muted mono">ID: {{ editingTransaction.id }} &bull; Source Page {{ editingTransaction.sourcePageNumber }}</p>
+          </div>
+          <button class="btn btn-outline btn-xs" (click)="closeEditModal()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Pristine Original Baseline Preview -->
+          <div class="original-baseline-panel mb-3" *ngIf="editingTransaction.originalValues">
+            <h4 class="text-xs font-bold text-muted uppercase">Pristine Original Parsed Baseline (Immutable)</h4>
+            <div class="baseline-grid text-xs mono">
+              <div><span>Date:</span> {{ editingTransaction.originalValues.transactionDate | date:'dd/MM/yyyy' }}</div>
+              <div><span>Amount:</span> ₹ {{ editingTransaction.originalValues.amount | number:'1.2-2' }}</div>
+              <div><span>Type:</span> {{ editingTransaction.originalValues.transactionType }}</div>
+              <div><span>Balance:</span> ₹ {{ editingTransaction.originalValues.balance | number:'1.2-2' }}</div>
+              <div class="full-width"><span>Narration:</span> {{ editingTransaction.originalValues.description }}</div>
+            </div>
+          </div>
+
+          <!-- Edit Error Banner -->
+          <div *ngIf="editError" class="alert alert-danger mb-3 text-xs">
+            ✖ {{ editError }}
+          </div>
+
+          <!-- Edit Form -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Transaction Date *</label>
+              <input type="date" class="form-control mono" [(ngModel)]="editForm.transactionDate">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Value Date</label>
+              <input type="date" class="form-control mono" [(ngModel)]="editForm.valueDate">
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">Description / Particulars *</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.description" placeholder="Clean narration or business description">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Cheque / Reference / UTR</label>
+              <input type="text" class="form-control mono" [(ngModel)]="editForm.reference" placeholder="Reference or cheque number">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Balance (INR)</label>
+              <input type="number" step="0.01" class="form-control mono" [(ngModel)]="editForm.balance" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Debit Amount (Outflow)</label>
+              <input type="number" step="0.01" class="form-control mono" [(ngModel)]="editForm.debit" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Credit Amount (Inflow)</label>
+              <input type="number" step="0.01" class="form-control mono" [(ngModel)]="editForm.credit" placeholder="0.00">
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">Audit Reason for Correction *</label>
+              <textarea class="form-control" rows="2" [(ngModel)]="editForm.reason" placeholder="State why this transaction is being corrected (audit required)..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeEditModal()" [disabled]="isSavingCorrection">Cancel</button>
+          <button class="btn btn-primary" (click)="submitCorrection()" [disabled]="isSavingCorrection">
+            <span *ngIf="!isSavingCorrection">Save Correction &amp; Revalidate</span>
+            <span *ngIf="isSavingCorrection">Saving...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: DOWNLOAD EXCEL -->
+  <div *ngIf="currentStep === 4" class="step-content">
+    <div class="card export-card">
+      <div class="export-header text-center">
+        <div class="excel-icon-circle">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg>
+        </div>
+        <h2>Ready to Export Structured Excel</h2>
+        <p>Choose your preferred spreadsheet format for accounting software compatibility.</p>
+      </div>
+
+      <div class="export-options-grid">
+        <div class="export-option-card card selected" (click)="downloadExcel()">
+          <div class="option-radio checked"></div>
+          <div class="option-details">
+            <h3>Standard Excel Workbook (.xlsx)</h3>
+            <p>Production formatted with native numeric currency, real date values, bold header styling, and auto-fitted widths.</p>
+            <div class="format-badge">Recommended &bull; Multi-Sheet (.xlsx)</div>
+          </div>
+        </div>
+
+        <div class="export-option-card card" (click)="exportDemoExcel()">
+          <div class="option-radio"></div>
+          <div class="option-details">
+            <h3>Tally-Ready XML Format (Demo)</h3>
+            <p>Bank ledger structure formatted for standard Tally Prime bank statement import.</p>
+            <div class="format-badge">Accounting ERP Format</div>
+          </div>
+        </div>
+
+        <div class="export-option-card card" (click)="exportDemoExcel()">
+          <div class="option-radio"></div>
+          <div class="option-details">
+            <h3>QuickBooks / Zoho Books CSV (Demo)</h3>
+            <p>Mapped specifically to the Date, Description, Amount 3-column or 4-column bank upload schema.</p>
+            <div class="format-badge">Cloud Accounting Format</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Error Notice In Step 4 -->
+      <div *ngIf="exportError" class="extraction-alert alert-danger my-3">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <div>{{ exportError }}</div>
+      </div>
+
+      <div class="export-action-footer text-center">
+        <button class="btn btn-excel btn-lg" (click)="downloadExcel()" [disabled]="isExportingExcel || (validationSummary && validationSummary.invalidCount > 0)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <span *ngIf="!isExportingExcel">Download Excel Workbook Now</span>
+          <span *ngIf="isExportingExcel">Generating Excel (.xlsx)...</span>
+        </button>
+        <button class="btn btn-outline btn-lg" (click)="setStep(3)">
+          &larr; Back to Review Table
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

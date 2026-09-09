@@ -1,0 +1,81 @@
+<app-public-nav></app-public-nav>
+
+<main class="page-body">
+  <div class="page-header">
+    <div class="container text-center">
+      <span class="badge badge-accent">Bank Coverage Roadmap</span>
+      <h1 class="page-title">Supported Bank Statement Layouts</h1>
+      <p class="page-subtitle">
+        We are actively engineering rule-based and template-adaptive layout parsers for Indian and international bank statements.
+      </p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <!-- Honest Progress Callout -->
+      <div class="honest-banner card">
+        <div class="banner-header">
+          <div class="banner-badge">Phase 1 Development Note</div>
+          <h2>Bank Parsers Under Active Calibration</h2>
+        </div>
+        <p>
+          Unlike tools that make exaggerated claims, we are upfront: bank parsers are actively undergoing accuracy calibration. In Phase 1, the layout structure and review table are ready. In Phase 2, automated bank detection will activate across these financial institutions.
+        </p>
+      </div>
+
+      <!-- Categories -->
+      <div *ngFor="let cat of bankCategories" class="category-section">
+        <div class="cat-header">
+          <h2>{{ cat.categoryName }}</h2>
+          <p>{{ cat.description }}</p>
+        </div>
+
+        <div class="bank-cards-grid">
+          <div *ngFor="let bank of cat.banks" class="bank-card card">
+            <div class="bank-card-top">
+              <div class="bank-avatar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"></path></svg>
+              </div>
+              <div class="bank-title-area">
+                <h3>{{ bank.name }}</h3>
+                <span class="bank-note">{{ bank.formatNote }}</span>
+              </div>
+            </div>
+            <div class="bank-status-pill">
+              <span class="status-pip"></span>
+              <span>{{ bank.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Request Form Card -->
+      <div class="request-bank-box card">
+        <div class="request-content">
+          <span class="badge badge-primary">Format Priority Queue</span>
+          <h2>Don't See Your Bank Format?</h2>
+          <p>
+            Tell us which bank statements you process most frequently. Our engineering team prioritizes format mapping based on accounting practice demand.
+          </p>
+
+          <div *ngIf="!requestSubmitted" class="request-form">
+            <div class="form-row">
+              <input type="text" [(ngModel)]="requestedBank" class="form-control" placeholder="Bank Name (e.g., Saraswat Bank, HSBC Current Account)">
+              <input type="email" [(ngModel)]="requestedEmail" class="form-control" placeholder="Your Email Address">
+              <button class="btn btn-primary" (click)="submitBankRequest()">Submit Request</button>
+            </div>
+            <small class="form-hint">Zero spam. We will notify you when this bank's parser enters testing.</small>
+          </div>
+
+          <div *ngIf="requestSubmitted" class="request-success-alert">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ef-success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Thank you! We have added <strong>{{ requestedBank }}</strong> to our parser priority roadmap.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-public-footer></app-public-footer>
