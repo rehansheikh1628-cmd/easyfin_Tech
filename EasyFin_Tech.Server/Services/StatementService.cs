@@ -109,7 +109,7 @@ public class StatementService : IStatementService
         var fileId = Guid.NewGuid();
         var safeFileName = $"{fileId}.pdf";
         var yearFolder = targetYear.StartDate.Year.ToString();
-        var subDirectory = Path.Combine(targetClient.Id.ToString("N"), yearFolder);
+        var subDirectory = Path.Combine("tenants", targetClient.UserId.ToString("N"), "clients", targetClient.Id.ToString("N"), "statements", yearFolder);
 
         // 9. Store File Safely Outside Public Web Root
         string savedPath;
@@ -120,6 +120,7 @@ public class StatementService : IStatementService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to store statement file securely on disk.");
+            await _storageService.DeleteFileAsync(subDirectory, safeFileName, CancellationToken.None);
             return (false, "An error occurred while saving the statement securely.", null);
         }
 
@@ -248,12 +249,90 @@ public class StatementService : IStatementService
         if (record == null) return null;
 
         var yearFolder = (record.FinancialYear?.StartDate.Year ?? record.UploadedAt.Year).ToString();
-        var subDirectory = Path.Combine(record.ClientId.ToString("N"), yearFolder);
+        var tenantSubDir = Path.Combine("tenants", currentUserId.ToString("N"), "clients", record.ClientId.ToString("N"), "statements", yearFolder);
+        var legacySubDir = Path.Combine(record.ClientId.ToString("N"), yearFolder);
 
-        var stream = await _storageService.GetFileStreamAsync(subDirectory, record.StoredFileName, cancellationToken);
+        var stream = await _storageService.GetFileStreamAsync(tenantSubDir, record.StoredFileName, cancellationToken)
+            ?? await _storageService.GetFileStreamAsync(legacySubDir, record.StoredFileName, cancellationToken);
+
         if (stream == null) return null;
 
         return (stream, record.OriginalFileName, record.ContentType);
+    }
+
+    public async Task<(bool Success, string? ErrorMessage)> DeleteStatementAsync(Guid id, Guid currentUserId, CancellationToken cancellationToken = default)
+    {
+        var record = await _dbContext.FileRecords
+            .Include(f => f.Client)
+            .Include(f => f.FinancialYear)
+            .FirstOrDefaultAsync(f => f.Id == id && f.Client.UserId == currentUserId, cancellationToken);
+
+        if (record == null)
+        {
+            return (false, "Statement not found or you are not authorized to delete it.");
+        }
+
+        var yearFolder = (record.FinancialYear?.StartDate.Year ?? record.UploadedAt.Year).ToString();
+        var tenantSubDir = Path.Combine("tenants", currentUserId.ToString("N"), "clients", record.ClientId.ToString("N"), "statements", yearFolder);
+        var legacySubDir = Path.Combine(record.ClientId.ToString("N"), yearFolder);
+
+        // 1. Delete physical storage files (tenant path, legacy path, extraction sidecar, audit sidecar)
+        try
+        {
+            await _storageService.DeleteFileAsync(tenantSubDir, record.StoredFileName, cancellationToken);
+            await _storageService.DeleteFileAsync(legacySubDir, record.StoredFileName, cancellationToken);
+
+            var extractionDir = Path.Combine("Extractions", record.ClientId.ToString("N"));
+            var extractionFileName = $"{record.Id}_extraction.json";
+            await _storageService.DeleteFileAsync(extractionDir, extractionFileName, cancellationToken);
+
+            var auditDir = "corrections";
+            var auditFileName = $"statement_audit_{record.Id:N}.json";
+            await _storageService.DeleteFileAsync(auditDir, auditFileName, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to delete one or more storage artifacts for FileRecord {FileId}", id);
+        }
+
+        // 2. Cascading database entity removal
+        var transactions = await _dbContext.Transactions
+            .Where(t => t.SourceFileId == id)
+            .ToListAsync(cancellationToken);
+        if (transactions.Count != 0)
+        {
+            _dbContext.Transactions.RemoveRange(transactions);
+        }
+
+        var importResults = await _dbContext.TransactionImportResults
+            .Where(ir => ir.SourceFileId == id)
+            .ToListAsync(cancellationToken);
+        if (importResults.Count != 0)
+        {
+            _dbContext.TransactionImportResults.RemoveRange(importResults);
+        }
+
+        var processingResults = await _dbContext.PdfProcessingResults
+            .Where(pr => pr.FileRecordId == id)
+            .ToListAsync(cancellationToken);
+        if (processingResults.Count != 0)
+        {
+            _dbContext.PdfProcessingResults.RemoveRange(processingResults);
+        }
+
+        _dbContext.FileRecords.Remove(record);
+
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Statement {FileId} and its dependent records were deleted successfully by user {UserId}.", id, currentUserId);
+            return (true, null);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Database deletion failed for FileRecord {FileId}", id);
+            return (false, "Failed to delete statement from database.");
+        }
     }
 
     private static bool IsValidPdfHeader(Stream stream)

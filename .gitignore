@@ -361,3 +361,14 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# EasyFin Tech Production Environment, Secret & Storage Exclusions
+.env
+.env.*
+*.env
+*.secrets.json
+*.local.json
+appsettings.*.local.json
+[Ss]torage/
+**/Storage/
+!**/Storage/.gitkeep

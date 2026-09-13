@@ -28,6 +28,81 @@ export class ExcelToTallyComponent {
   validationResult: ExcelValidationResult | null = null;
   activeFilter: FilterTab = 'ALL';
   searchTerm = '';
+  templateDownloaded = false;
+
+  get step1Status(): 'completed' | 'active' | 'pending' {
+    if (this.templateDownloaded || this.selectedFile || this.validationResult) return 'completed';
+    return 'active';
+  }
+
+  get step2Status(): 'completed' | 'active' | 'pending' {
+    if (this.selectedFile || this.validationResult) return 'completed';
+    if (this.templateDownloaded) return 'active';
+    return 'pending';
+  }
+
+  get step3Status(): 'completed' | 'active' | 'pending' | 'error' {
+    if (this.isValidating) return 'active';
+    if (this.validationResult) {
+      if (!this.validationResult.isReadyForXmlGeneration) return 'error';
+      return 'completed';
+    }
+    if (this.selectedFile) return 'active';
+    return 'pending';
+  }
+
+  get step4Status(): 'completed' | 'active' | 'pending' {
+    if (this.validationResult) return 'completed';
+    return 'pending';
+  }
+
+  get step5Status(): 'completed' | 'active' | 'pending' {
+    if (this.xmlSuccessMessage) return 'completed';
+    if (this.isGeneratingXml) return 'active';
+    if (this.validationResult?.isReadyForXmlGeneration) return 'active';
+    return 'pending';
+  }
+
+  get step6Status(): 'completed' | 'active' | 'pending' {
+    if (this.xmlSuccessMessage) return 'completed';
+    return 'pending';
+  }
+
+  get fileStatusBadge(): { text: string; cssClass: string } {
+    if (this.isValidating) return { text: 'Validating', cssClass: 'badge-validating' };
+    if (this.errorMessage && !this.validationResult) return { text: 'Failed', cssClass: 'badge-failed' };
+    if (!this.validationResult) return { text: 'Uploaded', cssClass: 'badge-uploaded' };
+    if (this.xmlSuccessMessage) return { text: 'XML Ready', cssClass: 'badge-success' };
+    if (this.isGeneratingXml) return { text: 'Generating XML', cssClass: 'badge-generating' };
+    if (this.validationResult.isReadyForXmlGeneration) return { text: 'Ready for XML', cssClass: 'badge-ready' };
+    if (this.validationResult.invalidRows > 0) return { text: 'Invalid', cssClass: 'badge-invalid' };
+    if (this.validationResult.warningRows > 0) return { text: 'Review Required', cssClass: 'badge-warning' };
+    return { text: 'Valid', cssClass: 'badge-valid' };
+  }
+
+  formatFileSize(bytes: number | undefined): string {
+    if (!bytes || bytes <= 0) return '0 B';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  }
+
+  formatDate(dateVal: any): string {
+    if (!dateVal) return '—';
+    try {
+      if (typeof dateVal === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateVal)) {
+        return dateVal;
+      }
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return String(dateVal);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch {
+      return String(dateVal || '—');
+    }
+  }
 
   constructor(
     private readonly excelService: ExcelToTallyService,
@@ -131,6 +206,7 @@ export class ExcelToTallyComponent {
       )
       .subscribe({
         next: (blob) => {
+          this.templateDownloaded = true;
           this.excelService.saveBlob(blob, 'EasyFin_Tally_Import_Template_v1.xlsm');
           this.successMessage = 'Official EasyFin .XLSM template downloaded successfully.';
           this.cdr.markForCheck();
@@ -258,6 +334,7 @@ export class ExcelToTallyComponent {
     this.searchTerm = '';
     this.isValidating = false;
     this.isGeneratingXml = false;
+    this.templateDownloaded = false;
     this.cdr.markForCheck();
   }
 }

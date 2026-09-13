@@ -34,6 +34,7 @@ public class StatementsController : ControllerBase
     private readonly ITransactionCorrectionStore _correctionStore;
     private readonly IExcelExportService? _excelExportService;
     private readonly ILogger<StatementsController> _logger;
+    private readonly IStatementProcessingQueue? _processingQueue;
 
     public StatementsController(
         IStatementService statementService,
@@ -43,7 +44,8 @@ public class StatementsController : ControllerBase
         ITransactionValidationService validationService,
         ITransactionCorrectionStore correctionStore,
         ILogger<StatementsController> logger,
-        IExcelExportService? excelExportService = null)
+        IExcelExportService? excelExportService = null,
+        IStatementProcessingQueue? processingQueue = null)
     {
         _statementService = statementService;
         _pdfExtractionService = pdfExtractionService;
@@ -53,6 +55,7 @@ public class StatementsController : ControllerBase
         _correctionStore = correctionStore;
         _logger = logger;
         _excelExportService = excelExportService;
+        _processingQueue = processingQueue;
     }
 
     private Guid GetCurrentUserId()
@@ -119,6 +122,16 @@ public class StatementsController : ControllerBase
             });
         }
 
+        if (response != null)
+        {
+            response.JobId = response.FileId;
+            response.Status = "Queued";
+            if (_processingQueue != null)
+            {
+                await _processingQueue.QueueJobAsync(response.FileId, currentUserId, null, cancellationToken);
+            }
+        }
+
         return Ok(response);
     }
 
@@ -182,6 +195,301 @@ public class StatementsController : ControllerBase
     }
 
     /// <summary>
+    /// Securely delete a bank statement and its associated transactions, processing results, and physical storage files.
+    /// Strictly verifies user/tenant ownership before deletion.
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteStatement(Guid id, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = GetCurrentUserId();
+        _processingQueue?.RequestCancellation(id, currentUserId);
+        var (success, errorMessage) = await _statementService.DeleteStatementAsync(id, currentUserId, cancellationToken);
+
+        if (!success)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Statement Not Found",
+                Detail = errorMessage ?? $"Statement with ID {id} was not found or is not accessible.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Retrieve real-time asynchronous background job processing status for a statement.
+    /// Strictly verifies user/tenant ownership before disclosing status.
+    /// </summary>
+    [HttpGet("{id:guid}/job-status")]
+    [ProducesResponseType(typeof(StatementJobStatusDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetJobStatus(Guid id, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = GetCurrentUserId();
+
+        var record = await _dbContext.FileRecords
+            .AsNoTracking()
+            .Include(f => f.Client)
+            .FirstOrDefaultAsync(f => f.Id == id && f.Client.UserId == currentUserId, cancellationToken);
+
+        if (record == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Job Not Found",
+                Detail = $"Job with ID {id} was not found or is not accessible.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        var runtimeInfo = _processingQueue?.GetRuntimeInfo(id);
+
+        string statusName;
+        int progress;
+        string stage;
+        bool requiresPassword = false;
+
+        switch (record.ProcessingStatus)
+        {
+            case 0:
+                statusName = "Queued";
+                stage = runtimeInfo?.Stage ?? "Queued";
+                progress = runtimeInfo?.Progress ?? 10;
+                break;
+            case 1:
+                statusName = "Processing";
+                stage = runtimeInfo?.Stage ?? "Processing";
+                progress = runtimeInfo?.Progress ?? 50;
+                break;
+            case 2:
+                statusName = "Completed";
+                stage = "Completed";
+                progress = 100;
+                break;
+            case 3:
+                statusName = "Failed";
+                stage = "Failed";
+                progress = 0;
+                break;
+            case 4:
+                statusName = "Cancelled";
+                stage = "Cancelled";
+                progress = 0;
+                break;
+            case 5:
+                statusName = "RequiresPassword";
+                stage = "RequiresPassword";
+                progress = 25;
+                requiresPassword = true;
+                break;
+            default:
+                statusName = "Unknown";
+                stage = "Unknown";
+                progress = 0;
+                break;
+        }
+
+        var statusDto = new StatementJobStatusDto
+        {
+            JobId = record.Id,
+            FileId = record.Id,
+            FileName = record.OriginalFileName,
+            Status = statusName,
+            ProcessingStatus = record.ProcessingStatus,
+            Progress = progress,
+            Stage = stage,
+            ErrorMessage = record.ProcessingError,
+            RequiresPassword = requiresPassword,
+            CreatedAt = record.UploadedAt,
+            UpdatedAt = record.UpdatedAt
+        };
+
+        return Ok(statusDto);
+    }
+
+    /// <summary>
+    /// Safely request cancellation of an active or queued statement processing job.
+    /// Strictly verifies user/tenant ownership before requesting cancellation.
+    /// </summary>
+    [HttpPost("{id:guid}/cancel")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CancelJob(Guid id, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = GetCurrentUserId();
+
+        var record = await _dbContext.FileRecords
+            .Include(f => f.Client)
+            .FirstOrDefaultAsync(f => f.Id == id && f.Client.UserId == currentUserId, cancellationToken);
+
+        if (record == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Job Not Found",
+                Detail = $"Job with ID {id} was not found or is not accessible.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        // Reject cancellation of terminal jobs (Completed, Failed, or already Cancelled)
+        if (record.ProcessingStatus is 2 or 3 or 4)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid Operation",
+                Detail = "This job has already reached a terminal state and cannot be cancelled.",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        // Signal in-memory CTS if running
+        _processingQueue?.RequestCancellation(id, currentUserId);
+
+        record.ProcessingStatus = 4; // Cancelled
+        record.ProcessingError = "Processing was cancelled by user.";
+        record.UpdatedAt = DateTime.UtcNow;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return Ok(new { success = true, message = "Job was cancelled successfully.", jobId = id });
+    }
+
+    /// <summary>
+    /// Retry processing for a failed or cancelled statement job.
+    /// Strictly verifies user/tenant ownership before re-enqueuing.
+    /// </summary>
+    [HttpPost("{id:guid}/retry")]
+    [ProducesResponseType(typeof(StatementJobStatusDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RetryJob(Guid id, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = GetCurrentUserId();
+
+        var record = await _dbContext.FileRecords
+            .Include(f => f.Client)
+            .FirstOrDefaultAsync(f => f.Id == id && f.Client.UserId == currentUserId, cancellationToken);
+
+        if (record == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Job Not Found",
+                Detail = $"Job with ID {id} was not found or is not accessible.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        if (record.ProcessingStatus == 1)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Job Already In Progress",
+                Detail = "This job is currently being processed and cannot be retried until it finishes or is cancelled.",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        if (record.ProcessingStatus == 2)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Job Already Completed",
+                Detail = "This job has already completed successfully and does not need to be retried.",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        // Reset status to Queued (0)
+        record.ProcessingStatus = 0;
+        record.ProcessingError = null;
+        record.UpdatedAt = DateTime.UtcNow;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (_processingQueue != null)
+        {
+            await _processingQueue.QueueJobAsync(id, currentUserId, null, cancellationToken);
+        }
+
+        return await GetJobStatus(id, cancellationToken);
+    }
+
+    /// <summary>
+    /// Resume/re-enqueue a password-protected statement job with a user-supplied password.
+    /// Password is never persisted to database or storage, and is held only in transient memory during processing.
+    /// </summary>
+    [HttpPost("{id:guid}/unlock")]
+    [ProducesResponseType(typeof(StatementJobStatusDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UnlockJob(
+        Guid id,
+        [FromBody] UnlockJobRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(request?.Password))
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Validation Error",
+                Detail = "PDF password is required to unlock this statement.",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        var currentUserId = GetCurrentUserId();
+
+        var record = await _dbContext.FileRecords
+            .Include(f => f.Client)
+            .FirstOrDefaultAsync(f => f.Id == id && f.Client.UserId == currentUserId, cancellationToken);
+
+        if (record == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Job Not Found",
+                Detail = $"Job with ID {id} was not found or is not accessible.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        // Test password validity against encrypted PDF before queuing
+        var (extractSuccess, extractError, extractResult) = await _pdfExtractionService.ExtractDocumentAsync(
+            id,
+            currentUserId,
+            request.Password,
+            cancellationToken);
+
+        if (!extractSuccess && extractResult?.ExtractionStatus == "PasswordProtected")
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid PDF Password",
+                Detail = "Incorrect PDF password. Please try again.",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        // Reset status to Queued (0)
+        record.ProcessingStatus = 0;
+        record.ProcessingError = null;
+        record.UpdatedAt = DateTime.UtcNow;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (_processingQueue != null)
+        {
+            await _processingQueue.QueueJobAsync(id, currentUserId, request.Password, cancellationToken);
+        }
+
+        return await GetJobStatus(id, cancellationToken);
+    }
+
+    /// <summary>
     /// Trigger generic digital PDF extraction for an ingested statement.
     /// </summary>
     [HttpPost("{id:guid}/extract")]
@@ -214,13 +522,18 @@ public class StatementsController : ControllerBase
 
             if (result?.ExtractionStatus == "PasswordProtected")
             {
+                var isInvalidPassword = !string.IsNullOrWhiteSpace(request?.Password);
                 var problem = new ProblemDetails
                 {
-                    Title = "Password Protected PDF",
-                    Detail = errorMessage ?? "The PDF requires a password to extract.",
+                    Title = isInvalidPassword ? "Invalid PDF Password" : "Password Protected PDF",
+                    Detail = isInvalidPassword
+                        ? "Incorrect PDF password. Please try again."
+                        : (errorMessage ?? "This PDF is password protected and requires a password to open."),
                     Status = StatusCodes.Status400BadRequest
                 };
+                problem.Extensions["requiresPassword"] = true;
                 problem.Extensions["extractionStatus"] = "PasswordProtected";
+                problem.Extensions["isIncorrectPassword"] = isInvalidPassword;
                 return BadRequest(problem);
             }
 

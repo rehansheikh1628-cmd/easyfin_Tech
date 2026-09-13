@@ -1,82 +1,122 @@
 <footer class="site-footer">
   <div class="container footer-top">
     <div class="footer-grid">
-      <!-- Brand Column -->
+      <!-- Brand & Mission Column -->
       <div class="footer-brand-col">
-        <a routerLink="/" class="brand-link">
-          <div class="brand-mark">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-              <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>
-          </div>
-          <span class="brand-title">EasyFin<span class="brand-accent">Tech</span></span>
-        </a>
-        <div class="brand-product-by">A product by EAZ Technologies</div>
+        <div class="brand-identity-block">
+          <a routerLink="/" class="brand-link" aria-label="EasyFin Tech Home">
+            <span class="brand-title">EasyFin Tech</span>
+          </a>
+          <span class="brand-attribution">A product by EAZ Technologies</span>
+          <span class="brand-copyright">&copy; 2026 EAZ Technologies</span>
+        </div>
+
         <p class="brand-desc">
-          Automated bank statement extraction engineered for accountants, bookkeepers, and corporate finance departments.
+          Automated financial document extraction and ledger validation engineered for Chartered Accountants, corporate finance teams, and bookkeepers.
         </p>
-        <div class="brand-status">
-          <span class="status-indicator"></span>
-          <span>Phase 1 Architecture Active</span>
+
+        <div class="brand-trust-pill">
+          <span class="trust-pip"></span>
+          <span>Deterministic Extraction &bull; Isolated Tenant Storage</span>
         </div>
       </div>
 
-      <!-- Product Links -->
+      <!-- Column 2: Product & Workflows -->
       <div class="footer-col">
-        <h4 class="col-title">Product</h4>
+        <h4 class="col-title">Product Workflows</h4>
         <ul class="col-links">
-          <li><a routerLink="/converter">Bank Statement → Excel</a></li>
-          <li><a routerLink="/features">Features & Capabilities</a></li>
-          <li><a routerLink="/supported-banks">Supported Banks (Roadmap)</a></li>
-          <li><a routerLink="/pricing">Pricing Plans</a></li>
+          <li>
+            <a routerLink="/converter">Bank Statement &rarr; Excel</a>
+          </li>
+          <li>
+            <a routerLink="/excel-to-tally">Excel &rarr; Tally XML</a>
+          </li>
+          <li>
+            <a routerLink="/features">Features &amp; Capabilities</a>
+          </li>
+          <li>
+            <a routerLink="/how-it-works">How It Works</a>
+          </li>
         </ul>
       </div>
 
-      <!-- Company Links -->
+      <!-- Column 3: Platform & Roadmap -->
       <div class="footer-col">
-        <h4 class="col-title">Company</h4>
+        <h4 class="col-title">Platform &amp; Banks</h4>
         <ul class="col-links">
-          <li><a routerLink="/how-it-works">How EasyFin Works</a></li>
-          <li><span class="coming-soon-link">About EasyFin Tech <small>(Phase 2)</small></span></li>
-          <li><span class="coming-soon-link">Engineering Blog <small>(Soon)</small></span></li>
+          <li>
+            <a routerLink="/supported-banks">Supported Bank Parsers</a>
+          </li>
+          <li>
+            <span class="static-feature-link">
+              Bills &amp; Invoices &rarr; Excel
+              <span class="badge badge-neutral">Coming Soon</span>
+            </span>
+          </li>
+          <li>
+            <span class="static-feature-link">ClosedXML Spreadsheet Engine</span>
+          </li>
+          <li>
+            <span class="static-feature-link">Standard Tally Prime Vouchers</span>
+          </li>
+          <li>
+            <a routerLink="/converter">Interactive Demo Preview</a>
+          </li>
         </ul>
       </div>
 
-      <!-- Support Links -->
+      <!-- Column 4: Account & Access -->
       <div class="footer-col">
-        <h4 class="col-title">Support</h4>
+        <h4 class="col-title">Workspace</h4>
         <ul class="col-links">
-          <li><a routerLink="/converter">Sample Preview</a></li>
-          <li><span class="coming-soon-link">Documentation <small>(Soon)</small></span></li>
-          <li><span class="coming-soon-link">Contact Support <small>(Phase 2)</small></span></li>
+          <li>
+            <a routerLink="/login">Sign In to Workspace</a>
+          </li>
+          <li>
+            <a routerLink="/signup">Create Practice Account</a>
+          </li>
+          <li>
+            <a routerLink="/converter">Upload Bank Statement</a>
+          </li>
+          <li>
+            <a routerLink="/excel-to-tally">Validate XLSM Workbook</a>
+          </li>
         </ul>
       </div>
 
-      <!-- Legal Links -->
+      <!-- Column 5: Security & Compliance -->
       <div class="footer-col">
-        <h4 class="col-title">Legal & Security</h4>
+        <h4 class="col-title">Security &amp; Integrity</h4>
         <ul class="col-links">
-          <li><span class="coming-soon-link">Privacy Policy <small>(Phase 2)</small></span></li>
-          <li><span class="coming-soon-link">Terms of Service <small>(Phase 2)</small></span></li>
-          <li><span class="coming-soon-link">Data Integrity Policy</span></li>
+          <li>
+            <span class="static-feature-link">Continuous Mathematical Checksums</span>
+          </li>
+          <li>
+            <span class="static-feature-link">Zero AI Model Training on Client Data</span>
+          </li>
+          <li>
+            <span class="static-feature-link">Isolated Physical Storage</span>
+          </li>
+          <li>
+            <span class="static-feature-link">Magic-Byte Verified Ingestion</span>
+          </li>
         </ul>
       </div>
     </div>
   </div>
 
-  <!-- Footer Bottom -->
+  <!-- Footer Bottom Sub-Bar -->
   <div class="footer-bottom">
     <div class="container bottom-container">
-      <div class="footer-branding">
-        <span class="brand-name">EasyFin Tech</span>
-        <span class="brand-sep" aria-hidden="true">&bull;</span>
-        <span class="brand-product">A product by EAZ Technologies</span>
-        <span class="brand-sep" aria-hidden="true">&bull;</span>
-        <span class="brand-copy">&copy; 2026 EAZ Technologies</span>
+      <div class="bottom-left">
+        <span class="bottom-brand">EasyFin Tech</span>
+        <span class="bottom-sep" aria-hidden="true">&bull;</span>
+        <span class="bottom-attribution">A product by EAZ Technologies</span>
+        <span class="bottom-sep" aria-hidden="true">&bull;</span>
+        <span class="bottom-copy">&copy; 2026 EAZ Technologies</span>
+      </div>
+      <div class="bottom-right">
+        <span class="bottom-note">Designed for Indian Banking &amp; Accounting Standards</span>
       </div>
     </div>
   </div>

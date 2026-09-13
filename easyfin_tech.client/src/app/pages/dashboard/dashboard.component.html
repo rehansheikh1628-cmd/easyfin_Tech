@@ -1,304 +1,580 @@
-<div class="dashboard-page">
-  <!-- Welcome Banner -->
-  <div class="welcome-banner card">
-    <div class="welcome-content">
-      <div class="banner-badge">
-        <span class="pulse-dot"></span>
-        <span>{{ userWorkspaceName }}</span>
+<div class="dashboard-page" id="main-content">
+  <!-- ========================================================================
+       SECTION 1: Workspace Header
+       ======================================================================== -->
+  <header class="workspace-header card">
+    <div class="header-left">
+      <div class="header-badge-row">
+        <div class="operational-badge" [class.badge-warning]="!stats.canConnect">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          <span>Workspace Operational &bull; {{ stats.database }} ({{ stats.status || 'Connected' }})</span>
+        </div>
+        <span class="workspace-tenant-pill mono text-xs">{{ userWorkspaceName }}</span>
       </div>
-      <h1 class="welcome-title">Bank Statement Conversion Workspace</h1>
-      <p class="welcome-desc">
-        Transform complex bank statement PDFs into standardized, balanced Excel spreadsheets ready for accounting and audit reconciliation.
+
+      <h1 class="header-greeting font-bold">
+        {{ greeting }}, {{ userDisplayName }}
+      </h1>
+      <p class="header-subtitle text-muted">
+        Your financial document workspace for automated statement parsing and Tally XML reconciliation.
       </p>
-      <div class="welcome-actions">
-        <a routerLink="/converter" class="btn btn-excel btn-lg" id="quick-upload-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          <span>Upload Statement</span>
+
+      <div class="header-actions">
+        <a routerLink="/converter" class="btn btn-primary btn-lg" id="quick-upload-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>+ New Statement</span>
         </a>
-        <a routerLink="/excel-to-tally" class="btn btn-primary btn-lg">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M8 13h8"></path><path d="M8 17h8"></path></svg>
-          <span>Excel &rarr; Tally XML</span>
-        </a>
-        <a routerLink="/files" class="btn btn-outline-white btn-lg">
-          <span>My Statements</span>
+        <a routerLink="/excel-to-tally" class="btn btn-secondary btn-lg" id="quick-tally-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          <span>Excel &rarr; Tally</span>
         </a>
       </div>
     </div>
+  </header>
 
-    <div class="system-status-widget">
-      <div class="status-box-header">SQL Server Database</div>
-      <div class="status-row">
-        <span class="status-label">Instance:</span>
-        <span class="status-value mono">{{ stats.server }}</span>
-      </div>
-      <div class="status-row">
-        <span class="status-label">Database:</span>
-        <span class="status-value mono">{{ stats.database }}</span>
-      </div>
-      <div class="status-row">
-        <span class="status-label">Status:</span>
-        <span class="status-value text-success font-bold">
-          <span class="db-live-pip"></span>
-          {{ stats.status || 'Online / Connected' }}
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Error Banner -->
-  <div class="card error-banner" *ngIf="errorMessage">
+  <!-- ========================================================================
+       ERROR BANNER (When API/Connection Fails)
+       ======================================================================== -->
+  <div class="card error-banner" *ngIf="errorMessage" role="alert" aria-live="assertive">
     <div class="error-content">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
       <span>{{ errorMessage }}</span>
     </div>
-    <button class="btn btn-sm btn-outline" (click)="loadDashboardData()">Retry</button>
+    <button type="button" class="btn btn-sm btn-outline" (click)="loadDashboardData()">Retry</button>
   </div>
 
-  <!-- Summary Cards Grid (4 Mandatory Cards + Total Transactions) -->
-  <div class="stats-grid">
-    <!-- Card 1: Total Statements / Files -->
-    <div class="stat-card card">
-      <div class="stat-header">
-        <span class="stat-label">Total Statements</span>
-        <span class="stat-icon icon-primary">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-        </span>
-      </div>
-      <div class="stat-value mono" [class.loading-skeleton]="loading">
-        {{ loading ? '...' : stats.totalStatements }}
-      </div>
-      <div class="stat-footnote">Uploaded PDF statements</div>
-    </div>
-
-    <!-- Card 2: Completed Conversions -->
-    <div class="stat-card card">
-      <div class="stat-header">
-        <span class="stat-label">Completed Conversions</span>
-        <span class="stat-icon icon-success">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-        </span>
-      </div>
-      <div class="stat-value mono text-success" [class.loading-skeleton]="loading">
-        {{ loading ? '...' : stats.completedStatements }}
-      </div>
-      <div class="stat-footnote">Parsed &amp; ready for Excel</div>
-    </div>
-
-    <!-- Card 3: Processing / In Progress -->
-    <div class="stat-card card">
-      <div class="stat-header">
-        <span class="stat-label">In Progress</span>
-        <span class="stat-icon icon-accent">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        </span>
-      </div>
-      <div class="stat-value mono text-accent" [class.loading-skeleton]="loading">
-        {{ loading ? '...' : stats.processingStatements }}
-      </div>
-      <div class="stat-footnote">Queued or extracting</div>
-    </div>
-
-    <!-- Card 4: Failed / Needs Attention -->
-    <div class="stat-card card">
-      <div class="stat-header">
-        <span class="stat-label">Needs Attention</span>
-        <span class="stat-icon icon-danger">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-        </span>
-      </div>
-      <div class="stat-value mono" [class.text-danger]="stats.failedStatements > 0" [class.loading-skeleton]="loading">
-        {{ loading ? '...' : stats.failedStatements }}
-      </div>
-      <div class="stat-footnote">Failed or unparsed</div>
-    </div>
-
-    <!-- Card 5: Total Transactions -->
-    <div class="stat-card card">
-      <div class="stat-header">
-        <span class="stat-label">Total Transactions</span>
-        <span class="stat-icon icon-primary">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-        </span>
-      </div>
-      <div class="stat-value mono" [class.loading-skeleton]="loading">
-        {{ loading ? '...' : (stats.totalTransactions | number) }}
-      </div>
-      <div class="stat-footnote">Parsed ledger rows</div>
-    </div>
-  </div>
-
-  <!-- Main Split: Recent Activity & Platform Specs -->
-  <div class="dashboard-split">
-    <!-- Left: Recent Statements -->
-    <div class="split-left card">
-      <div class="card-title-row">
-        <div>
-          <h2 class="card-main-title">Recent Statements</h2>
-          <p class="card-sub-title">Compact view of uploaded statements in your workspace</p>
+  <!-- ========================================================================
+       SECTION 2: Primary Workflow Cards
+       ======================================================================== -->
+  <section class="workflows-section" aria-label="Core Financial Workflows">
+    <div class="workflow-cards-grid">
+      <!-- Card A: Bank Statement -> Excel -->
+      <div class="workflow-card card-workflow-excel card">
+        <div class="workflow-card-top">
+          <div class="workflow-badge-row">
+            <span class="badge badge-excel font-bold">.xlsx EXPORT</span>
+            <span class="badge badge-primary font-bold">CORE WORKFLOW</span>
+          </div>
+          <div class="workflow-icon-box excel-icon-box" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+          </div>
+          <h2 class="workflow-title font-bold">Bank Statement &rarr; Excel</h2>
+          <p class="workflow-desc text-muted">
+            Convert supported bank statements into structured Excel data with validation checks.
+          </p>
         </div>
-        <div class="action-btn-group">
-          <a routerLink="/converter" class="btn btn-sm btn-excel">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>Upload Statement</span>
+
+        <div class="workflow-status-strip">
+          <div class="wf-status-item">
+            <span class="wf-stat-lbl">Active Engine:</span>
+            <strong class="wf-stat-val text-primary">9 Calibrated Parsers</strong>
+          </div>
+          <div class="wf-status-item text-right">
+            <span class="wf-stat-lbl">Processed:</span>
+            <strong class="wf-stat-val text-success mono">{{ stats.completedStatements }} statements</strong>
+          </div>
+        </div>
+
+        <div class="workflow-card-action">
+          <a routerLink="/converter" class="btn btn-excel w-full" id="open-converter-card-btn">
+            <span>Open Converter &rarr;</span>
           </a>
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div class="loading-state-container" *ngIf="loading">
-        <div class="spinner"></div>
-        <p>Loading your statement activity...</p>
+      <!-- Card B: Excel -> Tally XML -->
+      <div class="workflow-card card-workflow-tally card">
+        <div class="workflow-card-top">
+          <div class="workflow-badge-row">
+            <span class="badge badge-warning font-bold">TALLY XML</span>
+            <span class="badge badge-accent font-bold">ACCOUNTING WORKFLOW</span>
+          </div>
+          <div class="workflow-icon-box tally-icon-box" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="3" y1="9" x2="21" y2="9"></line>
+              <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+          </div>
+          <h2 class="workflow-title font-bold">Excel &rarr; Tally XML</h2>
+          <p class="workflow-desc text-muted">
+            Validate accounting transactions from the official EasyFin Tech XLSM template and export Tally XML.
+          </p>
+        </div>
+
+        <div class="workflow-status-strip">
+          <div class="wf-status-item">
+            <span class="wf-stat-lbl">Validation Schema:</span>
+            <strong class="wf-stat-val text-primary">9 Canonical Columns</strong>
+          </div>
+          <div class="wf-status-item text-right">
+            <span class="wf-stat-lbl">Voucher Engine:</span>
+            <strong class="wf-stat-val text-accent">Tally Prime Ready</strong>
+          </div>
+        </div>
+
+        <div class="workflow-card-action">
+          <a routerLink="/excel-to-tally" class="btn btn-secondary w-full" id="open-tally-card-btn">
+            <span>Open Workflow &rarr;</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       SECTION 3: Workspace Overview (5 Mandatory KPI Cards)
+       ======================================================================== -->
+  <section class="overview-section" aria-label="Workspace Metrics">
+    <div class="stats-grid">
+      <!-- Card 1: Total Statements -->
+      <div class="stat-card card">
+        <div class="stat-header">
+          <span class="stat-label">Total Statements</span>
+          <span class="stat-icon icon-primary" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </span>
+        </div>
+        <div class="stat-value" [class.loading-skeleton]="loading">
+          {{ loading ? '...' : stats.totalStatements }}
+        </div>
+        <div class="stat-footnote">Uploaded PDF statements</div>
       </div>
 
-      <!-- Table of Statements (When files exist) -->
-      <div class="table-responsive" *ngIf="!loading && stats.recentStatements.length > 0">
-        <table class="statements-table">
-          <thead>
-            <tr>
-              <th>Statement File</th>
-              <th>Bank</th>
-              <th>Upload Date</th>
-              <th class="text-right">Transactions</th>
-              <th class="text-center">Status</th>
-              <th class="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let s of stats.recentStatements">
-              <td>
-                <div class="statement-file-cell">
-                  <div class="pdf-icon-badge">PDF</div>
-                  <div class="file-name-meta">
-                    <span class="file-name font-bold" [title]="s.originalFileName">{{ s.originalFileName }}</span>
-                    <span class="file-subtext mono text-xs">{{ s.fileSizeFormatted }}</span>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <span class="bank-pill font-bold" [ngClass]="{
-                  'bank-hdfc': s.bankName === 'HDFC Bank',
-                  'bank-yes': s.bankName === 'YES BANK',
-                  'bank-axis': s.bankName === 'Axis Bank'
-                }">
-                  {{ s.bankName || 'Pending' }}
-                </span>
-              </td>
-              <td>
-                <span class="mono text-xs">{{ s.uploadedAt | date:'dd MMM yyyy, HH:mm' }}</span>
-              </td>
-              <td class="text-right mono font-bold">
-                <span *ngIf="s.transactionCount > 0" class="tx-badge">
-                  {{ s.transactionCount | number }} rows
-                </span>
-                <span *ngIf="s.transactionCount === 0" class="text-muted text-xs">—</span>
-              </td>
-              <td class="text-center">
-                <span class="badge" [ngClass]="{
-                  'badge-success': s.processingStatus === 2,
-                  'badge-info': s.processingStatus === 1,
-                  'badge-accent': s.processingStatus === 0,
-                  'badge-danger': s.processingStatus === 3
-                }">
-                  {{ s.status }}
-                </span>
-              </td>
-              <td class="text-right">
-                <div class="action-btn-group">
-                  <a routerLink="/converter" class="btn btn-outline btn-sm" title="Inspect / Convert in Converter">
-                    <span>Inspect</span>
-                  </a>
-                  <button class="btn btn-secondary btn-sm" (click)="downloadStatement(s)" title="Download Original PDF">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    <span>Download</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Card 2: Completed Conversions -->
+      <div class="stat-card card">
+        <div class="stat-header">
+          <span class="stat-label">Completed Conversions</span>
+          <span class="stat-icon icon-success" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </span>
+        </div>
+        <div class="stat-value text-success" [class.loading-skeleton]="loading">
+          {{ loading ? '...' : stats.completedStatements }}
+        </div>
+        <div class="stat-footnote">Parsed &amp; ready for Excel</div>
       </div>
 
-      <!-- Empty State (When zero statements exist) -->
-      <div class="empty-state-container" *ngIf="!loading && stats.recentStatements.length === 0" id="dashboard-empty-state">
-        <div class="empty-icon-wrap">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
+      <!-- Card 3: Processing / In Progress -->
+      <div class="stat-card card">
+        <div class="stat-header">
+          <span class="stat-label">In Progress</span>
+          <span class="stat-icon icon-accent" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </span>
+        </div>
+        <div class="stat-value text-accent" [class.loading-skeleton]="loading">
+          {{ loading ? '...' : stats.processingStatements }}
+        </div>
+        <div class="stat-footnote">Queued or extracting</div>
+      </div>
+
+      <!-- Card 4: Failed / Needs Attention -->
+      <div class="stat-card card">
+        <div class="stat-header">
+          <span class="stat-label">Needs Attention</span>
+          <span class="stat-icon icon-danger" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </span>
+        </div>
+        <div class="stat-value" [class.text-danger]="stats.failedStatements > 0" [class.loading-skeleton]="loading">
+          {{ loading ? '...' : stats.failedStatements }}
+        </div>
+        <div class="stat-footnote">Failed or unparsed</div>
+      </div>
+
+      <!-- Card 5: Total Transactions -->
+      <div class="stat-card card">
+        <div class="stat-header">
+          <span class="stat-label">Total Transactions</span>
+          <span class="stat-icon icon-primary" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </span>
+        </div>
+        <div class="stat-value" [class.loading-skeleton]="loading">
+          {{ loading ? '...' : (stats.totalTransactions | number) }}
+        </div>
+        <div class="stat-footnote">Parsed ledger rows</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       SECTIONS 4 & 6: Recent Activity & Validation Health (Dual Split)
+       ======================================================================== -->
+  <div class="dashboard-dual-split">
+    <!-- Section 4: Recent Activity Panel -->
+    <div class="card panel-card activity-panel">
+      <div class="panel-header-row">
+        <div>
+          <h2 class="panel-main-title font-bold">Recent Activity</h2>
+          <p class="panel-sub-title text-muted">Audit log of statement ingestions and processing events</p>
+        </div>
+        <span class="badge badge-accent">{{ stats.recentStatements.length }} logged</span>
+      </div>
+
+      <!-- Activity Items (When records exist) -->
+      <div class="activity-timeline" *ngIf="!loading && stats.recentStatements.length > 0">
+        <div class="timeline-item" *ngFor="let s of stats.recentStatements">
+          <div class="timeline-bullet" [ngClass]="{
+            'bullet-success': s.processingStatus === 2,
+            'bullet-info': s.processingStatus === 1,
+            'bullet-accent': s.processingStatus === 0,
+            'bullet-danger': s.processingStatus === 3
+          }"></div>
+          <div class="timeline-body">
+            <div class="timeline-top">
+              <span class="timeline-filename font-bold" [title]="s.originalFileName">{{ s.originalFileName }}</span>
+              <span class="timeline-time mono text-xs text-muted">{{ s.uploadedAt | date:'dd MMM, HH:mm' }}</span>
+            </div>
+            <div class="timeline-details text-xs text-muted">
+              <span>{{ s.bankName || 'Unknown Bank' }}</span>
+              <span class="sep">&bull;</span>
+              <span *ngIf="s.transactionCount > 0" class="mono font-bold">{{ s.transactionCount | number }} rows</span>
+              <span *ngIf="s.transactionCount === 0">Pending extraction</span>
+              <span class="sep">&bull;</span>
+              <span class="timeline-status-tag" [ngClass]="{
+                'text-success': s.processingStatus === 2,
+                'text-danger': s.processingStatus === 3
+              }">{{ s.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State for Activity -->
+      <div class="empty-sub-state" *ngIf="!loading && stats.recentStatements.length === 0">
+        <div class="empty-sub-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
         </div>
-        <h3>No statements yet</h3>
-        <p>
-          Upload your first bank statement PDF to extract transactions, validate running balances, and generate balanced Excel spreadsheets.
-        </p>
-        <a routerLink="/converter" class="btn btn-excel btn-lg" id="empty-state-upload-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <h3 class="font-bold text-sm">No activity yet</h3>
+        <p class="text-xs text-muted mt-1">Upload a statement to initiate your workspace audit timeline.</p>
+        <a routerLink="/converter" class="btn btn-outline btn-sm mt-2">Upload your first statement &rarr;</a>
+      </div>
+
+      <!-- Loading Placeholder -->
+      <div class="loading-state-container" *ngIf="loading">
+        <div class="spinner"></div>
+        <p class="text-muted text-xs">Loading activity stream...</p>
+      </div>
+    </div>
+
+    <!-- Section 6: Validation Health Panel -->
+    <div class="card panel-card validation-health-panel">
+      <div class="panel-header-row">
+        <div>
+          <h2 class="panel-main-title font-bold">Validation &amp; Accounting Health</h2>
+          <p class="panel-sub-title text-muted">Continuous audit of balance continuity and ledger integrity</p>
+        </div>
+        <span class="badge badge-success">Active Audit</span>
+      </div>
+
+      <div class="health-breakdown-grid">
+        <div class="health-metric-box metric-valid">
+          <div class="health-metric-val mono">{{ stats.completedStatements }}</div>
+          <div class="health-metric-lbl">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Valid Statements</span>
+          </div>
+        </div>
+        <div class="health-metric-box metric-warn">
+          <div class="health-metric-val mono">{{ stats.processingStatements }}</div>
+          <div class="health-metric-lbl">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span>In Audit</span>
+          </div>
+        </div>
+        <div class="health-metric-box metric-invalid">
+          <div class="health-metric-val mono">{{ stats.failedStatements }}</div>
+          <div class="health-metric-lbl">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+            <span>Attention Needed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="health-status-banner" [ngClass]="stats.failedStatements > 0 ? 'banner-alert' : 'banner-ready'">
+        <div class="health-status-dot" aria-hidden="true"></div>
+        <div class="health-status-text text-xs">
+          <strong>{{ stats.failedStatements > 0 ? 'Review Required' : 'Ready for Accounting Export' }}</strong>
+          <span>{{ stats.failedStatements > 0 ? stats.failedStatements + ' statement(s) failed or require attention' : 'Running balance checks and column validations passed' }}</span>
+        </div>
+      </div>
+
+      <div class="validation-features-mini text-xs text-muted">
+        <div class="vf-item">
+          <span>Row balance formula verification</span>
+          <span class="text-success font-bold">Continuous</span>
+        </div>
+        <div class="vf-item">
+          <span>Cross-page narration joining</span>
+          <span class="text-success font-bold">Enabled</span>
+        </div>
+        <div class="vf-item">
+          <span>ClosedXML native cell types</span>
+          <span class="text-success font-bold">Enforced</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       SECTION 5: Recent Files / Statements Table
+       ======================================================================== -->
+  <section class="recent-files-section card" aria-label="Recent Statement Files">
+    <div class="card-title-row">
+      <div>
+        <h2 class="card-main-title font-bold">Recent Files / Statements</h2>
+        <p class="card-sub-title text-muted">Statements ingested and converted within your workspace</p>
+      </div>
+      <div class="action-btn-group">
+        <a routerLink="/converter" class="btn btn-sm btn-excel" id="table-upload-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
           <span>Upload Statement</span>
         </a>
       </div>
     </div>
 
-    <!-- Right: Supported Banks & Platform Pipeline -->
-    <div class="split-right">
-      <!-- Supported Banks Card -->
-      <div class="card guide-card">
-        <h3 class="guide-title">Supported Bank Parsers</h3>
-        <div class="supported-banks-list">
-          <div class="bank-item">
-            <div class="bank-item-header">
-              <span class="bank-name-tag font-bold">HDFC Bank</span>
-              <span class="badge badge-success">HDFC-v1 (Locked)</span>
-            </div>
-            <p class="bank-item-desc">Standard &amp; corporate statements, dynamic column calibration, cross-page narration continuation.</p>
-          </div>
-          <div class="bank-item">
-            <div class="bank-item-header">
-              <span class="bank-name-tag font-bold">YES BANK</span>
-              <span class="badge badge-success">YES-v1 (Locked)</span>
-            </div>
-            <p class="bank-item-desc">Multi-line descriptions, UTR extraction, deposit/withdrawal mapping.</p>
-          </div>
-          <div class="bank-item">
-            <div class="bank-item-header">
-              <span class="bank-name-tag font-bold">Axis Bank</span>
-              <span class="badge badge-success">AXIS-v1 (Locked)</span>
-            </div>
-            <p class="bank-item-desc">9-column layout, dynamic row clustering, signed balance validation.</p>
-          </div>
+    <!-- Loading State -->
+    <div class="loading-state-container" *ngIf="loading">
+      <div class="spinner"></div>
+      <p class="text-muted text-sm">Loading your statement activity...</p>
+    </div>
+
+    <!-- Table of Statements (When files exist) -->
+    <div class="table-responsive" *ngIf="!loading && stats.recentStatements.length > 0">
+      <table class="statements-table">
+        <thead>
+          <tr>
+            <th>Statement File</th>
+            <th>Bank</th>
+            <th>Upload Date</th>
+            <th class="text-right">Transactions</th>
+            <th class="text-center">Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of stats.recentStatements">
+            <td>
+              <div class="statement-file-cell">
+                <div class="pdf-icon-badge" aria-hidden="true">PDF</div>
+                <div class="file-name-meta">
+                  <span class="file-name font-bold" [title]="s.originalFileName">{{ s.originalFileName }}</span>
+                  <span class="file-subtext mono text-xs">{{ s.fileSizeFormatted }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="bank-pill font-bold" [ngClass]="{
+                'bank-hdfc': s.bankName === 'HDFC Bank',
+                'bank-yes': s.bankName === 'YES BANK',
+                'bank-axis': s.bankName === 'Axis Bank'
+              }">
+                {{ s.bankName || 'Pending' }}
+              </span>
+            </td>
+            <td>
+              <span class="mono text-xs">{{ s.uploadedAt | date:'dd MMM yyyy, HH:mm' }}</span>
+            </td>
+            <td class="text-right mono font-bold">
+              <span *ngIf="s.transactionCount > 0" class="tx-badge">
+                {{ s.transactionCount | number }} rows
+              </span>
+              <span *ngIf="s.transactionCount === 0" class="text-muted text-xs">—</span>
+            </td>
+            <td class="text-center">
+              <span class="badge" [ngClass]="{
+                'badge-success': s.processingStatus === 2,
+                'badge-info': s.processingStatus === 1,
+                'badge-accent': s.processingStatus === 0,
+                'badge-danger': s.processingStatus === 3
+              }">
+                {{ s.status }}
+              </span>
+            </td>
+            <td class="text-right">
+              <div class="action-btn-group">
+                <a routerLink="/converter" class="btn btn-outline btn-sm" title="Inspect / Convert in Converter">
+                  <span>Inspect</span>
+                </a>
+                <button type="button" class="btn btn-secondary btn-sm" (click)="downloadStatement(s)" title="Download Original PDF">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  <span>Download</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State (When zero statements exist) -->
+    <div class="empty-state-container" *ngIf="!loading && stats.recentStatements.length === 0" id="dashboard-empty-state">
+      <div class="empty-icon-wrap" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+      </div>
+      <h3 class="font-bold">No statements yet</h3>
+      <p class="text-muted">
+        Your workspace is ready. Upload a bank statement to begin your first conversion.
+      </p>
+      <a routerLink="/converter" class="btn btn-excel btn-lg" id="empty-state-upload-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Upload Statement</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       SECTIONS 7 & 8: Supported Workflow Coverage & Quick Actions (Split)
+       ======================================================================== -->
+  <div class="dashboard-footer-split">
+    <!-- Section 7: Supported Workflow Coverage -->
+    <div class="card split-card supported-coverage-card">
+      <div class="panel-header-row">
+        <div>
+          <h2 class="panel-main-title font-bold">Supported Bank Statements</h2>
+          <p class="panel-sub-title text-muted">8 institutions across 9 layout-calibrated deterministic profiles</p>
+        </div>
+        <span class="badge badge-excel">8 Banks &bull; 9 Profiles</span>
+      </div>
+
+      <div class="banks-coverage-grid">
+        <div class="bank-badge-chip font-bold">HDFC Bank</div>
+        <div class="bank-badge-chip font-bold">YES BANK</div>
+        <div class="bank-badge-chip font-bold">Axis Bank</div>
+        <div class="bank-badge-chip font-bold">Central Bank of India</div>
+        <div class="bank-badge-chip font-bold">ICICI Bank</div>
+        <div class="bank-badge-chip font-bold">SBI</div>
+        <div class="bank-badge-chip font-bold">Bank of India</div>
+        <div class="bank-badge-chip font-bold">Kotak Mahindra Bank</div>
+      </div>
+
+      <div class="coverage-cta-wrap">
+        <a routerLink="/supported-banks" class="btn btn-outline btn-sm w-full" id="view-all-banks-btn">
+          <span>View all supported banks &amp; formats &rarr;</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Section 8: Quick Actions Command Center -->
+    <div class="card split-card quick-actions-card">
+      <div class="panel-header-row">
+        <div>
+          <h2 class="panel-main-title font-bold">Quick Actions</h2>
+          <p class="panel-sub-title text-muted">Direct navigation across your accounting workspace</p>
         </div>
       </div>
 
-      <!-- Pipeline Guidance -->
-      <div class="card guide-card">
-        <h3 class="guide-title">Conversion Pipeline</h3>
-        <div class="pipeline-list">
-          <div class="pipeline-step">
-            <div class="step-badge">1</div>
-            <div class="step-info">
-              <h4>Upload PDF Statement</h4>
-              <p>Securely ingest digital statements into your private workspace.</p>
-            </div>
+      <div class="quick-actions-grid">
+        <a routerLink="/converter" class="quick-action-tile">
+          <div class="qa-icon-wrap icon-excel" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
           </div>
-          <div class="pipeline-step">
-            <div class="step-badge">2</div>
-            <div class="step-info">
-              <h4>Validate &amp; Review</h4>
-              <p>Mathematical running balance continuity verification and correction sidecar.</p>
-            </div>
+          <div class="qa-info">
+            <strong class="qa-title">Upload Statement</strong>
+            <span class="qa-sub text-xs text-muted">Convert PDF to .xlsx</span>
           </div>
-          <div class="pipeline-step">
-            <div class="step-badge">3</div>
-            <div class="step-info">
-              <h4>Export to Excel</h4>
-              <p>Multi-sheet .xlsx workbook with formulas and audit summaries.</p>
-            </div>
+        </a>
+
+        <a routerLink="/excel-to-tally" class="quick-action-tile">
+          <div class="qa-icon-wrap icon-tally" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="15"></line></svg>
           </div>
-        </div>
+          <div class="qa-info">
+            <strong class="qa-title">Excel &rarr; Tally XML</strong>
+            <span class="qa-sub text-xs text-muted">Generate vouchers</span>
+          </div>
+        </a>
+
+        <a routerLink="/files" class="quick-action-tile">
+          <div class="qa-icon-wrap icon-primary" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+          </div>
+          <div class="qa-info">
+            <strong class="qa-title">My Statements</strong>
+            <span class="qa-sub text-xs text-muted">View all archives</span>
+          </div>
+        </a>
+
+        <a routerLink="/supported-banks" class="quick-action-tile">
+          <div class="qa-icon-wrap icon-accent" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="5 6 12 3 19 6"></polyline></svg>
+          </div>
+          <div class="qa-info">
+            <strong class="qa-title">Supported Banks</strong>
+            <span class="qa-sub text-xs text-muted">Inspect calibrations</span>
+          </div>
+        </a>
+
+        <a routerLink="/settings" class="quick-action-tile">
+          <div class="qa-icon-wrap icon-muted" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </div>
+          <div class="qa-info">
+            <strong class="qa-title">Workspace Settings</strong>
+            <span class="qa-sub text-xs text-muted">Preferences &amp; DB</span>
+          </div>
+        </a>
       </div>
     </div>
   </div>

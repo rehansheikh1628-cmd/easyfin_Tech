@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { StatementService } from '../../services/statement.service';
 import { AuthService } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface DashboardRecentStatement {
   id: string;
@@ -39,8 +40,8 @@ export interface DashboardSummary {
 export class DashboardComponent implements OnInit {
   stats: DashboardSummary = {
     status: 'Online / Connected',
-    database: 'EasyFin_Tech',
-    server: 'localhost\\SQLEXPRESS',
+    database: 'Production',
+    server: 'Protected',
     canConnect: true,
     totalStatements: 0,
     completedStatements: 0,
@@ -63,6 +64,23 @@ export class DashboardComponent implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
+  get greeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  get userDisplayName(): string {
+    if (this.authService.currentUser?.fullName) {
+      return this.authService.currentUser.fullName;
+    }
+    if (this.userWorkspaceName && this.userWorkspaceName !== 'Connected Workspace') {
+      return this.userWorkspaceName;
+    }
+    return 'Finance Team';
+  }
+
   ngOnInit(): void {
     this.loadDashboardData();
   }
@@ -75,7 +93,11 @@ export class DashboardComponent implements OnInit {
       this.userWorkspaceName = this.authService.currentUser.workspaceName;
     }
 
-    this.http.get<DashboardSummary>('/api/dashboard/summary').subscribe({
+    const dashboardUrl = environment.apiUrl && !environment.apiUrl.includes('YOUR-PRODUCTION')
+      ? `${environment.apiUrl}/api/dashboard/summary`
+      : '/api/dashboard/summary';
+
+    this.http.get<DashboardSummary>(dashboardUrl).subscribe({
       next: (summary) => {
         if (summary) {
           this.stats = {

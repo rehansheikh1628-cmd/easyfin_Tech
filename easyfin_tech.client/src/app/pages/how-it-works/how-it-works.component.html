@@ -1,157 +1,663 @@
 <app-public-nav></app-public-nav>
 
-<main class="page-body">
-  <div class="page-header">
-    <div class="container text-center">
-      <span class="badge badge-accent">Processing Architecture</span>
-      <h1 class="page-title">How EasyFin Statement Processing Works</h1>
-      <p class="page-subtitle">
-        A step-by-step breakdown of how raw PDF statements are parsed, verified, and mapped into structured Excel spreadsheets.
-      </p>
-    </div>
-  </div>
-
-  <section class="section">
+<main class="how-it-works-page" role="main">
+  <!-- 1. Page Header -->
+  <header class="hiw-header">
     <div class="container">
-      <!-- Roadmap Note Banner -->
-      <div class="phase-notice-box">
-        <div class="notice-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-        </div>
-        <div class="notice-text">
-          <h4>Engineering Transparency: Phase 1 vs Phase 2</h4>
-          <p>
-            You are viewing the <strong>Phase 1 UI &amp; Foundation</strong>. The visual workflow and interactive review components shown below represent the exact user interface and pipeline. The core PDF extraction and machine bank detection engines are scheduled for Phase 2 integration.
+      <nav class="header-breadcrumbs" aria-label="Breadcrumb">
+        <a routerLink="/" class="breadcrumb-link">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">How It Works</span>
+      </nav>
+
+      <div class="header-content text-center">
+        <span class="badge badge-accent mb-2">Deterministic Architecture</span>
+        <h1 class="page-title" id="howItWorksMainTitle">From financial data to structured output.</h1>
+        <p class="page-subtitle">
+          Follow the step-by-step workflow from file ingestion to validated, usable accounting data. EasyFin Tech maintains completely separate pipelines for statement parsing and Tally XML generation.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. Workflow Selector Cards (The 3 Workflows) -->
+  <section class="workflow-selector-section" aria-label="Select Product Workflow">
+    <div class="container">
+      <div class="workflow-selector-grid">
+        <!-- Workflow 1 Card -->
+        <button
+          type="button"
+          class="workflow-select-card card"
+          [class.active]="activeWorkflow === 'bank-to-excel'"
+          (click)="setWorkflow('bank-to-excel')"
+          id="tabBankToExcel"
+        >
+          <div class="wf-status-row">
+            <span class="wf-status-badge available">
+              <span class="status-dot"></span> Available
+            </span>
+            <span class="wf-code-tag font-mono">Workflow 1</span>
+          </div>
+          <h2 class="wf-title">Bank Statement PDF &rarr; Excel</h2>
+          <p class="wf-desc">
+            Deterministic digital PDF extraction with dynamic column interval calibration and running balance checksums.
           </p>
+          <span class="wf-select-action">
+            <span>View 6-Step Workflow</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </span>
+        </button>
+
+        <!-- Workflow 2 Card -->
+        <button
+          type="button"
+          class="workflow-select-card card"
+          [class.active]="activeWorkflow === 'excel-to-tally'"
+          (click)="setWorkflow('excel-to-tally')"
+          id="tabExcelToTally"
+        >
+          <div class="wf-status-row">
+            <span class="wf-status-badge available">
+              <span class="status-dot"></span> Available
+            </span>
+            <span class="wf-code-tag font-mono">Workflow 2</span>
+          </div>
+          <h2 class="wf-title">Excel &rarr; Tally XML</h2>
+          <p class="wf-desc">
+            Official Excel workbook validation, transaction preview, and canonical Tally XML voucher generation.
+          </p>
+          <span class="wf-select-action">
+            <span>View 7-Step Workflow</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </span>
+        </button>
+
+        <!-- Workflow 3 Card (Coming Soon) -->
+        <button
+          type="button"
+          class="workflow-select-card card coming-soon"
+          [class.active]="activeWorkflow === 'bills-invoices'"
+          (click)="setWorkflow('bills-invoices')"
+          id="tabBillsInvoices"
+        >
+          <div class="wf-status-row">
+            <span class="wf-status-badge coming-soon">
+              <span class="status-dot-amber"></span> Coming Soon
+            </span>
+            <span class="wf-code-tag font-mono">Workflow 3</span>
+          </div>
+          <h2 class="wf-title">Bills &amp; Invoices &rarr; Excel</h2>
+          <p class="wf-desc">
+            Future workflow planned for structuring purchase bills, sales invoices, and vendor metadata into Excel.
+          </p>
+          <span class="wf-select-action">
+            <span>View Roadmap Note</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Workflow 1 In-Depth Step-by-Step (Bank Statement → Excel) -->
+  <section class="workflow-steps-section" id="sectionBankToExcel" *ngIf="activeWorkflow === 'bank-to-excel'" aria-label="Bank Statement to Excel Workflow Steps">
+    <div class="container">
+      <div class="active-workflow-header card">
+        <div class="header-left">
+          <span class="badge badge-primary mb-1">Workflow 1 In-Depth</span>
+          <h2 class="active-wf-title">Bank Statement PDF &rarr; Excel Process</h2>
+          <p class="active-wf-subtitle">
+            A 6-stage deterministic pipeline from digital PDF ingestion to ClosedXML spreadsheet download.
+          </p>
+        </div>
+        <div class="header-right">
+          <a routerLink="/converter" class="btn btn-excel btn-sm" id="hiwConverterCta">
+            <span>Open Converter</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
         </div>
       </div>
 
-      <!-- Steps Detailed Breakdown -->
-      <div class="workflow-steps-vertical">
+      <!-- Vertical Steps Timeline -->
+      <div class="timeline-container">
         <!-- Step 1 -->
-        <div class="step-row">
-          <div class="step-marker">
-            <span class="marker-circle">1</span>
-            <div class="marker-line"></div>
-          </div>
-          <div class="step-detail-card card">
-            <div class="card-tag">Ingestion</div>
-            <h2>1. Statement Upload &amp; Header Parsing</h2>
-            <p>
-              Users upload raw bank statement PDFs (single page, multi-page, or password-protected files). EasyFin identifies the source bank, statement date range, opening balance, and account identifiers from document headers.
+        <div class="timeline-step">
+          <div class="step-badge font-mono">01</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Ingestion</span>
+              <span class="step-target">Digital PDF Upload</span>
+            </div>
+            <h3 class="step-heading">Upload Statement &amp; Assign Workspace</h3>
+            <p class="step-description">
+              Select a supported digital bank statement PDF. Assign the file to an authorized Client and Financial Year within your workspace. The server streams the upload securely and calculates an invariant SHA-256 hash to detect duplicate uploads.
             </p>
-            <div class="tech-spec-grid">
-              <div class="spec-item">
-                <span class="spec-label">Input Formats</span>
-                <span class="spec-val">PDF (Digital &amp; Scanned)</span>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">Accepted File Type</span>
+                <span class="spec-value font-mono">Digital PDF (.pdf)</span>
               </div>
-              <div class="spec-item">
-                <span class="spec-label">Page Handling</span>
-                <span class="spec-val">1 to 500+ Pages</span>
+              <div class="spec-cell">
+                <span class="spec-label">Security Guard</span>
+                <span class="spec-value font-mono">SHA-256 Duplicate Check</span>
               </div>
-              <div class="spec-item">
-                <span class="spec-label">Header Metadata</span>
-                <span class="spec-val">Account No, Period, Opening Balance</span>
+              <div class="spec-cell">
+                <span class="spec-label">Workspace Isolation</span>
+                <span class="spec-value font-mono">Client &bull; Financial Year</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Step 2 -->
-        <div class="step-row">
-          <div class="step-marker">
-            <span class="marker-circle">2</span>
-            <div class="marker-line"></div>
-          </div>
-          <div class="step-detail-card card">
-            <div class="card-tag">Extraction</div>
-            <h2>2. Table Boundary Detection &amp; Narration Joining</h2>
-            <p>
-              Bank statements frequently break descriptions across 2 to 4 lines. EasyFin's parsing engine aligns multi-line transaction narratives (UTR numbers, merchant codes, payer names) into cohesive single rows rather than fragmented records.
+        <div class="timeline-step">
+          <div class="step-badge font-mono">02</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Geometry Extraction</span>
+              <span class="step-target">PdfPig Engine</span>
+            </div>
+            <h3 class="step-heading">Extract Coordinates &amp; Bounding Boxes</h3>
+            <p class="step-description">
+              EasyFin Tech extracts characters, words, and bounding box geometry directly from the PDF's native font glyphs using PdfPig. Processing occurs entirely in-process on the application server with zero third-party cloud extraction dependencies.
             </p>
-            <div class="tech-spec-grid">
-              <div class="spec-item">
-                <span class="spec-label">Multi-Line Handling</span>
-                <span class="spec-val">Auto-concatenated narrations</span>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">Extraction Engine</span>
+                <span class="spec-value font-mono">PdfPig v0.1.16</span>
               </div>
-              <div class="spec-item">
-                <span class="spec-label">Debit/Credit Detection</span>
-                <span class="spec-val">Split columns or signed amounts</span>
+              <div class="spec-cell">
+                <span class="spec-label">Cloud Dependency</span>
+                <span class="spec-value font-mono">0 Cloud API Calls</span>
               </div>
-              <div class="spec-item">
-                <span class="spec-label">Date Normalization</span>
-                <span class="spec-val">ISO &amp; Local formats (DD/MM/YYYY)</span>
+              <div class="spec-cell">
+                <span class="spec-label">Geometry Extracted</span>
+                <span class="spec-value font-mono">X, Y, Width, Height, Glyphs</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Step 3 -->
-        <div class="step-row">
-          <div class="step-marker">
-            <span class="marker-circle">3</span>
-            <div class="marker-line"></div>
-          </div>
-          <div class="step-detail-card card">
-            <div class="card-tag">Verification</div>
-            <h2>3. Interactive Verification &amp; Balance Reconciliation</h2>
-            <p>
-              Before any file is exported, accountants can inspect the transactions in a high-speed verification table. Running balance checks ensure that:
-              <br><code>Opening Balance + Credits - Debits = Closing Balance</code>. Any arithmetic discrepancies are highlighted instantly.
+        <div class="timeline-step">
+          <div class="step-badge font-mono">03</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Deterministic Classification</span>
+              <span class="step-target">BankDetector &bull; Parsers</span>
+            </div>
+            <h3 class="step-heading">Detect Bank &amp; Calibrate Column Geometry</h3>
+            <p class="step-description">
+              The bank detector evaluates IFSC patterns, bank branding, and table headers to score and select the appropriate calibrated parser (e.g. HDFC-v1, ICICI-v2). Column boundaries are dynamically calibrated from table header intervals. Multi-line descriptions and cross-page transactions (N &rarr; N+1) are joined into unified rows.
             </p>
-            <div class="tech-spec-grid">
-              <div class="spec-item">
-                <span class="spec-label">Audit Control</span>
-                <span class="spec-val">In-browser transaction editor</span>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">Calibrated Institutions</span>
+                <span class="spec-value font-mono">8 Banks &bull; 9 Layout Profiles</span>
               </div>
-              <div class="spec-item">
-                <span class="spec-label">Running Balance Check</span>
-                <span class="spec-val">100% mathematical match</span>
+              <div class="spec-cell">
+                <span class="spec-label">Narration Joining</span>
+                <span class="spec-value font-mono">Multi-line &bull; Cross-page</span>
               </div>
-              <div class="spec-item">
-                <span class="spec-label">Warning Flags</span>
-                <span class="spec-val">Out-of-order dates or missing balances</span>
+              <div class="spec-cell">
+                <span class="spec-label">Detection Method</span>
+                <span class="spec-value font-mono">Multi-signal deterministic score</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Step 4 -->
-        <div class="step-row">
-          <div class="step-marker">
-            <span class="marker-circle">4</span>
-          </div>
-          <div class="step-detail-card card">
-            <div class="card-tag">Export</div>
-            <h2>4. Clean Excel (.xlsx) &amp; Accounting Export</h2>
-            <p>
-              Generate clean, formula-ready Microsoft Excel workbooks. Numbers are exported as real floating-point numbers (not strings masquerading as numbers), allowing immediate pivot tables, VLOOKUPs, and accounting imports.
+        <div class="timeline-step">
+          <div class="step-badge font-mono">04</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Mathematical Validation</span>
+              <span class="step-target">TransactionValidationService</span>
+            </div>
+            <h3 class="step-heading">Verify Running Balances &amp; Arithmetic Integrity</h3>
+            <p class="step-description">
+              Every extracted transaction is verified against mathematical balance continuity. The validation engine ensures that each row's previous balance plus credits minus debits exactly equals its new balance. The global equation <code>Opening Balance + &Sigma;Credits - &Sigma;Debits = Closing Balance</code> is verified against statement summary figures.
             </p>
-            <div class="tech-spec-grid">
-              <div class="spec-item">
-                <span class="spec-label">File Types</span>
-                <span class="spec-val">Microsoft Excel (.xlsx), CSV</span>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">Validation Rule 1</span>
+                <span class="spec-value font-mono">Prev + Cr - Dr = Current Balance</span>
               </div>
-              <div class="spec-item">
-                <span class="spec-label">Accounting Presets</span>
-                <span class="spec-val">Standard Ledger, Tally XML format</span>
+              <div class="spec-cell">
+                <span class="spec-label">Validation Rule 2</span>
+                <span class="spec-value font-mono">Opening + &Sigma;Cr - &Sigma;Dr = Closing</span>
               </div>
-              <div class="spec-item">
-                <span class="spec-label">Summary Sheet</span>
-                <span class="spec-val">Monthly Debit/Credit breakdown</span>
+              <div class="spec-cell">
+                <span class="spec-label">Discrepancy Action</span>
+                <span class="spec-value font-mono">Flagged for Review</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="timeline-step">
+          <div class="step-badge font-mono">05</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Interactive Review</span>
+              <span class="step-target">Review Grid &bull; Audit Store</span>
+            </div>
+            <h3 class="step-heading">Inspect Flags &amp; Apply Auditable Corrections</h3>
+            <p class="step-description">
+              Transactions requiring inspection are displayed in the high-density in-browser review table. Users can search by narration, filter by debit/credit, and correct values if necessary. All modifications are recorded in an auditable sidecar store, preserving the pristine raw extraction.
+            </p>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">Original Data</span>
+                <span class="spec-value font-mono">Pristine snapshot preserved</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Audit Persistence</span>
+                <span class="spec-value font-mono">Sidecar correction store</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Real-Time Recalculation</span>
+                <span class="spec-value font-mono">Immediate running balance update</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="timeline-step">
+          <div class="step-badge font-mono">06</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Output</span>
+              <span class="step-target">ClosedXML Spreadsheet</span>
+            </div>
+            <h3 class="step-heading">Export Formula-Ready ClosedXML Excel (.xlsx)</h3>
+            <p class="step-description">
+              Download a cleanly formatted Microsoft Excel workbook generated via ClosedXML. Financial values are true numeric floating-point numbers, dates are native Excel serial dates, and references (UTR, NEFT, cheque numbers) are formatted cleanly. Includes locked header freeze panes and a summary sheet.
+            </p>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">Format Generated</span>
+                <span class="spec-value font-mono">Microsoft Excel (.xlsx)</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Number Formatting</span>
+                <span class="spec-value font-mono">Numeric Currency (#,##0.00)</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Compatibility</span>
+                <span class="spec-value font-mono">Excel 2016+, M365, LibreOffice</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Action Footer -->
-      <div class="page-cta-box text-center">
-        <h3>Ready to test the preview workflow?</h3>
-        <p>You can test the interactive converter interface right now.</p>
+      <!-- Scanned PDF & OCR Advisory -->
+      <div class="hiw-advisory-box card">
+        <div class="advisory-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+        <div class="advisory-body">
+          <h4>Digital PDF Requirement &bull; OCR Limitations</h4>
+          <p>
+            EasyFin Tech's standard parser workflow processes <strong>native digital PDFs</strong> with selectable text layers. Scanned PDFs, camera photos, passbook printouts, and image-only documents require Optical Character Recognition (OCR) and are <strong>not currently included in the standard digital-PDF parser workflow</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Workflow 2 In-Depth Step-by-Step (Excel → Tally XML) -->
+  <section class="workflow-steps-section" id="sectionExcelToTally" *ngIf="activeWorkflow === 'excel-to-tally'" aria-label="Excel to Tally XML Workflow Steps">
+    <div class="container">
+      <div class="active-workflow-header card">
+        <div class="header-left">
+          <span class="badge badge-accent mb-1">Workflow 2 In-Depth</span>
+          <h2 class="active-wf-title">Excel &rarr; Tally XML Process</h2>
+          <p class="active-wf-subtitle">
+            A 7-stage accounting pipeline transforming standardized Excel spreadsheets into import-ready Tally XML vouchers.
+          </p>
+        </div>
+        <div class="header-right">
+          <a routerLink="/excel-to-tally" class="btn btn-primary btn-sm" id="hiwTallyCta">
+            <span>Open Excel &rarr; Tally</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Vertical Steps Timeline -->
+      <div class="timeline-container">
+        <!-- Step 1 -->
+        <div class="timeline-step">
+          <div class="step-badge font-mono">01</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Preparation</span>
+              <span class="step-target">Template Acquisition</span>
+            </div>
+            <h3 class="step-heading">Download Official EasyFin Tech Template (.xlsm)</h3>
+            <p class="step-description">
+              Download the official, standardized EasyFin Tech Excel template directly from the application. The workbook contains pre-configured columns matching the required schema for Tally voucher generation.
+            </p>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">Template Format</span>
+                <span class="spec-value font-mono">Macro-Enabled Excel (.xlsm)</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Required Columns</span>
+                <span class="spec-value font-mono">Date, Particulars, Debit, Credit, Ledger</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Source of Truth</span>
+                <span class="spec-value font-mono">EasyFin Tech Official Template</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="timeline-step">
+          <div class="step-badge font-mono">02</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Data Entry</span>
+              <span class="step-target">Transaction Mapping</span>
+            </div>
+            <h3 class="step-heading">Fill Transaction Data &amp; Ledger Names</h3>
+            <p class="step-description">
+              Enter or paste transaction rows into the template. Specify the bank or cash ledger name, counter-ledger account, transaction amounts, and reference details. The template maintains clear separation between debit and credit columns.
+            </p>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">Supported Sources</span>
+                <span class="spec-value font-mono">Any bank, cash, or ERP export</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Ledger Assignment</span>
+                <span class="spec-value font-mono">Direct counter-ledger mapping</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Data Integrity</span>
+                <span class="spec-value font-mono">Separate Debit &amp; Credit columns</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="timeline-step">
+          <div class="step-badge font-mono">03</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Upload</span>
+              <span class="step-target">Workbook Ingestion</span>
+            </div>
+            <h3 class="step-heading">Upload Completed Workbook to EasyFin Tech</h3>
+            <p class="step-description">
+              Upload the completed .xlsm workbook to the secure /excel-to-tally endpoint. EasyFin Tech reads the spreadsheet using ClosedXmlExcelReaderService with strict workbook validation.
+            </p>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">Accepted Extensions</span>
+                <span class="spec-value font-mono">.xlsm, .xlsx</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">File Reader</span>
+                <span class="spec-value font-mono">ClosedXmlExcelReaderService</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Validation Engine</span>
+                <span class="spec-value font-mono">ExcelToTallyValidationService</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="timeline-step">
+          <div class="step-badge font-mono">04</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Schema Verification</span>
+              <span class="step-target">Rules Engine</span>
+            </div>
+            <h3 class="step-heading">Validate Column Headers, Dates &amp; Balances</h3>
+            <p class="step-description">
+              The server-side validation service performs strict checks: confirms all required headers exist, validates date formats, verifies that positive amounts are present, checks that debit and credit amounts do not conflict on the same row, and confirms that ledger names are populated.
+            </p>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">Header Validation</span>
+                <span class="spec-value font-mono">Exact required schema verification</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Amount Validation</span>
+                <span class="spec-value font-mono">Strict positive non-zero checks</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Error Reporting</span>
+                <span class="spec-value font-mono">Structured error list with row numbers</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="timeline-step">
+          <div class="step-badge font-mono">05</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Preview</span>
+              <span class="step-target">Transaction Review</span>
+            </div>
+            <h3 class="step-heading">Preview Transactions &amp; Voucher Classifications</h3>
+            <p class="step-description">
+              Inspect the validated transaction dataset in the web preview grid. Review total debit and credit amounts, transaction counts, and verify that voucher types match expected accounting directions.
+            </p>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">Debit Direction</span>
+                <span class="spec-value font-mono">Payment Voucher</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Credit Direction</span>
+                <span class="spec-value font-mono">Receipt Voucher</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Summary Check</span>
+                <span class="spec-value font-mono">Total Debit &bull; Total Credit</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="timeline-step">
+          <div class="step-badge font-mono">06</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Generation</span>
+              <span class="step-target">TallyXmlGenerator</span>
+            </div>
+            <h3 class="step-heading">Generate Canonical Tally XML Vouchers</h3>
+            <p class="step-description">
+              TallyXmlGenerator constructs the standard Tally XML envelope (<code>&lt;ENVELOPE&gt;&lt;BODY&gt;&lt;IMPORTDATA&gt;...</code>). Every voucher is generated with correct ledger entries, GUID identifiers, date stamps in YYYYMMDD format, and balanced ledger postings.
+            </p>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">XML Standard</span>
+                <span class="spec-value font-mono">Tally Canonical XML Schema</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Date Format</span>
+                <span class="spec-value font-mono">YYYYMMDD</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Voucher Types</span>
+                <span class="spec-value font-mono">Payment &bull; Receipt</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="timeline-step">
+          <div class="step-badge font-mono">07</div>
+          <div class="step-card card">
+            <div class="step-meta-row">
+              <span class="step-phase">Stage: Completion</span>
+              <span class="step-target">Import into Tally</span>
+            </div>
+            <h3 class="step-heading">Download XML &amp; Import into TallyPrime</h3>
+            <p class="step-description">
+              Download the resulting .xml file. In TallyPrime or Tally.ERP 9, navigate to <strong>Import &rarr; Transactions</strong>, select the downloaded XML file, and import all vouchers directly into your company ledgers in one click.
+            </p>
+            <div class="step-specs-grid">
+              <div class="spec-cell">
+                <span class="spec-label">File Type</span>
+                <span class="spec-value font-mono">XML (.xml)</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Tally Target</span>
+                <span class="spec-value font-mono">TallyPrime &bull; Tally.ERP 9</span>
+              </div>
+              <div class="spec-cell">
+                <span class="spec-label">Import Method</span>
+                <span class="spec-value font-mono">Import &rarr; Transactions</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Workflow 3 Overview (Bills & Invoices Coming Soon) -->
+  <section class="workflow-steps-section" id="sectionBillsInvoices" *ngIf="activeWorkflow === 'bills-invoices'" aria-label="Bills and Invoices Roadmap">
+    <div class="container">
+      <div class="active-workflow-header card coming-soon-header">
+        <div class="header-left">
+          <span class="badge badge-accent mb-1">Workflow 3 &bull; Roadmap</span>
+          <h2 class="active-wf-title">Bills &amp; Invoices &rarr; Excel</h2>
+          <p class="active-wf-subtitle">
+            A planned future workflow designed to extract and normalize vendor bills, sales invoices, and GST metadata into structured spreadsheets.
+          </p>
+        </div>
+      </div>
+
+      <div class="roadmap-card card">
+        <div class="roadmap-icon-wrap">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="roadmap-content">
+          <h3>Engineering Status: In Research</h3>
+          <p>
+            Bills and invoices present fundamentally different layout challenges from bank statements: variable vendor invoice structures, multi-rate tax breakdowns, line-item quantity grids, and optical scans.
+          </p>
+          <p>
+            EasyFin Tech's engineering principle is <strong>Accuracy &gt; Feature Count</strong>. We do not release or advertise features that rely on speculative or probabilistic guessing. The Bills &amp; Invoices workflow is currently undergoing architectural evaluation and is not yet available in production.
+          </p>
+          <div class="roadmap-notice">
+            <strong>Current production availability:</strong> Workflows 1 (Bank Statement PDF &rarr; Excel) and 2 (Excel &rarr; Tally XML) are fully active and validated.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Architectural Deep-Dive: Why Validation Matters -->
+  <section class="validation-philosophy-section" aria-label="Validation Philosophy">
+    <div class="container">
+      <div class="philosophy-card card">
+        <div class="philosophy-header">
+          <span class="badge badge-primary mb-1">Core Philosophy</span>
+          <h2>The Validation Difference: Why EasyFin Tech Verifies Every Rupee</h2>
+        </div>
+        <div class="philosophy-grid">
+          <div class="philosophy-point">
+            <div class="point-num font-mono">01</div>
+            <h3>Text Extraction is Not Accounting</h3>
+            <p>
+              Tools that simply extract text from PDFs often miss decimal commas, split descriptions across phantom rows, or swap debit and credit columns. EasyFin Tech requires every transaction to reconcile arithmetically against running balances.
+            </p>
+          </div>
+          <div class="philosophy-point">
+            <div class="point-num font-mono">02</div>
+            <h3>Pristine Snapshots &amp; Sidecar Audits</h3>
+            <p>
+              When corrections are made in the review grid, EasyFin Tech does not mutate raw extraction records. Edits are persisted in an immutable sidecar audit trail, preserving full evidentiary provenance for Chartered Accountants.
+            </p>
+          </div>
+          <div class="philosophy-point">
+            <div class="point-num font-mono">03</div>
+            <h3>Zero Cloud Extraction Dependencies</h3>
+            <p>
+              PdfPig extracts character geometry directly in-process on the application server. Financial statement documents are never transmitted to third-party AI vision APIs or unvetted external services.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. What Happens to Your Files Section -->
+  <section class="file-security-section" aria-label="File Security and Storage">
+    <div class="container">
+      <div class="security-info-card card">
+        <div class="sec-header">
+          <span class="badge badge-outline mb-1">Storage &amp; Privacy</span>
+          <h2>What Happens to Your Files in EasyFin Tech</h2>
+        </div>
+        <div class="sec-grid">
+          <div class="sec-item">
+            <h4>Private Sandboxed Storage</h4>
+            <p>
+              Uploaded statement PDFs are stored in sandboxed private disk directories outside public web folders, protected against path-traversal vulnerabilities.
+            </p>
+          </div>
+          <div class="sec-item">
+            <h4>Strict Authorization Chains</h4>
+            <p>
+              Every access request verifies ownership from the authenticated session down to the file and transaction: <code>User &rarr; Client &rarr; FileRecord &rarr; Transaction</code>.
+            </p>
+          </div>
+          <div class="sec-item">
+            <h4>Workspace Isolation</h4>
+            <p>
+              Statement files and transaction datasets are strictly isolated by Client and Financial Year. Cross-account inspection is blocked at the database and API layers.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Bottom Action CTA -->
+  <section class="hiw-cta-section" aria-label="Get Started">
+    <div class="container">
+      <div class="cta-banner card text-center">
+        <span class="badge badge-accent mb-2">Ready to convert?</span>
+        <h2 class="cta-title">Start converting your statements with mathematical precision</h2>
+        <p class="cta-subtitle">
+          Choose between our Bank Statement PDF &rarr; Excel converter or the Excel &rarr; Tally XML voucher workflow.
+        </p>
         <div class="cta-actions">
-          <a routerLink="/converter" class="btn btn-primary btn-lg">Launch Converter UI</a>
-          <a routerLink="/features" class="btn btn-secondary btn-lg">Explore Feature Matrix</a>
+          <a routerLink="/converter" class="btn btn-excel btn-lg" id="hiwBottomConverterBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Open Statement Converter</span>
+          </a>
+          <a routerLink="/excel-to-tally" class="btn btn-secondary btn-lg" id="hiwBottomTallyBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline><line x1="14" y1="4" x2="10" y2="20"></line></svg>
+            <span>Open Excel &rarr; Tally</span>
+          </a>
+          <a routerLink="/supported-banks" class="btn btn-outline btn-lg" id="hiwBottomBanksBtn">
+            <span>View Supported Banks</span>
+          </a>
         </div>
       </div>
     </div>

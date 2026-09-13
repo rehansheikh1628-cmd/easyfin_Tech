@@ -14,6 +14,7 @@ using EasyFin_Tech.Server.Data;
 using EasyFin_Tech.Server.DTOs;
 using EasyFin_Tech.Server.Models;
 using EasyFin_Tech.Server.Options;
+using EasyFin_Tech.Server.Parsing;
 using EasyFin_Tech.Server.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -381,5 +382,370 @@ public class UserIsolationTests : IClassFixture<CustomWebApplicationFactory>
 
         Assert.True(hasher.VerifyHashedPassword(hash, rawPassword, out _));
         Assert.False(hasher.VerifyHashedPassword(hash, "WrongPassword!", out _));
+    }
+
+    private async Task<(StatementUploadResponse Statement, Guid TransactionId)> SeedStatementWithTransactionsAsync(HttpClient client, string prefix)
+    {
+        var file = await UploadPdfAsync(client, $"{prefix}_stmt.pdf", $"{prefix} STATEMENT");
+        var txId = Guid.NewGuid();
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<EasyFinDbContext>();
+            var fileRecord = await db.FileRecords.IgnoreQueryFilters().FirstAsync(f => f.Id == file.FileId);
+
+            var importResult = new TransactionImportResult
+            {
+                Id = Guid.NewGuid(),
+                SourceFileId = file.FileId,
+                ClientId = fileRecord.ClientId,
+                FinancialYearId = fileRecord.FinancialYearId,
+                TotalDetected = 1,
+                ProcessedCount = 1,
+                DetectedBank = (int)BankType.Hdfc,
+                Status = "Success",
+                StartedAt = DateTime.UtcNow,
+                CompletedAt = DateTime.UtcNow
+            };
+            db.TransactionImportResults.Add(importResult);
+
+            var tx = new Transaction
+            {
+                Id = txId,
+                SourceFileId = file.FileId,
+                ClientId = fileRecord.ClientId,
+                FinancialYearId = fileRecord.FinancialYearId,
+                TransactionDate = new DateTime(2026, 4, 1),
+                Description = $"{prefix} SALARY DEPOSIT",
+                Debit = null,
+                Credit = 50000.00m,
+                Amount = 50000.00m,
+                Balance = 50000.00m,
+                BankCode = (int)BankType.Hdfc,
+                TransactionType = "Credit",
+                Reference = "DEP-12345",
+                CreatedAt = DateTime.UtcNow
+            };
+            db.Transactions.Add(tx);
+            await db.SaveChangesAsync();
+
+            var correctionStore = scope.ServiceProvider.GetRequiredService<EasyFin_Tech.Server.Validation.Services.ITransactionCorrectionStore>();
+            var fakeParsingResult = new EasyFin_Tech.Server.Parsing.Models.BankParsingResult
+            {
+                Success = true,
+                BankCode = 1,
+                BankName = "HDFC Bank",
+                ParserVersion = "HDFC-v1",
+                Transactions = [new EasyFin_Tech.Server.Parsing.Models.ParsedTransaction { Id = txId, TransactionDate = tx.TransactionDate, Description = tx.Description, Credit = tx.Credit, Amount = tx.Amount, Balance = tx.Balance }]
+            };
+            await correctionStore.InitializeSnapshotAsync(file.FileId, fakeParsingResult, [tx], fileRecord.ClientId, fileRecord.FinancialYearId);
+        }
+
+        return (file, txId);
+    }
+
+    [Fact]
+    public async Task Test13_CrossUser_GetTransactions_DeniedWith404()
+    {
+        var (client1, _) = await RegisterUserAsync("u1_t13");
+        var (client2, _) = await RegisterUserAsync("u2_t13");
+
+        var (fileA, _) = await SeedStatementWithTransactionsAsync(client1, "U1_TX_LIST");
+
+        // User 2 attempts to retrieve User 1's transactions
+        var crossTxResp = await client2.GetAsync($"/api/statements/{fileA.FileId}/transactions");
+        Assert.Equal(HttpStatusCode.NotFound, crossTxResp.StatusCode);
+
+        // User 1 retrieves own transactions successfully
+        var ownTxResp = await client1.GetAsync($"/api/statements/{fileA.FileId}/transactions");
+        Assert.Equal(HttpStatusCode.OK, ownTxResp.StatusCode);
+        var respData = await ownTxResp.Content.ReadFromJsonAsync<StatementTransactionsResponse>(JsonOptions);
+        Assert.NotNull(respData);
+        Assert.True(respData.TotalCount >= 1);
+    }
+
+    [Fact]
+    public async Task Test14_CrossUser_GetTransactionById_DeniedWith404()
+    {
+        var (client1, _) = await RegisterUserAsync("u1_t14");
+        var (client2, _) = await RegisterUserAsync("u2_t14");
+
+        var (fileA, txId) = await SeedStatementWithTransactionsAsync(client1, "U1_TX_SINGLE");
+
+        // User 2 attempts to access single transaction belonging to User 1
+        var crossResp = await client2.GetAsync($"/api/statements/{fileA.FileId}/transactions/{txId}");
+        Assert.Equal(HttpStatusCode.NotFound, crossResp.StatusCode);
+
+        // User 1 accesses own transaction successfully
+        var ownResp = await client1.GetAsync($"/api/statements/{fileA.FileId}/transactions/{txId}");
+        Assert.Equal(HttpStatusCode.OK, ownResp.StatusCode);
+        var txData = await ownResp.Content.ReadFromJsonAsync<TransactionReviewDto>(JsonOptions);
+        Assert.NotNull(txData);
+        Assert.Equal(txId, txData.Id);
+    }
+
+    [Fact]
+    public async Task Test15_CrossUser_CorrectTransaction_DeniedWith404()
+    {
+        var (client1, _) = await RegisterUserAsync("u1_t15");
+        var (client2, _) = await RegisterUserAsync("u2_t15");
+
+        var (fileA, txId) = await SeedStatementWithTransactionsAsync(client1, "U1_TX_MOD");
+
+        var maliciousRequest = new CorrectTransactionRequest
+        {
+            TransactionDate = new DateTime(2026, 4, 1),
+            Description = "HACKED TRANSACTION DESCRIPTION",
+            Credit = 999999.00m,
+            Amount = 999999.00m,
+            Reason = "Malicious unauthorized modification"
+        };
+
+        // User 2 attempts to modify User 1's transaction
+        var crossModResp = await client2.PutAsJsonAsync($"/api/statements/{fileA.FileId}/transactions/{txId}", maliciousRequest, JsonOptions);
+        Assert.Equal(HttpStatusCode.NotFound, crossModResp.StatusCode);
+
+        // Verify User 1's transaction in database was NOT altered
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EasyFinDbContext>();
+        var originalTx = await db.Transactions.IgnoreQueryFilters().FirstAsync(t => t.Id == txId);
+        Assert.NotEqual("HACKED TRANSACTION DESCRIPTION", originalTx.Description);
+        Assert.Equal(50000.00m, originalTx.Amount);
+    }
+
+    [Fact]
+    public async Task Test16_CrossUser_ValidationSummaryAndRevalidate_DeniedWith404()
+    {
+        var (client1, _) = await RegisterUserAsync("u1_t16");
+        var (client2, _) = await RegisterUserAsync("u2_t16");
+
+        var (fileA, _) = await SeedStatementWithTransactionsAsync(client1, "U1_VAL");
+
+        // User 2 attempts to access validation summary
+        var crossSummaryResp = await client2.GetAsync($"/api/statements/{fileA.FileId}/validation-summary");
+        Assert.Equal(HttpStatusCode.NotFound, crossSummaryResp.StatusCode);
+
+        // User 2 attempts to trigger revalidation
+        var crossRevalResp = await client2.PostAsync($"/api/statements/{fileA.FileId}/revalidate", null);
+        Assert.Equal(HttpStatusCode.NotFound, crossRevalResp.StatusCode);
+
+        // User 1 accesses both successfully
+        var ownSummaryResp = await client1.GetAsync($"/api/statements/{fileA.FileId}/validation-summary");
+        Assert.Equal(HttpStatusCode.OK, ownSummaryResp.StatusCode);
+    }
+
+    [Fact]
+    public async Task Test17_CrossUser_ExcelExport_DeniedWith404()
+    {
+        var (client1, _) = await RegisterUserAsync("u1_t17");
+        var (client2, _) = await RegisterUserAsync("u2_t17");
+
+        var (fileA, _) = await SeedStatementWithTransactionsAsync(client1, "U1_EXP");
+
+        // User 2 attempts to export User 1's statement
+        var crossExportResp = await client2.GetAsync($"/api/statements/{fileA.FileId}/export/excel");
+        Assert.Equal(HttpStatusCode.NotFound, crossExportResp.StatusCode);
+
+        // User 1 exports own statement successfully
+        var ownExportResp = await client1.GetAsync($"/api/statements/{fileA.FileId}/export/excel");
+        Assert.Equal(HttpStatusCode.OK, ownExportResp.StatusCode);
+        Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ownExportResp.Content.Headers.ContentType?.MediaType);
+        var bytes = await ownExportResp.Content.ReadAsByteArrayAsync();
+        Assert.True(bytes.Length > 1000);
+    }
+
+    [Fact]
+    public async Task Test18_CrossUser_ParseStatement_DeniedWith404()
+    {
+        var (client1, _) = await RegisterUserAsync("u1_t18");
+        var (client2, _) = await RegisterUserAsync("u2_t18");
+
+        var fileA = await UploadPdfAsync(client1, "U1_ParseTarget.pdf", "USER 1 PARSE TARGET");
+
+        // User 2 attempts to trigger parse on User 1's statement
+        var crossParseResp = await client2.PostAsync($"/api/statements/{fileA.FileId}/parse", null);
+        Assert.Equal(HttpStatusCode.NotFound, crossParseResp.StatusCode);
+    }
+
+    [Fact]
+    public async Task Test19_CrossUser_DeleteStatement_Blocked()
+    {
+        var (client1, _) = await RegisterUserAsync("u1_t19");
+        var (client2, _) = await RegisterUserAsync("u2_t19");
+
+        var fileA = await UploadPdfAsync(client1, "U1_DeleteTarget.pdf", "USER 1 DELETE TARGET");
+
+        // User 2 attempts DELETE on User 1's statement (endpoint either doesn't exist or returns 404/405)
+        var crossDeleteResp = await client2.DeleteAsync($"/api/statements/{fileA.FileId}");
+        Assert.True(
+            crossDeleteResp.StatusCode == HttpStatusCode.NotFound ||
+            crossDeleteResp.StatusCode == HttpStatusCode.MethodNotAllowed,
+            $"Expected 404 or 405 for cross-user delete, got {crossDeleteResp.StatusCode}");
+
+        // Verify statement still safely exists in database
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EasyFinDbContext>();
+        var exists = await db.FileRecords.IgnoreQueryFilters().AnyAsync(f => f.Id == fileA.FileId);
+        Assert.True(exists, "User 1 statement must remain intact in database");
+    }
+
+    [Fact]
+    public async Task Test20_CrossUser_ClientWorkspaces_StrictlyIsolated()
+    {
+        var (client1, auth1) = await RegisterUserAsync("u1_t20");
+        var (client2, auth2) = await RegisterUserAsync("u2_t20");
+
+        var me1 = await client1.GetFromJsonAsync<AuthResponseDto>("/api/auth/me", JsonOptions);
+        var me2 = await client2.GetFromJsonAsync<AuthResponseDto>("/api/auth/me", JsonOptions);
+
+        Assert.NotNull(me1);
+        Assert.NotNull(me2);
+        Assert.NotNull(me1.Workspaces);
+        Assert.NotNull(me2.Workspaces);
+
+        // User 1 workspaces contain ONLY User 1 workspace ID
+        Assert.All(me1.Workspaces, w => Assert.NotEqual(auth2.ActiveWorkspace!.Id, w.Id));
+        // User 2 workspaces contain ONLY User 2 workspace ID
+        Assert.All(me2.Workspaces, w => Assert.NotEqual(auth1.ActiveWorkspace!.Id, w.Id));
+    }
+
+    [Fact]
+    public async Task Test21_GlobalQueryFilter_DirectDbAccess_EnforcesStrictTenantIsolation()
+    {
+        var (client1, auth1) = await RegisterUserAsync("u1_t21");
+        var (client2, auth2) = await RegisterUserAsync("u2_t21");
+
+        var (file1, tx1Id) = await SeedStatementWithTransactionsAsync(client1, "U1_DB_TEST");
+        var (file2, tx2Id) = await SeedStatementWithTransactionsAsync(client2, "U2_DB_TEST");
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EasyFinDbContext>();
+
+        // Set tenant context explicitly to User 2
+        var user2Id = auth2.User!.Id;
+        db.SetTenantUserId(user2Id);
+
+        // Querying Clients returns ONLY User 2's clients
+        var clients = await db.Clients.ToListAsync();
+        Assert.Contains(clients, c => c.UserId == user2Id);
+        Assert.DoesNotContain(clients, c => c.UserId == auth1.User!.Id);
+
+        // Querying FileRecords returns ONLY User 2's files
+        var files = await db.FileRecords.ToListAsync();
+        Assert.Contains(files, f => f.Id == file2.FileId);
+        Assert.DoesNotContain(files, f => f.Id == file1.FileId);
+
+        // Querying Transactions returns ONLY User 2's transactions
+        var transactions = await db.Transactions.ToListAsync();
+        Assert.Contains(transactions, t => t.Id == tx2Id);
+        Assert.DoesNotContain(transactions, t => t.Id == tx1Id);
+    }
+
+    [Fact]
+    public async Task Test22_DashboardStats_ZeroLeakage_ForUnrelatedUser()
+    {
+        var (client1, _) = await RegisterUserAsync("u1_t22");
+        var (client2, _) = await RegisterUserAsync("u2_t22");
+
+        // User 1 uploads multiple statements with transactions
+        await SeedStatementWithTransactionsAsync(client1, "U1_DASH_A");
+        await SeedStatementWithTransactionsAsync(client1, "U1_DASH_B");
+
+        // User 2 has uploaded 0 files
+        var statsResp2 = await client2.GetAsync("/api/dashboard/stats");
+        Assert.Equal(HttpStatusCode.OK, statsResp2.StatusCode);
+
+        using var jsonDoc = JsonDocument.Parse(await statsResp2.Content.ReadAsStringAsync());
+        var root = jsonDoc.RootElement;
+
+        var totalStatements = root.GetProperty("totalStatements").GetInt32();
+        var totalTransactions = root.GetProperty("totalTransactions").GetInt32();
+        var recentStatements = root.GetProperty("recentStatements").EnumerateArray().ToList();
+
+        Assert.Equal(0, totalStatements);
+        Assert.Equal(0, totalTransactions);
+        Assert.Empty(recentStatements);
+    }
+
+    [Fact]
+    public async Task Test23_SameUser_FullWorkflow_Continuity()
+    {
+        var (client1, _) = await RegisterUserAsync("u1_t23");
+
+        var fileA = await UploadPdfAsync(client1, "FullContinuity.pdf", "LEGITIMATE FULL FLOW");
+
+        // Extract
+        var extractResp = await client1.PostAsJsonAsync($"/api/statements/{fileA.FileId}/extract", new ExtractStatementRequest());
+        Assert.Equal(HttpStatusCode.OK, extractResp.StatusCode);
+
+        // Get Extraction
+        var getExtractResp = await client1.GetAsync($"/api/statements/{fileA.FileId}/extraction");
+        Assert.Equal(HttpStatusCode.OK, getExtractResp.StatusCode);
+
+        // Download
+        var downloadResp = await client1.GetAsync($"/api/statements/{fileA.FileId}/download");
+        Assert.Equal(HttpStatusCode.OK, downloadResp.StatusCode);
+        var bytes = await downloadResp.Content.ReadAsByteArrayAsync();
+        Assert.True(bytes.Length > 0);
+
+        // Details
+        var detailsResp = await client1.GetAsync($"/api/statements/{fileA.FileId}");
+        Assert.Equal(HttpStatusCode.OK, detailsResp.StatusCode);
+    }
+
+    [Fact]
+    public async Task Test24_SameUser_MultipleWorkspaces_MaintainsDistinctResources()
+    {
+        var (client1, auth1) = await RegisterUserAsync("u1_t24");
+        var (client2, _) = await RegisterUserAsync("u2_t24");
+
+        // Create a second workspace for User 1 in DB
+        Guid secondClientId;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<EasyFinDbContext>();
+            var secondClient = new Client
+            {
+                Id = Guid.NewGuid(),
+                UserId = auth1.User!.Id,
+                Name = "User1 Subsidiary Workspace",
+                ContactPerson = "User 1 Manager",
+                Email = "subsidiary@test.local",
+                Phone = "1234567890",
+                BusinessName = "User 1 Subsidiary",
+                BusinessType = "Corporate",
+                Address = "Branch Address",
+                TaxId = "TAX9999",
+                CreatedAt = DateTime.UtcNow
+            };
+            var secondFy = new FinancialYear
+            {
+                Id = Guid.NewGuid(),
+                ClientId = secondClient.Id,
+                DisplayName = "2026-27",
+                StartDate = new DateTime(2026, 4, 1),
+                EndDate = new DateTime(2027, 3, 31),
+                Status = 1,
+                CreatedAt = DateTime.UtcNow
+            };
+            db.Clients.Add(secondClient);
+            db.FinancialYears.Add(secondFy);
+            await db.SaveChangesAsync();
+            secondClientId = secondClient.Id;
+        }
+
+        // User 1 uploads to second workspace
+        var bytes = GenerateSamplePdfBytes("SUBSIDIARY STATEMENT");
+        using var content = CreateMultipartPdf("sub_stmt.pdf", bytes, clientId: secondClientId);
+        var uploadResp = await client1.PostAsync("/api/statements/upload", content);
+        Assert.Equal(HttpStatusCode.OK, uploadResp.StatusCode);
+
+        var uploadData = await uploadResp.Content.ReadFromJsonAsync<StatementUploadResponse>(JsonOptions);
+        Assert.NotNull(uploadData);
+        Assert.Equal(secondClientId, uploadData.ClientId);
+
+        // User 2 cannot access this statement from second workspace
+        var crossResp = await client2.GetAsync($"/api/statements/{uploadData.FileId}");
+        Assert.Equal(HttpStatusCode.NotFound, crossResp.StatusCode);
     }
 }

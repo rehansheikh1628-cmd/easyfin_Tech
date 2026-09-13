@@ -1,139 +1,420 @@
 <div class="settings-page">
-  <div class="settings-header">
-    <div class="header-badge-row">
-      <span class="page-category-badge">Workspace Configuration</span>
+  <!-- Settings Header -->
+  <header class="settings-header">
+    <div class="header-breadcrumbs" aria-label="Breadcrumbs">
+      <span class="breadcrumb-item">Workspace</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Settings</span>
     </div>
-    <h1 class="settings-title">Workspace Settings</h1>
-    <p class="settings-subtitle">Manage organization profile, spreadsheet export preferences, and verified environment parameters.</p>
-  </div>
+    <div class="header-title-row">
+      <div>
+        <h1 class="settings-title" id="settingsMainTitle">Settings</h1>
+        <p class="settings-subtitle">Manage your EasyFin Tech account and application preferences.</p>
+      </div>
+      <div class="header-status-pill" role="status" aria-label="Account status">
+        <span class="status-dot"></span>
+        <span class="status-text">Active Account &bull; Authenticated Session</span>
+      </div>
+    </div>
+  </header>
 
+  <!-- Main Settings Layout -->
   <div class="settings-layout">
-    <!-- Tabs Navigation -->
-    <div class="settings-nav card">
-      <button class="settings-tab-btn" [class.active]="activeTab === 'profile'" (click)="setTab('profile')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        <span>Organization Profile</span>
+    <!-- Left Navigation Tabs -->
+    <nav class="settings-nav card" aria-label="Settings Navigation">
+      <button
+        type="button"
+        class="settings-tab-btn"
+        id="tabBtnProfile"
+        [class.active]="activeTab === 'profile'"
+        (click)="setTab('profile')"
+        aria-controls="profilePane"
+        [attr.aria-selected]="activeTab === 'profile'"
+      >
+        <div class="tab-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="tab-meta">
+          <span class="tab-title">Profile</span>
+          <span class="tab-desc">Account identity &amp; firm</span>
+        </div>
       </button>
 
-      <button class="settings-tab-btn" [class.active]="activeTab === 'preferences'" (click)="setTab('preferences')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        <span>Export Preferences</span>
+      <button
+        type="button"
+        class="settings-tab-btn"
+        id="tabBtnSecurity"
+        [class.active]="activeTab === 'security'"
+        (click)="setTab('security')"
+        aria-controls="securityPane"
+        [attr.aria-selected]="activeTab === 'security'"
+      >
+        <div class="tab-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <div class="tab-meta">
+          <span class="tab-title">Security &amp; Session</span>
+          <span class="tab-desc">Credentials &amp; sign out</span>
+        </div>
       </button>
 
-      <button class="settings-tab-btn" [class.active]="activeTab === 'database'" (click)="setTab('database')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
-        <span>Database &amp; Environment</span>
+      <button
+        type="button"
+        class="settings-tab-btn"
+        id="tabBtnPreferences"
+        [class.active]="activeTab === 'preferences'"
+        (click)="setTab('preferences')"
+        aria-controls="preferencesPane"
+        [attr.aria-selected]="activeTab === 'preferences'"
+      >
+        <div class="tab-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </div>
+        <div class="tab-meta">
+          <span class="tab-title">Preferences</span>
+          <span class="tab-desc">Sidebar &amp; accounting standards</span>
+        </div>
       </button>
-    </div>
+    </nav>
 
-    <!-- Tab Content -->
+    <!-- Right Tab Content -->
     <div class="settings-content">
-      <!-- Profile Tab -->
-      <div *ngIf="activeTab === 'profile'" class="card tab-pane">
-        <h2 class="pane-title">Organization Profile</h2>
-        <p class="pane-desc">Firm details used on exported accounting spreadsheets.</p>
+      <!-- 1. PROFILE TAB -->
+      <section
+        *ngIf="activeTab === 'profile'"
+        id="profilePane"
+        class="card tab-pane"
+        aria-labelledby="profilePaneTitle"
+      >
+        <div class="pane-header">
+          <div class="user-avatar-badge">{{ userInitials }}</div>
+          <div class="user-header-info">
+            <div class="user-name-line">
+              <h2 class="pane-title" id="profilePaneTitle">{{ currentUser?.fullName || currentUser?.workspaceName || 'Account Holder' }}</h2>
+              <span class="verified-badge" title="Verified Practice Account">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Verified Practice</span>
+              </span>
+            </div>
+            <p class="pane-desc">Account identity and workspace details tied to your authenticated session.</p>
+          </div>
+        </div>
 
         <div class="form-grid">
           <div class="form-group">
-            <label class="form-label">Firm / Practice Name</label>
-            <input type="text" class="form-control" [value]="currentUser?.workspaceName || 'My Workspace'" readonly>
+            <label class="form-label">Firm / Practice Workspace</label>
+            <input
+              type="text"
+              class="form-control font-medium"
+              id="settingsFirmName"
+              [value]="currentUser?.workspaceName || 'My Workspace'"
+              readonly
+            >
           </div>
 
           <div class="form-group">
-            <label class="form-label">Contact Email</label>
-            <input type="email" class="form-control" [value]="currentUser?.email || 'user@easyfin.local'" readonly>
+            <label class="form-label">Contact Person / Full Name</label>
+            <input
+              type="text"
+              class="form-control font-medium"
+              id="settingsFullName"
+              [value]="currentUser?.fullName || currentUser?.workspaceName || 'Account Holder'"
+              readonly
+            >
           </div>
 
           <div class="form-group">
-            <label class="form-label">Timezone</label>
-            <input type="text" class="form-control" value="Asia/Kolkata (IST +5:30)" readonly>
+            <label class="form-label">Account Email Address</label>
+            <input
+              type="email"
+              class="form-control font-mono text-sm"
+              id="settingsEmail"
+              [value]="currentUser?.email || 'N/A'"
+              readonly
+            >
           </div>
 
           <div class="form-group">
-            <label class="form-label">Default Currency Symbol</label>
-            <input type="text" class="form-control" value="₹ (INR)" readonly>
+            <label class="form-label">Application User ID</label>
+            <div class="input-with-action">
+              <input
+                type="text"
+                class="form-control font-mono text-sm"
+                id="settingsUserId"
+                [value]="effectiveUserId"
+                readonly
+                aria-label="Application User ID"
+              >
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm copy-btn"
+                id="copyUserIdBtn"
+                (click)="copyUserId()"
+                [title]="userIdCopied ? 'Copied to clipboard' : 'Copy User ID'"
+              >
+                <svg *ngIf="!userIdCopied" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <svg *ngIf="userIdCopied" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ef-success, #16A34A)" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>{{ userIdCopied ? 'Copied!' : 'Copy' }}</span>
+              </button>
+            </div>
+            <span class="form-hint">Standard application GUID used for client entity isolation and workspace queries.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Practice Category</label>
+            <input
+              type="text"
+              class="form-control"
+              id="settingsPracticeCategory"
+              value="Chartered Accounting &amp; Corporate Finance"
+              readonly
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Timezone &amp; Local Currency</label>
+            <input
+              type="text"
+              class="form-control"
+              id="settingsTimezone"
+              value="Asia/Kolkata (IST +5:30) &bull; INR (₹)"
+              readonly
+            >
           </div>
         </div>
 
-        <div class="pane-note">
-          <span>Note: Workspace and organization settings are tied directly to your active authenticated account.</span>
-        </div>
-      </div>
-
-      <!-- Preferences Tab -->
-      <div *ngIf="activeTab === 'preferences'" class="card tab-pane">
-        <h2 class="pane-title">Spreadsheet Export Preferences</h2>
-        <p class="pane-desc">Customize how transactions are formatted when downloaded into Excel.</p>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Date Format Pattern</label>
-            <select class="form-control">
-              <option selected>DD/MM/YYYY (Standard Indian / European)</option>
-              <option>MM/DD/YYYY (US Standard)</option>
-              <option>YYYY-MM-DD (ISO 8601)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Default Workbook Sheet Name</label>
-            <input type="text" class="form-control" value="Bank_Transactions">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Narration Clean-up</label>
-            <select class="form-control">
-              <option selected>Strip Excessive Whitespace &amp; Newlines</option>
-              <option>Preserve Raw Bank Text Exact</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Checksum Validation Sheet</label>
-            <select class="form-control">
-              <option selected>Append Summary &amp; Reconciliation Tab</option>
-              <option>Single Sheet Only</option>
-            </select>
+        <div class="pane-note-card">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <div class="note-text">
+            <strong>Factual Profile State:</strong>
+            Organization and practitioner details are established during initial registration and tied directly to your active authenticated session. Profile modifications are managed through administrative review.
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Database Tab -->
-      <div *ngIf="activeTab === 'database'" class="card tab-pane">
-        <h2 class="pane-title">Database &amp; Architecture Status</h2>
-        <p class="pane-desc">Verified SQL Server instance parameters and EF Core connection status.</p>
+      <!-- 2. SECURITY & SESSION TAB -->
+      <section
+        *ngIf="activeTab === 'security'"
+        id="securityPane"
+        class="card tab-pane"
+        aria-labelledby="securityPaneTitle"
+      >
+        <div class="pane-header-simple">
+          <h2 class="pane-title" id="securityPaneTitle">Security &amp; Session Management</h2>
+          <p class="pane-desc">Cryptographic security standards, credential posture, and session control.</p>
+        </div>
 
-        <div class="status-grid-box">
-          <div class="param-row">
-            <span class="param-label">Database Server:</span>
-            <span class="param-val mono">localhost\SQLEXPRESS</span>
+        <!-- Security Posture Cards Grid -->
+        <div class="security-cards-grid">
+          <div class="security-kpi-card card">
+            <span class="kpi-label">Account Status</span>
+            <div class="kpi-value-row">
+              <span class="status-badge-active">Active</span>
+            </div>
+            <span class="kpi-subtext">Verified authenticated session</span>
           </div>
-          <div class="param-row">
-            <span class="param-label">Database Engine:</span>
-            <span class="param-val">Microsoft SQL Server 2025 Express</span>
+
+          <div class="security-kpi-card card">
+            <span class="kpi-label">Authentication Method</span>
+            <div class="kpi-value-row font-mono text-sm">HTTP-Only Cookie</div>
+            <span class="kpi-subtext">Protected against XSS &amp; token theft</span>
           </div>
-          <div class="param-row">
-            <span class="param-label">Database Name:</span>
-            <span class="param-val mono">EasyFin_Tech</span>
-          </div>
-          <div class="param-row">
-            <span class="param-label">Authentication:</span>
-            <span class="param-val">Windows Integrated Security</span>
-          </div>
-          <div class="param-row">
-            <span class="param-label">EF Core Provider:</span>
-            <span class="param-val mono">Microsoft.EntityFrameworkCore.SqlServer 10.0.11</span>
-          </div>
-          <div class="param-row">
-            <span class="param-label">DbContext Class:</span>
-            <span class="param-val mono">EasyFinDbContext</span>
-          </div>
-          <div class="param-row">
-            <span class="param-label">Preserved Migrations:</span>
-            <span class="param-val text-success font-bold">6 Existing Migrations Active &amp; Intact</span>
+
+          <div class="security-kpi-card card">
+            <span class="kpi-label">Password Storage</span>
+            <div class="kpi-value-row font-mono text-sm">PBKDF2-SHA256</div>
+            <span class="kpi-subtext">Salted cryptographic hash standard</span>
           </div>
         </div>
-      </div>
+
+        <!-- Credential Protection Box -->
+        <div class="credential-box card">
+          <div class="credential-header">
+            <div class="credential-title-wrap">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <div>
+                <h3 class="credential-title">Account Password</h3>
+                <p class="credential-desc">Password protection and server-side encryption posture.</p>
+              </div>
+            </div>
+            <span class="masked-pass font-mono" aria-label="Password is securely set">••••••••••••</span>
+          </div>
+          <p class="credential-notice">
+            Passwords are encrypted and salted using PBKDF2-SHA256 server-side. Plaintext passwords and hashes are never exposed to the client interface. Credential reset requests are managed via system administration during the preview evaluation period.
+          </p>
+        </div>
+
+        <!-- Session & Sign Out Card -->
+        <div class="session-signout-card card">
+          <div class="session-info">
+            <h3 class="session-title">Active Session Control</h3>
+            <p class="session-desc">
+              Your browser is connected via an authenticated HTTP-only session cookie with rolling expiration. Terminating the session invalidates credentials immediately.
+            </p>
+          </div>
+          <div class="session-action">
+            <button
+              type="button"
+              class="btn btn-danger btn-lg"
+              id="settingsSignOutBtn"
+              (click)="logout()"
+              [disabled]="isSigningOut"
+            >
+              <svg *ngIf="!isSigningOut" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              <span *ngIf="isSigningOut" class="spinner-sm" aria-hidden="true"></span>
+              <span>{{ isSigningOut ? 'Signing out...' : 'Sign Out' }}</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. PREFERENCES TAB -->
+      <section
+        *ngIf="activeTab === 'preferences'"
+        id="preferencesPane"
+        class="card tab-pane"
+        aria-labelledby="preferencesPaneTitle"
+      >
+        <div class="pane-header-simple">
+          <h2 class="pane-title" id="preferencesPaneTitle">Workspace Preferences</h2>
+          <p class="pane-desc">Manage desktop interface preferences and verify regional accounting standards.</p>
+        </div>
+
+        <!-- UI Appearance Preferences -->
+        <div class="preferences-group card">
+          <div class="pref-item">
+            <div class="pref-text">
+              <div class="pref-title-row">
+                <span class="pref-title">Compact Sidebar (Desktop)</span>
+                <span *ngIf="preferenceSaved" class="pref-saved-pill flex-inline-center" role="status">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Preference saved</span>
+                </span>
+              </div>
+              <p class="pref-desc">
+                Automatically collapse the primary workspace sidebar on desktop screens to provide maximum horizontal space for multi-column financial transaction tables and spreadsheets.
+              </p>
+            </div>
+            <div class="pref-control">
+              <label class="switch" for="compactSidebarToggle">
+                <input
+                  type="checkbox"
+                  id="compactSidebarToggle"
+                  [checked]="isCompactSidebar"
+                  (change)="toggleCompactSidebar()"
+                  aria-label="Compact sidebar on desktop"
+                >
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Factual Regional & Accounting Conventions -->
+        <div class="preferences-group card">
+          <h3 class="pref-group-title">Financial &amp; Accounting Standards</h3>
+          <p class="pref-group-desc">
+            These canonical standards are enforced by EasyFin Tech to ensure full audit compliance with Indian banking and Tally Prime specifications.
+          </p>
+
+          <div class="accounting-params-grid">
+            <div class="accounting-param-item">
+              <span class="param-name">Fiscal Year Calendar</span>
+              <span class="param-val">01-Apr to 31-Mar (Indian Fiscal Standard)</span>
+            </div>
+
+            <div class="accounting-param-item">
+              <span class="param-name">Primary Ledger Currency</span>
+              <span class="param-val">₹ INR (Indian Rupee)</span>
+            </div>
+
+            <div class="accounting-param-item">
+              <span class="param-name">Number Grouping Format</span>
+              <span class="param-val font-mono">1,00,000.00 (Lakhs &amp; Crores)</span>
+            </div>
+
+            <div class="accounting-param-item">
+              <span class="param-name">Canonical Template Columns</span>
+              <span class="param-val">9-Column Accounting Ledger Schema</span>
+            </div>
+
+            <div class="accounting-param-item">
+              <span class="param-name">Excel Generation Engine</span>
+              <span class="param-val">ClosedXML OpenXML (.xlsx / .xlsm)</span>
+            </div>
+
+            <div class="accounting-param-item">
+              <span class="param-name">Tally Export Format</span>
+              <span class="param-val">Canonical Tally XML (Payment &amp; Receipt)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Documentation & Format Guidance -->
+        <div class="preferences-group card" id="documentationCard">
+          <h3 class="pref-group-title">Product Documentation &amp; Format Guidance</h3>
+          <p class="pref-group-desc">
+            Access calibrated format specifications, bank statement layout criteria, and step-by-step Tally Prime XML import instructions.
+          </p>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 1rem;">
+            <a
+              routerLink="/how-it-works"
+              class="btn btn-primary"
+              id="viewHowItWorksBtn"
+              style="display: inline-flex; align-items: center; gap: 0.5rem;"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>Workflow Guide</span>
+            </a>
+
+            <a
+              routerLink="/supported-banks"
+              class="btn btn-secondary"
+              id="viewSupportedBanksBtn"
+              style="display: inline-flex; align-items: center; gap: 0.5rem;"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 3l9 7H3z"></path>
+              </svg>
+              <span>Supported Institutions Directory</span>
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </div>

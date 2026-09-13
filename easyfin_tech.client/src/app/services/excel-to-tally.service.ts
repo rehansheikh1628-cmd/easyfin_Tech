@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export enum ExcelValidationSeverity {
   Warning = 1,
@@ -56,7 +57,9 @@ export interface ExcelValidationResult {
   providedIn: 'root'
 })
 export class ExcelToTallyService {
-  private readonly baseUrl = '/api/excel-to-tally';
+  private readonly baseUrl = environment.apiUrl && !environment.apiUrl.includes('YOUR-PRODUCTION')
+    ? `${environment.apiUrl}/api/excel-to-tally`
+    : '/api/excel-to-tally';
 
   constructor(private readonly http: HttpClient) {}
 

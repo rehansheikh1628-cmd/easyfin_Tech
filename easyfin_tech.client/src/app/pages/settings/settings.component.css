@@ -1,55 +1,96 @@
+/* ==========================================================================
+   EasyFin Tech — Profile & Settings Component Styles (Phase 11 UI Redesign)
+   Tailored for Chartered Accountants & Practice Workspaces.
+   Zero Backend Changes • High Institutional Trust • Factual Account Management
+   ========================================================================== */
+
 .settings-page {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
-  max-width: 1440px;
+  gap: 2rem;
+  max-width: 1320px;
   width: 100%;
   margin: 0 auto;
+  padding-bottom: 4rem;
 }
 
+/* --------------------------------------------------------------------------
+   1. Header
+   -------------------------------------------------------------------------- */
 .settings-header {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.5rem;
 }
 
-.header-badge-row {
+.header-breadcrumbs {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--ef-text-muted);
 }
 
-.page-category-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.65rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border-radius: var(--ef-radius-full);
-  background-color: var(--ef-primary-50);
-  color: var(--ef-primary-700);
-  border: 1px solid var(--ef-primary-100);
+.breadcrumb-item {
+  color: var(--ef-text-muted);
+}
+
+.breadcrumb-sep {
+  color: var(--ef-border-strong);
+}
+
+.breadcrumb-current {
+  color: var(--ef-brand-900);
+  font-weight: 600;
+}
+
+.header-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--ef-border);
 }
 
 .settings-title {
-  font-size: 1.85rem;
-  font-weight: 800;
-  color: var(--ef-primary-950);
+  font-family: var(--ef-font-heading);
+  font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+  font-weight: 700;
+  color: var(--ef-brand-950);
   letter-spacing: -0.025em;
-  margin: 0;
-  line-height: 1.2;
+  margin-bottom: 0.25rem;
 }
 
 .settings-subtitle {
-  font-size: 0.9rem;
-  color: var(--ef-text-muted);
-  margin: 0;
-  max-width: 720px;
-  line-height: 1.5;
+  font-size: 0.9375rem;
+  color: var(--ef-text-secondary);
 }
 
+.header-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  background-color: var(--ef-success-bg);
+  border: 1px solid var(--ef-success-border);
+  border-radius: var(--ef-radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ef-success);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--ef-success);
+}
+
+/* --------------------------------------------------------------------------
+   2. Main Layout & Tabs Navigation
+   -------------------------------------------------------------------------- */
 .settings-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -57,153 +98,552 @@
   align-items: start;
 }
 
-/* Tabs Navigation */
 .settings-nav {
-  padding: 0.875rem;
+  padding: 0.625rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  background-color: #ffffff;
-  border-radius: var(--ef-radius-xl);
+  gap: 0.375rem;
+  background-color: var(--ef-surface);
   border: 1px solid var(--ef-border);
-  box-shadow: var(--ef-shadow-sm);
+  border-radius: var(--ef-radius-lg);
+  position: sticky;
+  top: 1.5rem;
+  box-shadow: var(--ef-shadow-xs);
 }
 
 .settings-tab-btn {
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  padding: 0.875rem 1.125rem;
-  border-radius: var(--ef-radius-lg);
+  padding: 0.875rem 1rem;
+  border-radius: var(--ef-radius-md);
   font-size: 0.875rem;
-  font-weight: 600;
   color: var(--ef-text-secondary);
-  background: transparent;
-  border: none;
-  cursor: pointer;
   transition: all var(--ef-transition-fast);
   text-align: left;
   width: 100%;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
 }
 
 .settings-tab-btn:hover {
-  background-color: var(--ef-bg-subtle);
-  color: var(--ef-primary-950);
+  background-color: var(--ef-surface-subtle);
+  color: var(--ef-brand-950);
 }
 
 .settings-tab-btn.active {
-  background: linear-gradient(135deg, var(--ef-primary-50) 0%, rgba(13, 148, 136, 0.08) 100%);
-  color: var(--ef-primary-900);
-  border: 1px solid var(--ef-primary-100);
+  background-color: var(--ef-accent-50);
+  border-color: var(--ef-accent-border);
+  color: var(--ef-accent-700);
+}
+
+.tab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--ef-radius-sm);
+  background-color: var(--ef-surface-subtle);
+  color: var(--ef-text-muted);
+  flex-shrink: 0;
+  transition: all var(--ef-transition-fast);
+}
+
+.settings-tab-btn:hover .tab-icon {
+  color: var(--ef-brand-900);
+}
+
+.settings-tab-btn.active .tab-icon {
+  background-color: var(--ef-accent-600);
+  color: #ffffff;
+}
+
+.tab-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.tab-title {
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(10, 19, 36, 0.04);
+  font-size: 0.9375rem;
+  line-height: 1.2;
 }
 
-.settings-tab-btn.active svg {
-  color: var(--ef-accent-600);
+.tab-desc {
+  font-size: 0.75rem;
+  color: var(--ef-text-muted);
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Tab Content */
+.settings-tab-btn.active .tab-desc {
+  color: var(--ef-accent-700);
+}
+
+/* --------------------------------------------------------------------------
+   3. Tab Pane Shared Styles
+   -------------------------------------------------------------------------- */
+.settings-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .tab-pane {
-  padding: 2.25rem;
-  background-color: #ffffff;
-  border-radius: var(--ef-radius-xl);
+  padding: 2.25rem 2rem;
+  background-color: var(--ef-surface);
   border: 1px solid var(--ef-border);
-  box-shadow: var(--ef-shadow-sm);
+  border-radius: var(--ef-radius-lg);
+  box-shadow: var(--ef-shadow-xs);
+}
+
+.pane-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-bottom: 1.75rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--ef-border-subtle);
+}
+
+.pane-header-simple {
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--ef-border-subtle);
 }
 
 .pane-title {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--ef-primary-950);
+  font-family: var(--ef-font-heading);
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--ef-brand-950);
   letter-spacing: -0.015em;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.25rem;
 }
 
 .pane-desc {
   font-size: 0.875rem;
-  color: var(--ef-text-muted);
-  margin-bottom: 2rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid var(--ef-border);
+  color: var(--ef-text-secondary);
   line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   4. Profile Tab Elements
+   -------------------------------------------------------------------------- */
+.user-avatar-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--ef-radius-lg);
+  background: linear-gradient(135deg, var(--ef-brand-950) 0%, var(--ef-brand-850) 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+  box-shadow: var(--ef-shadow-sm);
+}
+
+.user-header-info {
+  flex: 1;
+}
+
+.user-name-line {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  background-color: var(--ef-accent-50);
+  border: 1px solid var(--ef-accent-border);
+  color: var(--ef-accent-700);
+  border-radius: var(--ef-radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.form-group {
+.input-with-action {
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.form-label {
-  font-size: 0.775rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--ef-text-secondary);
+.copy-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  padding: 0.625rem 0.875rem;
 }
 
-.form-control[readonly] {
-  background-color: var(--ef-bg-subtle);
-  color: var(--ef-text-secondary);
-  border-color: var(--ef-border);
-  cursor: default;
-}
-
-.pane-note {
-  margin-top: 2rem;
-  padding: 0.875rem 1.125rem;
-  border-radius: var(--ef-radius-md);
-  background-color: var(--ef-bg-subtle);
-  border: 1px solid var(--ef-border);
-  font-size: 0.775rem;
+.form-hint {
+  display: block;
+  font-size: 0.75rem;
   color: var(--ef-text-muted);
+  margin-top: 0.375rem;
+  line-height: 1.4;
+}
+
+.pane-note-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1.125rem 1.25rem;
+  background-color: var(--ef-surface-subtle);
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-md);
+  font-size: 0.8125rem;
+  color: var(--ef-text-secondary);
   line-height: 1.5;
 }
 
-/* Database Status Box */
-.status-grid-box {
+.pane-note-card svg {
+  flex-shrink: 0;
+  color: var(--ef-accent-600);
+  margin-top: 2px;
+}
+
+.note-text strong {
+  color: var(--ef-brand-950);
+}
+
+/* --------------------------------------------------------------------------
+   5. Security & Session Tab Elements
+   -------------------------------------------------------------------------- */
+.security-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.security-kpi-card {
+  padding: 1.25rem;
+  background-color: var(--ef-canvas);
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-md);
   display: flex;
   flex-direction: column;
-  gap: 0.875rem;
-  background-color: var(--ef-bg-subtle);
-  border: 1px solid var(--ef-border);
-  border-radius: var(--ef-radius-lg);
-  padding: 1.5rem;
+  gap: 0.375rem;
 }
 
-.param-row {
+.kpi-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ef-text-muted);
+}
+
+.kpi-value-row {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--ef-brand-950);
+}
+
+.status-badge-active {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  background-color: var(--ef-success-bg);
+  color: var(--ef-success);
+  border: 1px solid var(--ef-success-border);
+  border-radius: var(--ef-radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.kpi-subtext {
+  font-size: 0.75rem;
+  color: var(--ef-text-muted);
+  line-height: 1.35;
+}
+
+.credential-box {
+  padding: 1.5rem;
+  background-color: var(--ef-surface);
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-md);
+  margin-bottom: 1.75rem;
+}
+
+.credential-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.credential-title-wrap {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 0.875rem;
-  border-bottom: 1px solid var(--ef-border);
-  padding-bottom: 0.75rem;
+  gap: 0.75rem;
 }
 
-.param-row:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+.credential-title-wrap svg {
+  color: var(--ef-accent-600);
 }
 
-.param-label {
+.credential-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--ef-brand-950);
+}
+
+.credential-desc {
+  font-size: 0.8125rem;
   color: var(--ef-text-muted);
-  font-weight: 500;
+}
+
+.masked-pass {
+  font-size: 1.125rem;
+  letter-spacing: 0.25em;
+  padding: 0.375rem 0.875rem;
+  background-color: var(--ef-surface-subtle);
+  border: 1px solid var(--ef-border-strong);
+  border-radius: var(--ef-radius-sm);
+  color: var(--ef-brand-950);
+  font-weight: 700;
+}
+
+.credential-notice {
+  font-size: 0.84375rem;
+  color: var(--ef-text-secondary);
+  line-height: 1.55;
+}
+
+.session-signout-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1.5rem 1.75rem;
+  background: linear-gradient(135deg, var(--ef-surface) 0%, var(--ef-surface-subtle) 100%);
+  border: 1px solid var(--ef-border-strong);
+  border-radius: var(--ef-radius-md);
+}
+
+.session-info {
+  flex: 1;
+  min-width: 240px;
+}
+
+.session-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--ef-brand-950);
+  margin-bottom: 0.25rem;
+}
+
+.session-desc {
+  font-size: 0.84375rem;
+  color: var(--ef-text-secondary);
+  line-height: 1.5;
+}
+
+.session-action {
+  flex-shrink: 0;
+}
+
+.spinner-sm {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #ffffff;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. Preferences Tab Elements
+   -------------------------------------------------------------------------- */
+.preferences-group {
+  padding: 1.75rem;
+  background-color: var(--ef-surface);
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-md);
+  margin-bottom: 1.5rem;
+}
+
+.pref-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.pref-text {
+  flex: 1;
+}
+
+.pref-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.pref-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--ef-brand-950);
+}
+
+.pref-saved-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  background-color: var(--ef-success-bg);
+  color: var(--ef-success);
+  border: 1px solid var(--ef-success-border);
+  border-radius: var(--ef-radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.pref-desc {
+  font-size: 0.875rem;
+  color: var(--ef-text-secondary);
+  line-height: 1.5;
+}
+
+/* Switch styling */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--ef-border-strong);
+  transition: 0.25s;
+  border-radius: 26px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.25s;
+  border-radius: 50%;
+  box-shadow: var(--ef-shadow-xs);
+}
+
+input:checked + .slider {
+  background-color: var(--ef-accent-600);
+}
+
+input:focus-visible + .slider {
+  box-shadow: 0 0 0 3px var(--ef-ring-focus);
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.pref-group-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--ef-brand-950);
+  margin-bottom: 0.35rem;
+}
+
+.pref-group-desc {
+  font-size: 0.84375rem;
+  color: var(--ef-text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.accounting-params-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.875rem;
+}
+
+.accounting-param-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
+  background-color: var(--ef-canvas);
+  border: 1px solid var(--ef-border-subtle);
+  border-radius: var(--ef-radius-sm);
+}
+
+.param-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ef-text-muted);
 }
 
 .param-val {
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--ef-primary-950);
+  color: var(--ef-brand-900);
 }
 
-.text-success {
-  color: #16a34a;
+/* --------------------------------------------------------------------------
+   7. Responsive Layout Media Queries
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .security-cards-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 900px) {
@@ -211,7 +651,65 @@
     grid-template-columns: 1fr;
   }
 
+  .settings-nav {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .settings-tab-btn {
+    padding: 0.625rem 0.875rem;
+    white-space: nowrap;
+    width: auto;
+  }
+
+  .tab-desc {
+    display: none;
+  }
+
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .accounting-params-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pane-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .tab-pane {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .pref-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .session-signout-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .session-action {
+    width: 100%;
+  }
+
+  .session-action .btn {
+    width: 100%;
   }
 }

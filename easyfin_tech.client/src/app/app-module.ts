@@ -18,7 +18,6 @@ import { HomeComponent } from './pages/home/home.component';
 import { HowItWorksComponent } from './pages/how-it-works/how-it-works.component';
 import { FeaturesComponent } from './pages/features/features.component';
 import { SupportedBanksComponent } from './pages/supported-banks/supported-banks.component';
-import { PricingComponent } from './pages/pricing/pricing.component';
 import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
 
@@ -39,7 +38,6 @@ import { ExcelToTallyComponent } from './pages/excel-to-tally/excel-to-tally.com
     HowItWorksComponent,
     FeaturesComponent,
     SupportedBanksComponent,
-    PricingComponent,
     LoginComponent,
     SignupComponent,
     DashboardComponent,

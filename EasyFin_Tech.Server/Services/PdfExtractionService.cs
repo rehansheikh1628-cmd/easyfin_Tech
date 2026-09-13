@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -22,6 +23,8 @@ namespace EasyFin_Tech.Server.Services;
 
 public class PdfExtractionService : IPdfExtractionService
 {
+    private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> _extractionLocks = new();
+
     private readonly EasyFinDbContext _dbContext;
     private readonly IFileStorageService _storageService;
     private readonly ILogger<PdfExtractionService> _logger;
@@ -48,14 +51,28 @@ public class PdfExtractionService : IPdfExtractionService
         string? password = null,
         CancellationToken cancellationToken = default)
     {
-        var stopwatch = Stopwatch.StartNew();
-        var startedAt = DateTime.UtcNow;
+        var semaphore = _extractionLocks.GetOrAdd(fileRecordId, _ => new SemaphoreSlim(1, 1));
+        await semaphore.WaitAsync(cancellationToken);
 
-        // 1. Resolve FileRecord scoped strictly to the authenticated user's workspace
-        var fileRecord = await _dbContext.FileRecords
-            .Include(f => f.FinancialYear)
-            .Include(f => f.Client)
-            .FirstOrDefaultAsync(f => f.Id == fileRecordId && f.Client.UserId == currentUserId, cancellationToken);
+        try
+        {
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                var existingExtraction = await GetExtractionResultAsync(fileRecordId, currentUserId, cancellationToken);
+                if (existingExtraction != null && existingExtraction.ExtractionStatus != "PasswordProtected")
+                {
+                    return (true, null, existingExtraction);
+                }
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+            var startedAt = DateTime.UtcNow;
+
+            // 1. Resolve FileRecord scoped strictly to the authenticated user's workspace
+            var fileRecord = await _dbContext.FileRecords
+                .Include(f => f.FinancialYear)
+                .Include(f => f.Client)
+                .FirstOrDefaultAsync(f => f.Id == fileRecordId && f.Client.UserId == currentUserId, cancellationToken);
 
         if (fileRecord == null)
         {
@@ -65,26 +82,26 @@ public class PdfExtractionService : IPdfExtractionService
 
         // 2. Resolve internal storage location
         var yearFolder = (fileRecord.FinancialYear?.StartDate.Year ?? fileRecord.UploadedAt.Year).ToString();
-        var storageSubDir = Path.Combine(fileRecord.ClientId.ToString("N"), yearFolder);
+        var tenantSubDir = Path.Combine("tenants", currentUserId.ToString("N"), "clients", fileRecord.ClientId.ToString("N"), "statements", yearFolder);
+        var legacySubDir = Path.Combine(fileRecord.ClientId.ToString("N"), yearFolder);
 
-        await using var pdfStream = await _storageService.GetFileStreamAsync(
-            storageSubDir,
-            fileRecord.StoredFileName,
-            cancellationToken);
+        var pdfStream = await _storageService.GetFileStreamAsync(tenantSubDir, fileRecord.StoredFileName, cancellationToken)
+            ?? await _storageService.GetFileStreamAsync(legacySubDir, fileRecord.StoredFileName, cancellationToken);
 
         if (pdfStream == null)
         {
-            _logger.LogError("Stored statement file stream was not found: {StoredFileName} in {SubDir}",
-                fileRecord.StoredFileName, storageSubDir);
+            _logger.LogError("Stored statement file stream was not found: {StoredFileName} in {TenantSubDir} or {LegacySubDir}",
+                fileRecord.StoredFileName, tenantSubDir, legacySubDir);
             return (false, "The stored statement file could not be located on the server.", null);
         }
 
-        // Read into MemoryStream so PdfPig has seekable in-memory access
-        using var memoryStream = new MemoryStream();
-        await pdfStream.CopyToAsync(memoryStream, cancellationToken);
-        memoryStream.Position = 0;
+        // Stream directly into PdfPig using seekable storage stream without full-file in-memory buffering
+        if (pdfStream.CanSeek)
+        {
+            pdfStream.Position = 0;
+        }
 
-        // 3. Open PDF Document with PdfPig
+        // 3. Open PDF Document with PdfPig directly from seekable file/storage stream
         ParsingOptions parsingOptions = new()
         {
             ClipPaths = false
@@ -98,12 +115,13 @@ public class PdfExtractionService : IPdfExtractionService
         PdfDocument pdfDocument;
         try
         {
-            pdfDocument = PdfDocument.Open(memoryStream, parsingOptions);
+            pdfDocument = PdfDocument.Open(pdfStream, parsingOptions);
         }
         catch (PdfDocumentEncryptedException)
         {
             _logger.LogWarning("PDF extraction halted: File {FileRecordId} is password-protected or password was invalid.", fileRecordId);
 
+            var isInvalidPassword = !string.IsNullOrWhiteSpace(password);
             var encryptedResult = new PdfExtractionResult
             {
                 FileId = fileRecord.Id,
@@ -115,10 +133,10 @@ public class PdfExtractionService : IPdfExtractionService
                 DurationMs = stopwatch.ElapsedMilliseconds,
                 PdfType = "Encrypted",
                 HasUsableText = false,
-                Warnings = ["The PDF is password-protected. Please provide the document password to unlock extraction."]
+                Warnings = [isInvalidPassword ? "Incorrect PDF password. Please try again." : "The PDF is password-protected. Please provide the document password to unlock extraction."]
             };
 
-            return (false, "The PDF statement is encrypted. Please provide the password to extract structure.", encryptedResult);
+            return (false, isInvalidPassword ? "Incorrect PDF password. Please try again." : "The PDF statement is password-protected and requires a password to open.", encryptedResult);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -172,6 +190,14 @@ public class PdfExtractionService : IPdfExtractionService
             // 6. Persist metadata into existing PdfProcessingResults table in SQL Server
             try
             {
+                var fileRecordExists = await _dbContext.FileRecords
+                    .AnyAsync(f => f.Id == fileRecord.Id, cancellationToken);
+                if (!fileRecordExists)
+                {
+                    _logger.LogWarning("FileRecord {FileRecordId} was deleted during extraction. Aborting metadata persistence.", fileRecordId);
+                    return (false, "Statement was deleted during processing.", null);
+                }
+
                 var existingPdfResult = await _dbContext.PdfProcessingResults
                     .FirstOrDefaultAsync(p => p.FileRecordId == fileRecord.Id, cancellationToken);
 
@@ -201,8 +227,11 @@ public class PdfExtractionService : IPdfExtractionService
                 }
 
                 // Update FileRecord processing status:
-                // ProcessingStatus 2 = Completed / Extracted in Phase 3
-                fileRecord.ProcessingStatus = 2;
+                // ProcessingStatus 2 = Completed / Extracted only if not currently actively in background worker processing (1)
+                if (fileRecord.ProcessingStatus != 1)
+                {
+                    fileRecord.ProcessingStatus = 2;
+                }
                 fileRecord.UpdatedAt = DateTime.UtcNow;
                 fileRecord.ProcessingError = extractionResult.HasUsableText ? null : "No digital text detected (scanned or image-based PDF).";
 
@@ -216,6 +245,11 @@ public class PdfExtractionService : IPdfExtractionService
             }
 
             return (true, null, extractionResult);
+        }
+        }
+        finally
+        {
+            semaphore.Release();
         }
     }
 

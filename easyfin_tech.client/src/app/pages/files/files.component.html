@@ -1,52 +1,187 @@
 <div class="files-page">
-  <div class="files-header-row">
-    <div class="header-titles">
-      <div class="header-badge-row">
-        <span class="page-category-badge">Statement Archive</span>
-        <span class="live-counter-pill" *ngIf="!isLoading">{{ statements.length }} Total Processed</span>
-      </div>
-      <h1 class="files-title">My Statements &amp; Spreadsheets</h1>
-      <p class="files-subtitle">Persistent repository of processed bank statements, ingestion metadata, and generated Excel ledgers.</p>
+  <!-- 1. Workspace Header -->
+  <header class="files-header">
+    <div class="header-breadcrumbs" aria-label="Breadcrumbs">
+      <span class="breadcrumb-item">Workspace</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Files &amp; Statements</span>
     </div>
-    <div class="header-actions">
-      <a routerLink="/converter" class="btn btn-primary btn-header-cta">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        <span>Convert New Statement</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="card files-card">
-    <div class="files-toolbar">
-      <div class="search-box">
-        <div class="search-input-wrapper">
-          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input type="text" [(ngModel)]="searchQuery" class="form-control search-input" placeholder="Search statements by file name, client, or status...">
-          <button *ngIf="searchQuery" class="search-clear-btn" (click)="searchQuery = ''" title="Clear search">&times;</button>
-        </div>
+    <div class="header-title-row">
+      <div>
+        <h1 class="files-title" id="filesMainTitle">Files &amp; Statements</h1>
+        <p class="files-subtitle">Manage your clients, financial years, and bank statements in one workspace.</p>
       </div>
-      <div class="filter-controls">
-        <button class="btn btn-secondary btn-sm" (click)="loadStatements()" [disabled]="isLoading" title="Reload statements from database">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" [class.spinning]="isLoading">
+      <div class="header-actions">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm refresh-btn"
+          id="refreshStatementsBtn"
+          (click)="loadStatements()"
+          [disabled]="isLoading"
+          title="Reload statements from server"
+        >
+          <svg class="refresh-icon" [class.spinning]="isLoading" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="23 4 23 10 17 10"></polyline>
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
           </svg>
           <span>Refresh</span>
         </button>
+        <a routerLink="/converter" class="btn btn-excel btn-sm" id="uploadNewStatementBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Upload Statement</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. Workspace Summary KPI Metrics -->
+  <section class="files-summary-grid" aria-label="Statements Summary Metrics" *ngIf="!isLoading && !errorMessage">
+    <div class="card summary-kpi-card" id="kpiTotalStatements">
+      <span class="kpi-label">Total Statements</span>
+      <div class="kpi-value">{{ totalStatementsCount }}</div>
+      <span class="kpi-meta">Archived in current workspace</span>
+    </div>
+
+    <div class="card summary-kpi-card kpi-success" id="kpiCompletedStatements">
+      <span class="kpi-label">Completed &amp; Ready</span>
+      <div class="kpi-value text-success">{{ completedStatementsCount }}</div>
+      <span class="kpi-meta">Exportable to ClosedXML Excel</span>
+    </div>
+
+    <div class="card summary-kpi-card kpi-warning" id="kpiProcessingStatements">
+      <span class="kpi-label">In Processing / Ready</span>
+      <div class="kpi-value text-warning">{{ inProgressStatementsCount }}</div>
+      <span class="kpi-meta">Awaiting review or parsing</span>
+    </div>
+
+    <div class="card summary-kpi-card kpi-danger" id="kpiFailedStatements">
+      <span class="kpi-label">Issues / Failed</span>
+      <div class="kpi-value text-danger">{{ failedStatementsCount }}</div>
+      <span class="kpi-meta">Extraction or parse exceptions</span>
+    </div>
+  </section>
+
+  <!-- 3. Primary Table Card & Toolbar -->
+  <div class="card workspace-table-card">
+    <!-- Filter & Search Toolbar -->
+    <div class="workspace-toolbar" role="search" aria-label="Statement Search and Filters">
+      <div class="search-input-wrap">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          type="text"
+          id="statementSearchInput"
+          class="form-control form-control-sm search-field"
+          [(ngModel)]="searchQuery"
+          placeholder="Search statements, clients, FY, or ID..."
+          aria-label="Search statements"
+        >
+        <button
+          *ngIf="searchQuery"
+          type="button"
+          class="clear-search-btn"
+          (click)="searchQuery = ''"
+          title="Clear search"
+          aria-label="Clear search input"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="filter-controls-group">
+        <!-- Client Filter -->
+        <div class="filter-select-wrap">
+          <label for="clientFilterSelect" class="sr-only">Filter by Client</label>
+          <select
+            id="clientFilterSelect"
+            class="form-control form-control-sm filter-select"
+            [(ngModel)]="selectedClientFilter"
+          >
+            <option value="ALL">All Clients</option>
+            <option *ngFor="let c of availableClients" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <!-- Financial Year Filter -->
+        <div class="filter-select-wrap">
+          <label for="fyFilterSelect" class="sr-only">Filter by Financial Year</label>
+          <select
+            id="fyFilterSelect"
+            class="form-control form-control-sm filter-select"
+            [(ngModel)]="selectedFyFilter"
+          >
+            <option value="ALL">All Financial Years</option>
+            <option *ngFor="let fy of availableFinancialYears" [value]="fy">{{ fy }}</option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="filter-select-wrap">
+          <label for="statusFilterSelect" class="sr-only">Filter by Status</label>
+          <select
+            id="statusFilterSelect"
+            class="form-control form-control-sm filter-select"
+            [(ngModel)]="selectedStatusFilter"
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="PROCESSING">In Processing / Ready</option>
+            <option value="FAILED">Issues / Failed</option>
+          </select>
+        </div>
+
+        <!-- Sort Select -->
+        <div class="filter-select-wrap">
+          <label for="sortSelect" class="sr-only">Sort Statements</label>
+          <select
+            id="sortSelect"
+            class="form-control form-control-sm filter-select"
+            [(ngModel)]="sortBy"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="name">File Name (A-Z)</option>
+            <option value="size">Largest Size</option>
+          </select>
+        </div>
+
+        <!-- Clear All Filters Link -->
+        <button
+          *ngIf="hasActiveFilters"
+          type="button"
+          class="btn btn-ghost btn-xs clear-all-btn"
+          id="clearFiltersBtn"
+          (click)="clearFilters()"
+        >
+          Reset Filters
+        </button>
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div class="files-loading-state" *ngIf="isLoading">
-      <div class="spinner"></div>
-      <p>Loading statement repository from database...</p>
+    <!-- Active Filter Counter Strip -->
+    <div class="filter-summary-strip" *ngIf="!isLoading && !errorMessage && statements.length > 0">
+      <span class="count-indicator font-medium">
+        Showing <strong>{{ filteredStatements.length }}</strong> of {{ statements.length }} statement files
+      </span>
     </div>
 
-    <!-- Error State -->
-    <div class="files-error-state" *ngIf="!isLoading && errorMessage">
+    <!-- 4. Loading State -->
+    <div class="workspace-loading-state" *ngIf="isLoading" role="status" aria-live="polite">
+      <div class="spinner"></div>
+      <p class="loading-title">Loading statement workspace from repository...</p>
+      <span class="loading-subtext">Retrieving client records, financial years, and file metadata.</span>
+    </div>
+
+    <!-- 5. Error State -->
+    <div class="workspace-error-state" *ngIf="!isLoading && errorMessage" role="alert">
       <div class="error-circle">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
@@ -56,60 +191,155 @@
       </div>
       <h3>Error Loading Statements</h3>
       <p>{{ errorMessage }}</p>
-      <button class="btn btn-primary btn-sm" (click)="loadStatements()">Retry</button>
+      <button class="btn btn-primary btn-sm" id="retryLoadBtn" (click)="loadStatements()">
+        Retry Request
+      </button>
     </div>
 
-    <!-- Statements Table -->
+    <!-- 6. Statements Table View -->
     <div class="table-responsive" *ngIf="!isLoading && !errorMessage && filteredStatements.length > 0">
-      <table class="statements-table">
+      <table class="workspace-table" aria-label="Bank Statements Repository Table">
         <thead>
           <tr>
-            <th>Statement File</th>
-            <th>Client</th>
-            <th>Uploaded Date</th>
-            <th class="text-right">File Size</th>
-            <th class="text-center">Ingestion Status</th>
-            <th class="text-right">Actions</th>
+            <th style="width: 32%;">Statement File</th>
+            <th style="width: 22%;">Client &amp; Financial Year</th>
+            <th style="width: 16%;">Uploaded Date</th>
+            <th style="width: 10%;" class="text-right">File Size</th>
+            <th style="width: 12%;" class="text-center">Processing Status</th>
+            <th style="width: 8%;" class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let s of filteredStatements">
+          <tr *ngFor="let s of filteredStatements" [attr.id]="'statementRow-' + s.id">
+            <!-- File Name & Identifier -->
             <td>
               <div class="statement-file-cell">
-                <div class="pdf-icon-badge">PDF</div>
+                <div class="pdf-icon-badge" aria-hidden="true">PDF</div>
                 <div class="file-name-meta">
-                  <span class="file-name font-bold">{{ s.originalFileName }}</span>
-                  <span class="file-subtext mono text-xs">ID: {{ s.id }}</span>
+                  <span class="file-name font-bold" [title]="s.originalFileName">
+                    {{ s.originalFileName }}
+                  </span>
+                  <span class="file-id mono text-xs" [title]="'Statement ID: ' + s.id">
+                    ID: {{ s.id }}
+                  </span>
                 </div>
               </div>
             </td>
+
+            <!-- Client & Financial Year -->
             <td>
-              <span class="client-name">{{ s.clientName || 'Default Workspace' }}</span>
-              <span class="fy-label text-muted text-xs block" *ngIf="s.financialYearName">{{ s.financialYearName }}</span>
+              <div class="client-fy-cell">
+                <span class="client-name font-medium" [title]="s.clientName || 'Default Workspace'">
+                  {{ s.clientName || 'Default Workspace' }}
+                </span>
+                <span class="fy-tag-pill" *ngIf="s.financialYearName">
+                  FY {{ s.financialYearName }}
+                </span>
+                <span class="fy-tag-pill text-muted" *ngIf="!s.financialYearName">
+                  FY Unassigned
+                </span>
+              </div>
             </td>
-            <td class="mono text-muted text-xs">
+
+            <!-- Upload Date -->
+            <td class="mono text-sm text-secondary">
               {{ s.uploadedAt | date:'dd MMM yyyy, HH:mm' }}
             </td>
-            <td class="text-right mono font-bold">
+
+            <!-- File Size -->
+            <td class="text-right mono text-sm font-semibold">
               {{ s.fileSizeFormatted }}
             </td>
+
+            <!-- Status Badge -->
             <td class="text-center">
-              <span class="badge" [ngClass]="s.status === 'ReadyForProcessing' ? 'badge-accent' : 'badge-primary'">
-                {{ s.status }}
+              <span
+                class="status-badge"
+                [ngClass]="{
+                  'status-completed': s.processingStatus === 2,
+                  'status-processing': s.processingStatus === 1,
+                  'status-ready': s.processingStatus === 0,
+                  'status-failed': s.processingStatus === 3 || s.processingStatus < 0
+                }"
+              >
+                <span class="status-indicator-dot"></span>
+                <span *ngIf="s.processingStatus === 2">Completed</span>
+                <span *ngIf="s.processingStatus === 1">Processing</span>
+                <span *ngIf="s.processingStatus === 0">Ready</span>
+                <span *ngIf="s.processingStatus === 3 || s.processingStatus < 0">Failed</span>
               </span>
             </td>
+
+            <!-- Actions -->
             <td class="text-right">
               <div class="action-btn-group">
-                <button class="btn btn-outline btn-sm" (click)="viewDetails(s.id)" title="View Ingestion Metadata">
-                  <span>Details</span>
-                </button>
-                <button class="btn btn-secondary btn-sm" (click)="downloadStatement(s)" title="Download Original PDF securely">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <!-- Excel Export (Enabled for completed statements) -->
+                <button
+                  *ngIf="s.processingStatus === 2"
+                  type="button"
+                  class="btn btn-xs btn-excel-action"
+                  [id]="'exportExcelBtn-' + s.id"
+                  (click)="exportExcel(s)"
+                  [disabled]="isExporting[s.id]"
+                  title="Export ClosedXML Excel Ledger (.xlsx)"
+                  aria-label="Export Excel ledger"
+                >
+                  <span *ngIf="isExporting[s.id]" class="spinner-xs" aria-hidden="true"></span>
+                  <svg *ngIf="!isExporting[s.id]" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="7 10 12 15 17 10"></polyline>
                     <line x1="12" y1="15" x2="12" y2="3"></line>
                   </svg>
-                  <span>Download</span>
+                  <span>Excel</span>
+                </button>
+
+                <!-- Download Original PDF -->
+                <button
+                  type="button"
+                  class="btn btn-xs btn-secondary"
+                  [id]="'downloadPdfBtn-' + s.id"
+                  (click)="downloadStatement(s)"
+                  [disabled]="isDownloading[s.id]"
+                  title="Download original bank statement PDF"
+                  aria-label="Download original PDF"
+                >
+                  <span *ngIf="isDownloading[s.id]" class="spinner-xs" aria-hidden="true"></span>
+                  <svg *ngIf="!isDownloading[s.id]" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  <span>PDF</span>
+                </button>
+
+                <!-- Ingestion Details Modal -->
+                <button
+                  type="button"
+                  class="btn btn-xs btn-outline"
+                  [id]="'viewDetailsBtn-' + s.id"
+                  (click)="viewDetails(s.id)"
+                  title="View statement ingestion metadata"
+                  aria-label="View ingestion record details"
+                >
+                  <span>Details</span>
+                </button>
+
+                <!-- Delete Statement -->
+                <button
+                  type="button"
+                  class="btn btn-xs btn-danger-outline"
+                  [id]="'deleteBtn-' + s.id"
+                  (click)="deleteStatement(s)"
+                  [disabled]="isDeleting[s.id]"
+                  title="Delete statement and associated data"
+                  aria-label="Delete statement"
+                >
+                  <span *ngIf="isDeleting[s.id]" class="spinner-xs" aria-hidden="true"></span>
+                  <svg *ngIf="!isDeleting[s.id]" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  <span>Delete</span>
                 </button>
               </div>
             </td>
@@ -118,16 +348,33 @@
       </table>
     </div>
 
-    <!-- Filter Empty State -->
-    <div class="files-empty-state" *ngIf="!isLoading && !errorMessage && filteredStatements.length === 0 && statements.length > 0">
+    <!-- 7. Filter Empty State (Records exist, but filter returned 0) -->
+    <div
+      class="workspace-empty-state"
+      id="filterEmptyState"
+      *ngIf="!isLoading && !errorMessage && filteredStatements.length === 0 && statements.length > 0"
+    >
+      <div class="empty-icon-box">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          <line x1="8" y1="11" x2="14" y2="11"></line>
+        </svg>
+      </div>
       <h3>No matching statements found</h3>
-      <p>No records match your query "{{ searchQuery }}". Try adjusting your search term.</p>
-      <button class="btn btn-secondary btn-sm" (click)="searchQuery = ''">Clear Search</button>
+      <p>No records match your active search and filter criteria. Adjust your terms or reset the filters.</p>
+      <button class="btn btn-secondary btn-sm" id="resetFiltersEmptyBtn" (click)="clearFilters()">
+        Clear All Filters
+      </button>
     </div>
 
-    <!-- Professional Empty State (Database has 0 records) -->
-    <div class="files-empty-state" *ngIf="!isLoading && !errorMessage && statements.length === 0">
-      <div class="empty-icon-circle">
+    <!-- 8. Zero Records Empty State (Database has 0 records) -->
+    <div
+      class="workspace-empty-state zero-state"
+      id="zeroStatementsEmptyState"
+      *ngIf="!isLoading && !errorMessage && statements.length === 0"
+    >
+      <div class="empty-icon-box large">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
@@ -137,19 +384,22 @@
       </div>
       <h2>No Statements Processed Yet</h2>
       <p>
-        Your workspace is ready. Once bank statement PDFs are uploaded via the Converter, they will be archived here along with original files, verified status, and downloadable Excel spreadsheets.
+        Your workspace is ready. Once bank statement PDFs are uploaded via the Converter, they will be archived here along with original files, verified status, and downloadable ClosedXML Excel spreadsheets.
       </p>
-      <div class="empty-actions">
-        <a routerLink="/converter" class="btn btn-primary btn-lg">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      <div class="empty-action-box">
+        <a routerLink="/converter" class="btn btn-primary btn-lg" id="emptyUploadBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
           <span>Upload Your First Statement</span>
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Statement Details Modal -->
-  <div class="modal-backdrop" *ngIf="selectedDetail" (click)="closeDetails()">
+  <!-- 9. Statement Details Modal -->
+  <div class="modal-backdrop" *ngIf="selectedDetail" (click)="closeDetails()" role="dialog" aria-modal="true">
     <div class="modal-dialog card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-header-icon">
@@ -161,54 +411,121 @@
           </svg>
         </div>
         <div class="modal-title-box">
-          <h3 class="modal-title">Statement Ingestion Record</h3>
-          <span class="modal-subtitle mono text-xs">{{ selectedDetail.id }}</span>
+          <h3 class="modal-title" id="modalDetailTitle">Statement Ingestion Record</h3>
+          <div class="modal-id-row">
+            <span class="modal-subtitle mono text-xs">{{ selectedDetail.id }}</span>
+            <button
+              type="button"
+              class="copy-id-btn flex-inline-center"
+              id="copyDetailIdBtn"
+              (click)="copyDetailId()"
+              [title]="detailIdCopied ? 'Copied!' : 'Copy Statement ID'"
+              aria-label="Copy Statement ID"
+            >
+              <svg *ngIf="!detailIdCopied" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <svg *ngIf="detailIdCopied" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>{{ detailIdCopied ? 'Copied' : 'Copy' }}</span>
+            </button>
+          </div>
         </div>
-        <button class="modal-close-btn" (click)="closeDetails()">&times;</button>
+        <button type="button" class="modal-close-btn" id="closeDetailModalBtn" (click)="closeDetails()" aria-label="Close dialog">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
 
       <div class="modal-body">
         <div class="detail-grid">
           <div class="detail-item">
             <span class="detail-lbl">Original File Name</span>
-            <span class="detail-val font-bold">{{ selectedDetail.originalFileName }}</span>
+            <span class="detail-val font-bold" id="detailOriginalFileName">{{ selectedDetail.originalFileName }}</span>
           </div>
+
           <div class="detail-item">
             <span class="detail-lbl">File Size</span>
             <span class="detail-val mono">{{ selectedDetail.fileSizeFormatted }} ({{ selectedDetail.fileSizeBytes | number }} bytes)</span>
           </div>
+
           <div class="detail-item">
             <span class="detail-lbl">Lifecycle Status</span>
-            <span class="badge badge-accent">{{ selectedDetail.status }}</span>
+            <span
+              class="status-badge"
+              [ngClass]="{
+                'status-completed': selectedDetail.processingStatus === 2,
+                'status-processing': selectedDetail.processingStatus === 1,
+                'status-ready': selectedDetail.processingStatus === 0,
+                'status-failed': selectedDetail.processingStatus === 3 || selectedDetail.processingStatus < 0
+              }"
+            >
+              {{ selectedDetail.status }}
+            </span>
           </div>
+
           <div class="detail-item">
             <span class="detail-lbl">Ingestion Date (UTC)</span>
-            <span class="detail-val mono">{{ selectedDetail.uploadedAt | date:'medium' }}</span>
+            <span class="detail-val mono">{{ selectedDetail.uploadedAt | date:'dd MMM yyyy, HH:mm:ss' }}</span>
           </div>
+
           <div class="detail-item">
             <span class="detail-lbl">Client Workspace</span>
-            <span class="detail-val">{{ selectedDetail.clientName || 'Default Workspace' }}</span>
+            <span class="detail-val font-medium">{{ selectedDetail.clientName || 'Default Workspace' }}</span>
           </div>
+
           <div class="detail-item">
             <span class="detail-lbl">Financial Year</span>
-            <span class="detail-val">{{ selectedDetail.financialYearName || 'Not specified' }}</span>
+            <span class="detail-val">{{ selectedDetail.financialYearName || 'Unassigned' }}</span>
           </div>
         </div>
 
         <div class="detail-notice">
-          <strong>Security &amp; Storage Guarantee:</strong>
-          Physical file is isolated in private server storage outside public static web root. No direct web URLs exist. Ready for Phase 3 extraction pipeline.
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <div>
+            <strong>Security &amp; Storage Guarantee:</strong>
+            Physical statement file is isolated in private server storage outside the public web root. Access is restricted strictly to authorized user sessions with cryptographic hash tracking.
+          </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeDetails()">Close</button>
-        <button class="btn btn-primary" (click)="downloadStatement(selectedDetail)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
+        <button type="button" class="btn btn-secondary btn-sm" (click)="closeDetails()">Close</button>
+        <button
+          type="button"
+          class="btn btn-danger-outline btn-sm"
+          id="modalDeleteBtn"
+          (click)="deleteStatement(selectedDetail)"
+          [disabled]="isDeleting[selectedDetail.id]"
+        >
+          <span *ngIf="isDeleting[selectedDetail.id]" class="spinner-xs" aria-hidden="true"></span>
+          <span>Delete</span>
+        </button>
+        <button
+          *ngIf="selectedDetail.processingStatus === 2"
+          type="button"
+          class="btn btn-excel btn-sm"
+          id="modalExportExcelBtn"
+          (click)="exportExcel(selectedDetail)"
+          [disabled]="isExporting[selectedDetail.id]"
+        >
+          <span *ngIf="isExporting[selectedDetail.id]" class="spinner-xs" aria-hidden="true"></span>
+          <span>Export Excel (.xlsx)</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          id="modalDownloadPdfBtn"
+          (click)="downloadStatement(selectedDetail)"
+          [disabled]="isDownloading[selectedDetail.id]"
+        >
+          <span *ngIf="isDownloading[selectedDetail.id]" class="spinner-xs" aria-hidden="true"></span>
           <span>Download Original PDF</span>
         </button>
       </div>

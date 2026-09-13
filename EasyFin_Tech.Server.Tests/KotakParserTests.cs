@@ -243,7 +243,7 @@ public class KotakParserTests : IClassFixture<CustomWebApplicationFactory>
 
             rows.Add(CreateRow(1, y, [
                 ("3", 40.0), ("31 Dec 2022", 65.0), ("Int.Pd:6245778582:01-10-2022 to 31-12-2022", 135.0),
-                ("1.00", 490.0), ("42.80", 570.0)
+                ("1.00", 490.0), ("1.50", 570.0)
             ]));
         }
 

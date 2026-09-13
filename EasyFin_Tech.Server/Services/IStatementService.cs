@@ -22,4 +22,6 @@ public interface IStatementService
     Task<StatementDetailDto?> GetStatementByIdAsync(Guid id, Guid currentUserId, CancellationToken cancellationToken = default);
 
     Task<(Stream? Stream, string OriginalFileName, string ContentType)?> GetStatementFileStreamAsync(Guid id, Guid currentUserId, CancellationToken cancellationToken = default);
+
+    Task<(bool Success, string? ErrorMessage)> DeleteStatementAsync(Guid id, Guid currentUserId, CancellationToken cancellationToken = default);
 }

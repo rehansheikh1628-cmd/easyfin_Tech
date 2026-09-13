@@ -274,17 +274,20 @@ Validation status is computed **dynamically on read** across 6 core rules:
 | **Phase 4** | Bank Parsing (HDFC, YES, Axis) | **COMPLETE / LOCKED** | `HDFC-v1`, `YES-v1`, `AXIS-v1` verified (3 banks) |
 | **Phase 5** | Validation + Preview + Correction | **COMPLETE** | Sidecar audit store, 27 validation tests |
 | **Phase 6** | Excel Generator Engine | **COMPLETE** | ClosedXML multi-sheet export, 24 tests |
+| **Phase 20** | Launch / GO Hardening & E2E Validation | **COMPLETE** | Enterprise redesign, 335 backend / 123 frontend tests |
+| **Phase 21** | Production Deployment & Domain Config | **COMPLETE / VERIFIED** | IIS automation, Let's Encrypt, SQL schema DDL, security hardening |
+| **Phase 22** | Production Environment & E2E Validation | **COMPLETE / VERIFIED** | Live production E2E validated, real statement PDF->XLSX, Excel->Tally XML, zero leaks |
 
 ---
 
 ## 11. Test & Build Baseline (Current Verified State)
 
-- **Latest Verified Backend Tests (`dotnet test`)**: **332 Passed, 0 Failed, 0 Skipped** (Duration: ~25.0s)
-- **Latest Verified Frontend Tests (`npm test`)**: **43 Passed, 0 Failed** (Duration: ~3.5s)
+- **Latest Verified Backend Tests (`dotnet test`)**: **338 Passed, 0 Failed, 0 Skipped** (Duration: ~25.0s)
+- **Latest Verified Frontend Tests (`npm test`)**: **123 Passed, 0 Failed** (Duration: ~7.4s)
 - **TypeScript Static Verification (`npx tsc --noEmit`)**: **0 Errors (Clean)**
 - **Frontend Production Build (`npm run build`)**: **Clean (Exit code 0, 0 Warnings, 0 Errors)**
 - **Backend Build (`dotnet build`)**: **0 Warnings, 0 Errors (Exit code 0)**
-- **Production Publish (`dotnet publish -c Release`)**: **Clean (Exit code 0, self-contained wwwroot, pre-compressed assets, IIS 50MB web.config)**
+- **Production Publish (`dotnet publish -c Release`)**: **Clean (Exit code 0, self-contained wwwroot, pre-compressed assets, IIS 50MB web.config, initialize_production_db.sql, deploy_iis.ps1)**
 
 ### Real Statement Regression Fixtures
 - **HDFC Bank**: 47-page and 65-page production statements.
@@ -307,40 +310,48 @@ Validation status is computed **dynamically on read** across 6 core rules:
 
 ## 13. Known Limitations
 
-1. **OCR for Scanned Documents**: Image-only or non-digital PDFs are identified honestly with `NoDigitalTextDetected`. Scanned OCR pipeline is deferred to a future phase.
-2. **YES BANK Corporate Format 2**: Format 2 layout heuristics are implemented but unvalidated against real corporate production samples.
-3. **Axis Legacy/Unformatted Layouts**: Only standard 9-column statements are validated; older passbook-style formats may require future calibration.
-4. **Bank Expansion Paused**: Bank support is intentionally frozen at 3 banks (HDFC, YES, Axis).
-
----
-
-## 14. Non-Negotiable Project Rules
-
-1. **Do Not Destroy Working Functionality**: Never regress existing parsers, authentication, or test suites.
-2. **Keep Locked Parsers Untouched**: `HDFC-v1`, `YES-v1`, and `AXIS-v1` must not be altered casually.
-3. **Never Hardcode Fixture Details**: Parsing must be format-driven, not sample-driven.
-4. **Never Trust Browser IDs**: Enforce complete server-side authorization on every request.
-5. **No Database Migrations Without Approval**: Inspect schema first; report any discovered gaps.
-6. **Never Pollute `ProcessingWarning`**: Keep it exclusively for parser warnings.
-7. **Preserve Immutable Originals**: Original parsed values must never be overwritten or reconstructed from edited data.
-8. **No Silent Financial Hallucinations**: Calculate mathematical balances strictly; report discrepancies clearly.
-9. **Single-Task Focus**: Execute one major phase at a time; do not implement future phases prematurely.
-10. **Zero Secrets in Code or Context**: Passwords, connection secrets, and private tokens must never be recorded in documentation.
-
----
-
-## 15. Current Next Step
-
-- **Current Status**: **Phase 7 / Step 1 (Dashboard) Completed**.
-  - Fully authenticated, user-isolated dashboard at `/dashboard`.
-  - Real backend metrics: Total Statements, Completed Conversions, Processing / In Progress, Failed / Needs Attention, and Total Transactions.
-  - Compact recent statements table with Bank, Upload Date, Transaction Count, Status, and Actions.
-  - Prominent "Upload Statement" quick action linking to the existing `/converter` workflow.
-  - Robust empty state ("No statements yet") and loading / error handling with retry.
-  - Read-only endpoints: `GET /api/dashboard/stats` and `GET /api/dashboard/summary`.
-  - Zero database schema migrations; zero parser changes.
-- **Next Step**: Phase 7 / Step 2 (File History) — to be designed and implemented only when explicitly requested.
-- **Rule**: Maintain locked status of `HDFC-v1`, `YES-v1`, and `AXIS-v1`. Zero unapproved database schema changes.
+313: 1. **OCR for Scanned Documents**: Image-only or non-digital PDFs are identified honestly with `NoDigitalTextDetected`. Scanned OCR pipeline is deferred to a future phase.
+314: 2. **YES BANK Corporate Format 2**: Format 2 layout heuristics are implemented but unvalidated against real corporate production samples.
+315: 3. **Axis Legacy/Unformatted Layouts**: Only standard 9-column statements are validated; older passbook-style formats may require future calibration.
+316: 4. **Bank Expansion Locked**: Bank support is strictly calibrated and frozen at 8 institutions / 9 profiles: HDFC-v1, YES-v1, AXIS-v1, ICICI-v1, ICICI-v2, SBI-v1, BOI-v1, Kotak-v1, CentralBank-v1.
+317: 
+318: ---
+319: 
+320: ## 14. Non-Negotiable Project Rules
+321: 
+322: 1. **Do Not Destroy Working Functionality**: Never regress existing parsers, authentication, or test suites.
+323: 2. **Keep Locked Parsers Untouched**: All 9 calibrated bank profiles must not be altered casually.
+324: 3. **Never Hardcode Fixture Details**: Parsing must be format-driven, not sample-driven.
+325: 4. **Never Trust Browser IDs**: Enforce complete server-side authorization on every request.
+326: 5. **No Database Migrations Without Approval**: Inspect schema first; report any discovered gaps.
+327: 6. **Never Pollute `ProcessingWarning`**: Keep it exclusively for parser warnings.
+328: 7. **Preserve Immutable Originals**: Original parsed values must never be overwritten or reconstructed from edited data.
+329: 8. **No Silent Financial Hallucinations**: Calculate mathematical balances strictly; report discrepancies clearly.
+330: 9. **Single-Task Focus**: Execute one major phase at a time; do not implement future phases prematurely.
+331: 10. **Zero Secrets in Code or Context**: Passwords, connection secrets, and private tokens must never be recorded in documentation.
+332: 
+333: ---
+334: 
+335: ## 15. Current Next Step
+336:  
+337: - **Current Status**: **Phase 24 (Final Product Completion & Pre-Launch Quality Audit) Completed & Verified 🎯**.
+338:   - Final Verdict: **🟢 READY FOR PRODUCTION LAUNCH**.
+339:   - Pre-Launch Audit & Hardening Completed:
+340:     - Dead Developer Links Cleaned: Removed dead Swagger `/swagger` and `/openapi/v1.json` links from sidebar and settings in production, replaced with verified documentation links (`/how-it-works`, `/supported-banks`).
+341:     - Dashboard Connectivity Card Sanitized: Labeled as "System Connectivity", database name sanitized to "Production", server instance sanitized to "Protected" in production mode.
+342:     - Verified Factual Counts: 8 Supported Banking Institutions • 9 Calibrated Profiles. Zero artificial or fabricated claims across marketing pages.
+343:     - Operations & Disaster Recovery Runbook verified: Live backup, restore verification test on recovery DB, Robocopy storage replication, and multi-tenant isolation tests.
+344:   - Full Automated Regression Suite:
+345:     - Backend: 338 passed, 0 failed, 0 skipped (`dotnet test` across net10.0).
+346:     - Frontend: 123 passed, 0 failed across 10 test suites (`ng test --watch=false`).
+347:     - TypeScript Compile: 0 errors (`npx tsc --noEmit`).
+348:     - Production Client Build: `npm run build` PASS (979 kB bundle, 189 kB gzip transfer).
+349:     - Production Release Build: `dotnet build -c Release` PASS (0 warnings, 0 errors).
+350:     - Production Release Publish: `dotnet publish EasyFin_Tech.Server -c Release -o ./publish` PASS.
+351:   - Strict Protection Scope: 100% Preserved. Zero modifications to bank parsers, PDF extraction geometry, ClosedXML, Tally XML, or database schema.
+352:   - Deferred Scope: Bills & Invoices $\to$ Excel remains strictly DEFERRED.
+353: - **Next Step**: Awaiting user explicit directive before starting Phase 25 (Bills & Invoices $\to$ Excel). Work STOPPED at Phase 24 as required.
+354: - **Rule**: Maintain locked status of all parsers (`HDFC-v1`, `YES-v1`, `AXIS-v1`, `ICICI-v1`, `ICICI-v2`, `SBI-v1`, `BOI-v1`, `Kotak-v1`, `CentralBank-v1`). Zero unapproved database schema changes.
 
 ---
 

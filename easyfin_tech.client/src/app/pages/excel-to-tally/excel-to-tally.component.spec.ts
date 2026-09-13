@@ -314,4 +314,62 @@ describe('ExcelToTallyComponent', () => {
     expect(btn).not.toBeNull();
     expect(btn.disabled).toBe(true);
   });
+
+  it('15. should compute correct stepper states across workflow lifecycle', () => {
+    // Initial state
+    expect(component.step1Status).toBe('active');
+    expect(component.step2Status).toBe('pending');
+    expect(component.step3Status).toBe('pending');
+    expect(component.step4Status).toBe('pending');
+    expect(component.step5Status).toBe('pending');
+    expect(component.step6Status).toBe('pending');
+
+    // After template download
+    component.templateDownloaded = true;
+    expect(component.step1Status).toBe('completed');
+    expect(component.step2Status).toBe('active');
+
+    // After file selected & valid result
+    component.validationResult = mockValidResult;
+    expect(component.step1Status).toBe('completed');
+    expect(component.step2Status).toBe('completed');
+    expect(component.step3Status).toBe('completed');
+    expect(component.step4Status).toBe('completed');
+    expect(component.step5Status).toBe('active');
+    expect(component.step6Status).toBe('pending');
+
+    // After XML generated
+    component.xmlSuccessMessage = 'Generated';
+    expect(component.step5Status).toBe('completed');
+    expect(component.step6Status).toBe('completed');
+  });
+
+  it('16. should format file sizes accurately', () => {
+    expect(component.formatFileSize(0)).toBe('0 B');
+    expect(component.formatFileSize(500)).toBe('500 B');
+    expect(component.formatFileSize(2048)).toBe('2.0 KB');
+    expect(component.formatFileSize(5 * 1024 * 1024)).toBe('5.00 MB');
+  });
+
+  it('17. should format dates safely without throwing exceptions', () => {
+    expect(component.formatDate(null)).toBe('—');
+    expect(component.formatDate('')).toBe('—');
+    expect(component.formatDate('25/01/2026')).toBe('25/01/2026');
+    expect(component.formatDate('2026-08-15T00:00:00')).toBe('15/08/2026');
+    expect(component.formatDate('InvalidDateString')).toBe('InvalidDateString');
+  });
+
+  it('18. should compute appropriate fileStatusBadge', () => {
+    expect(component.fileStatusBadge.text).toBe('Uploaded');
+
+    component.isValidating = true;
+    expect(component.fileStatusBadge.text).toBe('Validating');
+
+    component.isValidating = false;
+    component.validationResult = mockValidResult;
+    expect(component.fileStatusBadge.text).toBe('Ready for XML');
+
+    component.xmlSuccessMessage = 'XML ready';
+    expect(component.fileStatusBadge.text).toBe('XML Ready');
+  });
 });

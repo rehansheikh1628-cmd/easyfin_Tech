@@ -1,6 +1,9 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
 import { AuthService, UserProfileDto } from '../../services/auth.service';
+import { LayoutService } from '../../services/layout.service';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-app-layout',
@@ -9,18 +12,28 @@ import { Subscription } from 'rxjs';
   standalone: false
 })
 export class AppLayoutComponent implements OnInit, OnDestroy {
-  mobileMenuOpen = false;
+  sidebarOpen = false;
+  isCollapsed = false;
   profileMenuOpen = false;
   currentUser: UserProfileDto | null = null;
   private authSub?: Subscription;
+  private routerSub?: Subscription;
+  private layoutSub?: Subscription;
 
   constructor(
     private authService: AuthService,
-    private cdr: ChangeDetectorRef,
-    private elementRef: ElementRef
+    private layoutService: LayoutService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    this.isCollapsed = this.layoutService.isCollapsed;
+    this.layoutSub = this.layoutService.isCollapsed$.subscribe((collapsed) => {
+      this.isCollapsed = collapsed;
+      this.cdr.markForCheck();
+    });
+
     this.authSub = this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
       this.cdr.markForCheck();
@@ -29,10 +42,21 @@ export class AppLayoutComponent implements OnInit, OnDestroy {
     if (!this.currentUser) {
       this.authService.checkAuth().subscribe();
     }
+
+    // Auto-close mobile drawer and dropdown on route change
+    this.routerSub = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.sidebarOpen = false;
+        this.profileMenuOpen = false;
+        this.cdr.markForCheck();
+      });
   }
 
   ngOnDestroy(): void {
     this.authSub?.unsubscribe();
+    this.routerSub?.unsubscribe();
+    this.layoutSub?.unsubscribe();
   }
 
   get userName(): string {
@@ -61,65 +85,60 @@ export class AppLayoutComponent implements OnInit, OnDestroy {
     return 'EF';
   }
 
-  toggleProfileMenu(event?: Event): void {
-    if (event) {
-      event.stopPropagation();
-    }
+  get breadcrumbCategory(): string {
+    const url = this.router.url.split('?')[0];
+    if (url.includes('/dashboard')) return 'Workspace';
+    if (url.includes('/converter') || url.includes('/excel-to-tally')) return 'Core Workflow';
+    if (url.includes('/files') || url.includes('/supported-banks')) return 'Tools';
+    if (url.includes('/settings')) return 'Account';
+    return 'Workspace';
+  }
+
+  get breadcrumbTitle(): string {
+    const url = this.router.url.split('?')[0];
+    if (url.includes('/dashboard')) return 'Dashboard';
+    if (url.includes('/converter')) return 'Bank Statement → Excel';
+    if (url.includes('/excel-to-tally')) return 'Excel → Tally XML';
+    if (url.includes('/files')) return 'My Statements & Spreadsheets';
+    if (url.includes('/settings')) return 'Workspace Settings';
+    if (url.includes('/supported-banks')) return 'Supported Banks';
+    return 'Financial Workspace';
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
+  }
+
+  toggleCollapse(): void {
+    this.layoutService.toggleCollapse();
+  }
+
+  toggleProfileMenu(event: Event): void {
+    event.stopPropagation();
     this.profileMenuOpen = !this.profileMenuOpen;
-    this.cdr.markForCheck();
   }
 
   closeProfileMenu(): void {
-    if (this.profileMenuOpen) {
-      this.profileMenuOpen = false;
-      this.cdr.markForCheck();
-    }
-  }
-
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen = !this.mobileMenuOpen;
-    if (this.mobileMenuOpen) {
-      this.profileMenuOpen = false;
-    }
-    this.cdr.markForCheck();
-  }
-
-  closeMobileMenu(): void {
-    this.mobileMenuOpen = false;
-    this.cdr.markForCheck();
-  }
-
-  // Backwards compatibility alias
-  get sidebarOpen(): boolean {
-    return this.mobileMenuOpen;
-  }
-  toggleSidebar(): void {
-    this.toggleMobileMenu();
-  }
-  closeSidebar(): void {
-    this.closeMobileMenu();
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (this.profileMenuOpen) {
-      const target = event.target as HTMLElement;
-      if (!this.elementRef.nativeElement.querySelector('.profile-menu-container')?.contains(target)) {
-        this.profileMenuOpen = false;
-        this.cdr.markForCheck();
-      }
-    }
-  }
-
-  @HostListener('document:keydown.escape')
-  onEscapeKey(): void {
-    this.closeProfileMenu();
-    this.closeMobileMenu();
+    this.profileMenuOpen = false;
   }
 
   logout(): void {
-    this.closeProfileMenu();
-    this.closeMobileMenu();
+    this.profileMenuOpen = false;
     this.authService.logout().subscribe();
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.profileMenuOpen = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.profileMenuOpen = false;
+    this.sidebarOpen = false;
   }
 }

@@ -1,77 +1,371 @@
 <app-public-nav></app-public-nav>
 
-<main class="page-body">
-  <div class="page-header">
-    <div class="container text-center">
-      <span class="badge badge-accent">Bank Coverage Roadmap</span>
-      <h1 class="page-title">Supported Bank Statement Layouts</h1>
-      <p class="page-subtitle">
-        We are actively engineering rule-based and template-adaptive layout parsers for Indian and international bank statements.
-      </p>
-    </div>
-  </div>
-
-  <section class="section">
+<main class="supported-banks-page" role="main">
+  <!-- 1. Header Section -->
+  <header class="banks-header">
     <div class="container">
-      <!-- Honest Progress Callout -->
-      <div class="honest-banner card">
-        <div class="banner-header">
-          <div class="banner-badge">Phase 1 Development Note</div>
-          <h2>Bank Parsers Under Active Calibration</h2>
-        </div>
-        <p>
-          Unlike tools that make exaggerated claims, we are upfront: bank parsers are actively undergoing accuracy calibration. In Phase 1, the layout structure and review table are ready. In Phase 2, automated bank detection will activate across these financial institutions.
+      <nav class="header-breadcrumbs" aria-label="Breadcrumb">
+        <a routerLink="/" class="breadcrumb-link">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Supported Banks</span>
+      </nav>
+
+      <div class="header-title-wrap text-center">
+        <span class="badge badge-accent mb-2">Deterministic Parser Directory</span>
+        <h1 class="page-title" id="supportedBanksTitle">Supported Banks &amp; Statement Formats</h1>
+        <p class="page-subtitle">
+          Verify whether your bank statement layout is supported before starting your conversion. EasyFin Tech uses coordinate-based geometric parsers tailored to specific institutional formats.
         </p>
       </div>
 
-      <!-- Categories -->
-      <div *ngFor="let cat of bankCategories" class="category-section">
-        <div class="cat-header">
-          <h2>{{ cat.categoryName }}</h2>
-          <p>{{ cat.description }}</p>
+      <!-- Feature Capability Strip -->
+      <div class="banks-features-strip" aria-label="Key Platform Capabilities">
+        <div class="feature-strip-item">
+          <div class="feature-strip-icon icon-excel">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+          </div>
+          <div class="feature-strip-text">
+            <span class="feature-strip-title">BANK STATEMENT &rarr; EXCEL</span>
+            <p class="feature-strip-desc">Convert supported bank statement PDFs into structured Excel data.</p>
+          </div>
         </div>
 
-        <div class="bank-cards-grid">
-          <div *ngFor="let bank of cat.banks" class="bank-card card">
-            <div class="bank-card-top">
-              <div class="bank-avatar">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"></path></svg>
-              </div>
-              <div class="bank-title-area">
-                <h3>{{ bank.name }}</h3>
-                <span class="bank-note">{{ bank.formatNote }}</span>
-              </div>
-            </div>
-            <div class="bank-status-pill">
-              <span class="status-pip"></span>
-              <span>{{ bank.status }}</span>
-            </div>
+        <div class="feature-strip-item">
+          <div class="feature-strip-icon icon-profiles">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"></path>
+            </svg>
+          </div>
+          <div class="feature-strip-text">
+            <span class="feature-strip-title">9+ CALIBRATED PROFILES</span>
+            <p class="feature-strip-desc">Bank-specific extraction layouts for reliable statement processing.</p>
+          </div>
+        </div>
+
+        <div class="feature-strip-item">
+          <div class="feature-strip-icon icon-validated">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="feature-strip-text">
+            <span class="feature-strip-title">VALIDATED OUTPUT</span>
+            <p class="feature-strip-desc">Built-in checks before accounting data is exported.</p>
+          </div>
+        </div>
+
+        <div class="feature-strip-item">
+          <div class="feature-strip-icon icon-tally">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+              <line x1="14" y1="4" x2="10" y2="20"></line>
+            </svg>
+          </div>
+          <div class="feature-strip-text">
+            <span class="feature-strip-title">TALLY PRIME READY</span>
+            <p class="feature-strip-desc">Prepare accounting data for Tally-compatible XML export.</p>
           </div>
         </div>
       </div>
+    </div>
+  </header>
 
-      <!-- Request Form Card -->
-      <div class="request-bank-box card">
-        <div class="request-content">
-          <span class="badge badge-primary">Format Priority Queue</span>
-          <h2>Don't See Your Bank Format?</h2>
-          <p>
-            Tell us which bank statements you process most frequently. Our engineering team prioritizes format mapping based on accounting practice demand.
+  <!-- 2. Workflow Boundary Clarification Banner -->
+  <section class="workflow-boundary-section" aria-label="Workflow Context">
+    <div class="container">
+      <div class="boundary-card card">
+        <div class="boundary-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </div>
+        <div class="boundary-content">
+          <h2 class="boundary-title">Workflow Notice: Bank Statement PDF &rarr; Excel Only</h2>
+          <p class="boundary-text">
+            This directory lists supported statement layouts for the <strong>Bank Statement PDF &rarr; Excel Converter</strong> workflow. The separate <strong>Excel &rarr; Tally XML</strong> workflow accepts any bank data as long as it is pasted into the official EasyFin Tech Excel template.
           </p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-          <div *ngIf="!requestSubmitted" class="request-form">
-            <div class="form-row">
-              <input type="text" [(ngModel)]="requestedBank" class="form-control" placeholder="Bank Name (e.g., Saraswat Bank, HSBC Current Account)">
-              <input type="email" [(ngModel)]="requestedEmail" class="form-control" placeholder="Your Email Address">
-              <button class="btn btn-primary" (click)="submitBankRequest()">Submit Request</button>
+  <!-- 3. Search & Filter Controls -->
+  <section class="directory-filter-section" aria-label="Search and Filter Supported Banks">
+    <div class="container">
+      <div class="filter-toolbar card">
+        <!-- Live Search Field -->
+        <div class="search-input-wrap">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            id="bankSearchInput"
+            class="form-control search-field"
+            [(ngModel)]="searchQuery"
+            placeholder="Search banks, parser codes (e.g. HDFC-v1, ICICI-v2), or layout keywords..."
+            aria-label="Search supported banks"
+          >
+          <button
+            *ngIf="searchQuery"
+            type="button"
+            class="clear-search-btn"
+            (click)="searchQuery = ''"
+            title="Clear search"
+            aria-label="Clear search input"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Category Selector Pills -->
+        <div class="category-pills-group" role="tablist" aria-label="Filter by Banking Sector">
+          <button
+            type="button"
+            class="category-pill"
+            [class.active]="selectedCategory === 'ALL'"
+            (click)="setCategory('ALL')"
+            id="pillAllBanks"
+          >
+            All Institutions <span class="pill-count">({{ totalBanksCount }})</span>
+          </button>
+          <button
+            type="button"
+            class="category-pill"
+            [class.active]="selectedCategory === 'Private Sector'"
+            (click)="setCategory('Private Sector')"
+            id="pillPrivateBanks"
+          >
+            Private Sector <span class="pill-count">(5)</span>
+          </button>
+          <button
+            type="button"
+            class="category-pill"
+            [class.active]="selectedCategory === 'Public Sector'"
+            (click)="setCategory('Public Sector')"
+            id="pillPublicBanks"
+          >
+            Public Sector <span class="pill-count">(3)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Counter Strip -->
+      <div class="results-meta-strip">
+        <span class="results-count font-medium" id="bankResultsCounter">
+          Showing <strong>{{ filteredBanks.length }}</strong> of {{ totalBanksCount }} supported banking institutions
+        </span>
+        <button
+          *ngIf="searchQuery || selectedCategory !== 'ALL'"
+          type="button"
+          class="reset-filters-link"
+          (click)="clearSearch()"
+        >
+          Reset Filters
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Supported Banks Directory Grid -->
+  <section class="banks-directory-section" aria-label="Supported Bank Directory">
+    <div class="container">
+      <!-- Cards Grid -->
+      <div class="banks-grid" *ngIf="filteredBanks.length > 0">
+        <article
+          *ngFor="let bank of filteredBanks"
+          class="bank-profile-card card"
+          [attr.id]="'bankCard-' + bank.id"
+        >
+          <!-- Card Top Row: Avatar & Identity -->
+          <div class="bank-header-row">
+            <div
+              class="bank-avatar-badge"
+              [style.background-color]="bank.accentColor + '18'"
+              [style.color]="bank.accentColor"
+              [style.border-color]="bank.accentColor + '30'"
+              aria-hidden="true"
+            >
+              {{ bank.shortCode }}
             </div>
-            <small class="form-hint">Zero spam. We will notify you when this bank's parser enters testing.</small>
+            <div class="bank-identity">
+              <div class="bank-name-row">
+                <h3 class="bank-name" [id]="'bankName-' + bank.id">{{ bank.bankName }}</h3>
+                <span class="category-badge">{{ bank.category }}</span>
+              </div>
+              <div class="badge-row">
+                <span class="status-pill status-supported">
+                  <span class="status-dot"></span> Supported
+                </span>
+                <span class="pdf-type-badge font-mono">{{ bank.pdfType }}</span>
+                <span class="parser-code-badge font-mono" [title]="'Parser Version: ' + bank.parserVersion">
+                  {{ bank.parserVersion }}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div *ngIf="requestSubmitted" class="request-success-alert">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ef-success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>Thank you! We have added <strong>{{ requestedBank }}</strong> to our parser priority roadmap.</span>
+          <!-- Statement Scope -->
+          <div class="statement-scope-box">
+            <span class="scope-label">Covered Statements:</span>
+            <span class="scope-value font-medium">{{ bank.statementType }}</span>
           </div>
+
+          <!-- Description -->
+          <p class="bank-description">{{ bank.description }}</p>
+
+          <!-- Key Features Checklist -->
+          <div class="bank-features-box">
+            <h4 class="section-label">Engine Capabilities</h4>
+            <ul class="features-list">
+              <li *ngFor="let feat of bank.keyFeatures" class="feature-item">
+                <svg class="feature-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>{{ feat }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Validated Formats Details -->
+          <div class="validated-formats-box">
+            <h4 class="section-label">Validated Layouts ({{ bank.supportedFormats.length }})</h4>
+            <div class="formats-list">
+              <div *ngFor="let fmt of bank.supportedFormats" class="format-entry">
+                <div class="format-header">
+                  <span class="format-code font-mono">{{ fmt.formatId }}</span>
+                  <span class="format-name font-semibold">{{ fmt.name }}</span>
+                </div>
+                <p class="format-details">{{ fmt.layoutDetails }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Format Limitations & Unvalidated Variations Notice -->
+          <div class="limitations-notice" *ngIf="bank.unvalidatedNotes">
+            <svg class="limitations-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span class="limitations-text">{{ bank.unvalidatedNotes }}</span>
+          </div>
+        </article>
+      </div>
+
+      <!-- 5. Search Empty State -->
+      <div class="search-empty-state card" id="searchEmptyState" *ngIf="filteredBanks.length === 0">
+        <div class="empty-icon-circle">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+        </div>
+        <h3>No supported banks match your search</h3>
+        <p>
+          We could not find any calibrated bank parsers matching <strong>"{{ searchQuery }}"</strong>. Try searching by short code (e.g. HDFC, ICICI, SBI) or reset your filters.
+        </p>
+        <button class="btn btn-secondary btn-sm" id="resetSearchBtn" (click)="clearSearch()">
+          Clear Search &amp; Filters
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Digital PDF vs. Scanned/OCR Advisory Box -->
+  <section class="advisory-section" aria-label="Technical Guidance">
+    <div class="container">
+      <div class="advisory-grid">
+        <!-- Digital PDF vs Scanned PDF Box -->
+        <div class="advisory-card card" id="ocrAdvisoryCard">
+          <div class="advisory-header">
+            <div class="advisory-icon bg-amber">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+            </div>
+            <div>
+              <h3 class="advisory-title">Scanned &amp; Image PDFs (OCR Guidance)</h3>
+              <span class="advisory-badge text-warning font-mono">Digital Text Required</span>
+            </div>
+          </div>
+          <p class="advisory-text">
+            EasyFin Tech is engineered around a deterministic coordinate-based digital parser. It extracts characters and bounding boxes directly from the PDF's native font glyphs.
+          </p>
+          <div class="advisory-callout">
+            <strong>Important Notice:</strong> Scanned statements, photocopies, passbook camera snapshots, and image-only PDFs require Optical Character Recognition (OCR) and are <strong>not currently included in the standard digital-PDF parser workflow</strong>.
+          </div>
+          <div class="quick-check-tip">
+            <span class="font-bold">Quick test:</span> Open your bank PDF in a viewer. If you can click and highlight transaction text with your mouse cursor, it is a digital PDF compatible with EasyFin.
+          </div>
+        </div>
+
+        <!-- Format Variation Advisory Box -->
+        <div class="advisory-card card" id="formatVariationCard">
+          <div class="advisory-header">
+            <div class="advisory-icon bg-teal">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+              </svg>
+            </div>
+            <div>
+              <h3 class="advisory-title">Format Variation &amp; Layout Matching</h3>
+              <span class="advisory-badge text-teal font-mono">Dynamic Calibration</span>
+            </div>
+          </div>
+          <p class="advisory-text">
+            Bank support depends strictly on statement layout. A single bank may generate different layouts across retail netbanking, corporate portals, passbook counters, or credit card divisions.
+          </p>
+          <ul class="variation-guidelines">
+            <li>
+              <strong>Deterministic Scoring:</strong> Upon upload, EasyFin Tech's bank detector scans IFSC codes, branch patterns, and column header configurations to match the correct parser profile.
+            </li>
+            <li>
+              <strong>Mathematical Validation:</strong> Every extracted row is reconciled against the running balance. If any column is misaligned, EasyFin Tech flags it in the Review screen rather than guessing.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Converter Call-to-Action Banner -->
+  <section class="converter-cta-section" aria-label="Convert Statement CTA">
+    <div class="container">
+      <div class="cta-banner card text-center">
+        <span class="badge badge-accent mb-2">Ready to convert?</span>
+        <h2 class="cta-title">Upload your bank statement and let EasyFin Tech process it</h2>
+        <p class="cta-subtitle">
+          Experience automated bank statement extraction, mathematical continuity validation, and one-click ClosedXML Excel ledger generation.
+        </p>
+        <div class="cta-actions">
+          <a routerLink="/converter" class="btn btn-excel btn-lg" id="openConverterBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Open Statement Converter</span>
+          </a>
         </div>
       </div>
     </div>

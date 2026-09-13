@@ -633,6 +633,26 @@ public class ExcelExportTests : IClassFixture<CustomWebApplicationFactory>
         return (client, auth);
     }
 
+    /// <summary>
+    /// Waits for the background worker to finish processing a statement.
+    /// This prevents race conditions between explicit /parse calls and the background worker.
+    /// </summary>
+    private async Task WaitForProcessingAsync(HttpClient client, Guid fileId, int timeoutSeconds = 15)
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(timeoutSeconds);
+        while (DateTime.UtcNow < deadline)
+        {
+            var statusResp = await client.GetAsync($"/api/statements/{fileId}/job-status");
+            if (statusResp.IsSuccessStatusCode)
+            {
+                var status = await statusResp.Content.ReadFromJsonAsync<StatementJobStatusDto>(JsonOptions);
+                if (status != null && status.IsTerminal)
+                    return;
+            }
+            await Task.Delay(200);
+        }
+    }
+
     [Fact]
     public async Task Test15_ExportExcelEndpoint_Success_ReturnsSpreadsheet()
     {
@@ -764,7 +784,8 @@ public class ExcelExportTests : IClassFixture<CustomWebApplicationFactory>
         var uploadResult = await uploadResp.Content.ReadFromJsonAsync<StatementUploadResponse>(JsonOptions);
         var fileId = uploadResult!.FileId;
 
-        await client.PostAsync($"/api/statements/{fileId}/parse", null);
+        // Wait for background worker to finish processing
+        await WaitForProcessingAsync(client, fileId);
 
         var txResp = await client.GetAsync($"/api/statements/{fileId}/transactions");
         var txList = await txResp.Content.ReadFromJsonAsync<StatementTransactionsResponse>(JsonOptions);

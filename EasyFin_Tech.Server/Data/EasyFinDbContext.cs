@@ -1,15 +1,50 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using EasyFin_Tech.Server.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyFin_Tech.Server.Data;
 
 public partial class EasyFinDbContext : DbContext
 {
-    public EasyFinDbContext(DbContextOptions<EasyFinDbContext> options)
+    private readonly IHttpContextAccessor? _httpContextAccessor;
+    private Guid? _tenantUserId;
+
+    public EasyFinDbContext(
+        DbContextOptions<EasyFinDbContext> options,
+        IHttpContextAccessor? httpContextAccessor = null)
         : base(options)
     {
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    /// <summary>
+    /// Evaluates the active tenant identity for global query filtering.
+    /// Prefers explicit override if SetTenantUserId was called (e.g. for background/system jobs);
+    /// otherwise dynamically resolves the authenticated user ID from HttpContext claims.
+    /// Returns null if unauthenticated or running outside an HTTP request.
+    /// </summary>
+    public Guid? CurrentUserId => _tenantUserId ?? ResolveUserIdFromHttpContext();
+
+    /// <summary>
+    /// Explicitly sets the tenant context for this DbContext scope.
+    /// Useful for background workers, system maintenance, or unit testing.
+    /// </summary>
+    public void SetTenantUserId(Guid? userId)
+    {
+        _tenantUserId = userId;
+    }
+
+    private Guid? ResolveUserIdFromHttpContext()
+    {
+        var claim = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
+        if (claim != null && Guid.TryParse(claim.Value, out var guid))
+        {
+            return guid;
+        }
+        return null;
     }
 
     public virtual DbSet<Client> Clients { get; set; }
@@ -35,6 +70,9 @@ public partial class EasyFinDbContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
 
             entity.HasOne(d => d.User).WithMany(p => p.Clients).HasForeignKey(d => d.UserId);
+
+            // EF Core Global Query Filter: Scopes client workspaces to authenticated user
+            entity.HasQueryFilter(c => CurrentUserId == null || c.UserId == CurrentUserId);
         });
 
         modelBuilder.Entity<FileRecord>(entity =>
@@ -52,6 +90,9 @@ public partial class EasyFinDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.FinancialYear).WithMany(p => p.FileRecords).HasForeignKey(d => d.FinancialYearId);
+
+            // EF Core Global Query Filter: Scopes bank statements to clients owned by authenticated user
+            entity.HasQueryFilter(f => CurrentUserId == null || f.Client.UserId == CurrentUserId);
         });
 
         modelBuilder.Entity<FinancialYear>(entity =>
@@ -61,6 +102,9 @@ public partial class EasyFinDbContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
 
             entity.HasOne(d => d.Client).WithMany(p => p.FinancialYears).HasForeignKey(d => d.ClientId);
+
+            // EF Core Global Query Filter: Scopes accounting years to clients owned by authenticated user
+            entity.HasQueryFilter(fy => CurrentUserId == null || fy.Client.UserId == CurrentUserId);
         });
 
         modelBuilder.Entity<PdfProcessingResult>(entity =>
@@ -70,6 +114,9 @@ public partial class EasyFinDbContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
 
             entity.HasOne(d => d.FileRecord).WithOne(p => p.PdfProcessingResult).HasForeignKey<PdfProcessingResult>(d => d.FileRecordId);
+
+            // EF Core Global Query Filter: Scopes PDF extraction results to statements owned by authenticated user
+            entity.HasQueryFilter(p => CurrentUserId == null || FileRecords.Any(f => f.Id == p.FileRecordId));
         });
 
         modelBuilder.Entity<Transaction>(entity =>
@@ -100,6 +147,9 @@ public partial class EasyFinDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.SourceFile).WithMany(p => p.Transactions).HasForeignKey(d => d.SourceFileId);
+
+            // EF Core Global Query Filter: Scopes financial transactions to statements owned by authenticated user
+            entity.HasQueryFilter(t => CurrentUserId == null || FileRecords.Any(f => f.Id == t.SourceFileId));
         });
 
         modelBuilder.Entity<TransactionImportResult>(entity =>
@@ -109,6 +159,9 @@ public partial class EasyFinDbContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
 
             entity.HasOne(d => d.SourceFile).WithOne(p => p.TransactionImportResult).HasForeignKey<TransactionImportResult>(d => d.SourceFileId);
+
+            // EF Core Global Query Filter: Scopes transaction import summaries to statements owned by authenticated user
+            entity.HasQueryFilter(r => CurrentUserId == null || FileRecords.Any(f => f.Id == r.SourceFileId));
         });
 
         modelBuilder.Entity<User>(entity =>

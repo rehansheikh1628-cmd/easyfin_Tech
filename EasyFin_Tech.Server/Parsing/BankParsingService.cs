@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -16,6 +17,8 @@ namespace EasyFin_Tech.Server.Parsing;
 
 public class BankParsingService : IBankParsingService
 {
+    private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> _statementLocks = new();
+
     private readonly EasyFinDbContext _dbContext;
     private readonly IPdfExtractionService _pdfExtractionService;
     private readonly IBankDetector _bankDetector;
@@ -54,124 +57,136 @@ public class BankParsingService : IBankParsingService
         Guid currentUserId,
         CancellationToken cancellationToken = default)
     {
-        var startedAt = DateTime.UtcNow;
+        var semaphore = _statementLocks.GetOrAdd(fileRecordId, _ => new SemaphoreSlim(1, 1));
+        await semaphore.WaitAsync(cancellationToken);
 
-        // 1. Enforce strict authorization: file must belong to client owned by current authenticated user
-        var fileRecord = await _dbContext.FileRecords
-            .Include(f => f.Client)
-            .Include(f => f.FinancialYear)
-            .FirstOrDefaultAsync(f => f.Id == fileRecordId && f.Client.UserId == currentUserId, cancellationToken);
-
-        if (fileRecord == null)
-        {
-            _logger.LogWarning("Unauthorized or non-existent statement parsing requested: {FileId} by user {UserId}",
-                fileRecordId, currentUserId);
-            return (false, $"Statement with ID {fileRecordId} was not found or is not accessible.", null);
-        }
-
-        // 2. Resolve Phase 3 extraction result (or extract on demand if not yet extracted)
-        var extraction = await _pdfExtractionService.GetExtractionResultAsync(fileRecordId, currentUserId, cancellationToken);
-        if (extraction == null)
-        {
-            _logger.LogInformation("No extraction artifact found for file {FileId}. Triggering Phase 3 digital extraction.", fileRecordId);
-            var (extractSuccess, extractError, newExtraction) = await _pdfExtractionService.ExtractDocumentAsync(
-                fileRecordId, currentUserId, password: null, cancellationToken);
-
-            if (!extractSuccess || newExtraction == null)
-            {
-                return (false, extractError ?? "Failed to extract text from statement PDF.", null);
-            }
-
-            extraction = newExtraction;
-        }
-
-        if (!extraction.HasUsableText)
-        {
-            return (false, "The statement contains no usable digital text. Scanned/rasterized PDFs cannot be parsed in this phase.", null);
-        }
-
-        // 3. Deterministic Bank Detection
-        var detection = _bankDetector.DetectBank(extraction);
-        if (!detection.IsSupported || detection.DetectedBank == BankType.Unknown)
-        {
-            _logger.LogWarning("Statement {FileId} rejected: bank is unsupported or unrecognized.", fileRecordId);
-            return (false, "The statement bank format was not recognized as a supported bank format (Supported: HDFC Bank, YES BANK, Axis Bank, Central Bank of India, ICICI Bank, State Bank of India, Bank of India, Kotak Mahindra Bank).", null);
-        }
-
-        // 4. Resolve Bank Parser
-        var parser = _parserRegistry.ResolveParser(detection);
-        if (parser == null)
-        {
-            _logger.LogError("No parser registered for detected bank {BankName} ({BankCode})", detection.BankName, (int)detection.DetectedBank);
-            return (false, $"No parser implementation is available for {detection.BankName}.", null);
-        }
-
-        // 5. In-Memory Parsing & Running Balance Validation (COMPLETELY IN MEMORY)
-        BankParsingResult parsingResult;
         try
         {
-            parsingResult = parser.Parse(extraction, detection);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error in {ParserName} while parsing file {FileId}", parser.BankName, fileRecordId);
-            return (false, "An unexpected error occurred while parsing the statement transactions.", null);
-        }
+            var startedAt = DateTime.UtcNow;
 
-        // 6. Safe Validation: If parsing failed or produced 0 transactions, DO NOT TOUCH DATABASE
-        if (!parsingResult.Success || parsingResult.Transactions.Count == 0)
-        {
-            _logger.LogWarning("Parsing produced 0 transactions for file {FileId}. Preserving any existing database import.", fileRecordId);
-            return (false, parsingResult.ErrorMessage ?? "No valid transactions could be parsed from the statement.", parsingResult);
-        }
+            // 1. Enforce strict authorization: file must belong to client owned by current authenticated user
+            var fileRecord = await _dbContext.FileRecords
+                .Include(f => f.Client)
+                .Include(f => f.FinancialYear)
+                .Include(f => f.TransactionImportResult)
+                .Include(f => f.Transactions)
+                .FirstOrDefaultAsync(f => f.Id == fileRecordId && f.Client.UserId == currentUserId, cancellationToken);
 
-        // 7. Atomic Idempotent Persistence:
-        // Only upon validated parsing success, persist transactions and update TransactionImportResult.
-        bool persistenceSucceeded = false;
-        string? persistenceError = null;
+            if (fileRecord == null)
+            {
+                _logger.LogWarning("Unauthorized or non-existent statement parsing requested: {FileId} by user {UserId}",
+                    fileRecordId, currentUserId);
+                return (false, $"Statement with ID {fileRecordId} was not found or is not accessible.", null);
+            }
 
-        bool isInMemory = _dbContext.Database.ProviderName?.Contains("InMemory", StringComparison.OrdinalIgnoreCase) == true;
+            // 2. Resolve Phase 3 extraction result (or extract on demand if not yet extracted)
+            var extraction = await _pdfExtractionService.GetExtractionResultAsync(fileRecordId, currentUserId, cancellationToken);
+            if (extraction == null)
+            {
+                _logger.LogInformation("No extraction artifact found for file {FileId}. Triggering Phase 3 digital extraction.", fileRecordId);
+                var (extractSuccess, extractError, newExtraction) = await _pdfExtractionService.ExtractDocumentAsync(
+                    fileRecordId, currentUserId, password: null, cancellationToken);
 
-        if (isInMemory)
-        {
+                if (!extractSuccess || newExtraction == null)
+                {
+                    return (false, extractError ?? "Failed to extract text from statement PDF.", null);
+                }
+
+                extraction = newExtraction;
+            }
+
+            if (!extraction.HasUsableText)
+            {
+                return (false, "The statement contains no usable digital text. Scanned/rasterized PDFs cannot be parsed in this phase.", null);
+            }
+
+            // 3. Deterministic Bank Detection
+            var detection = _bankDetector.DetectBank(extraction);
+            if (!detection.IsSupported || detection.DetectedBank == BankType.Unknown)
+            {
+                _logger.LogWarning("Statement {FileId} rejected: bank is unsupported or unrecognized.", fileRecordId);
+                return (false, "The statement bank format was not recognized as a supported bank format (Supported: HDFC Bank, YES BANK, Axis Bank, Central Bank of India, ICICI Bank, State Bank of India, Bank of India, Kotak Mahindra Bank).", null);
+            }
+
+            // 4. Resolve Bank Parser
+            var parser = _parserRegistry.ResolveParser(detection);
+            if (parser == null)
+            {
+                _logger.LogError("No parser registered for detected bank {BankName} ({BankCode})", detection.BankName, (int)detection.DetectedBank);
+                return (false, $"No parser implementation is available for {detection.BankName}.", null);
+            }
+
+            // 5. In-Memory Parsing & Running Balance Validation (COMPLETELY IN MEMORY)
+            BankParsingResult parsingResult;
             try
             {
-                await PersistValidatedTransactionsAsync(fileRecord, parsingResult, parser.BankCode, detection.AccountNumber, startedAt, cancellationToken);
-                persistenceSucceeded = true;
+                parsingResult = parser.Parse(extraction, detection);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to persist parsed transactions for statement {FileId} in in-memory database.", fileRecordId);
-                persistenceError = "Failed to store validated transactions in the database.";
+                _logger.LogError(ex, "Unexpected error in {ParserName} while parsing file {FileId}", parser.BankName, fileRecordId);
+                return (false, "An unexpected error occurred while parsing the statement transactions.", null);
             }
-        }
-        else
-        {
-            var strategy = _dbContext.Database.CreateExecutionStrategy();
-            await strategy.ExecuteAsync(async () =>
+
+            // 6. Safe Validation: If parsing failed or produced 0 transactions, DO NOT TOUCH DATABASE
+            if (!parsingResult.Success || parsingResult.Transactions.Count == 0)
             {
-                await using var dbTransaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+                _logger.LogWarning("Parsing produced 0 transactions for file {FileId}. Preserving any existing database import.", fileRecordId);
+                return (false, parsingResult.ErrorMessage ?? "No valid transactions could be parsed from the statement.", parsingResult);
+            }
+
+            // 7. Atomic Idempotent Persistence:
+            // Only upon validated parsing success, persist transactions and update TransactionImportResult.
+            bool persistenceSucceeded = false;
+            string? persistenceError = null;
+
+            bool isInMemory = _dbContext.Database.ProviderName?.Contains("InMemory", StringComparison.OrdinalIgnoreCase) == true;
+
+            if (isInMemory)
+            {
                 try
                 {
                     await PersistValidatedTransactionsAsync(fileRecord, parsingResult, parser.BankCode, detection.AccountNumber, startedAt, cancellationToken);
-                    await dbTransaction.CommitAsync(cancellationToken);
                     persistenceSucceeded = true;
                 }
                 catch (Exception ex)
                 {
-                    await dbTransaction.RollbackAsync(cancellationToken);
-                    _logger.LogError(ex, "Failed to persist parsed transactions for statement {FileId}. Database rolled back.", fileRecordId);
+                    _logger.LogError(ex, "Failed to persist parsed transactions for statement {FileId} in in-memory database.", fileRecordId);
                     persistenceError = "Failed to store validated transactions in the database.";
                 }
-            });
-        }
+            }
+            else
+            {
+                var strategy = _dbContext.Database.CreateExecutionStrategy();
+                await strategy.ExecuteAsync(async () =>
+                {
+                    await using var dbTransaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+                    try
+                    {
+                        await PersistValidatedTransactionsAsync(fileRecord, parsingResult, parser.BankCode, detection.AccountNumber, startedAt, cancellationToken);
+                        await dbTransaction.CommitAsync(cancellationToken);
+                        persistenceSucceeded = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        await dbTransaction.RollbackAsync(cancellationToken);
+                        _logger.LogError(ex, "Failed to persist parsed transactions for statement {FileId}. Database rolled back.", fileRecordId);
+                        persistenceError = "Failed to store validated transactions in the database.";
+                    }
+                });
+            }
 
-        if (!persistenceSucceeded)
+            if (!persistenceSucceeded)
+            {
+                return (false, persistenceError ?? "Database persistence failed.", parsingResult);
+            }
+
+            return (true, null, parsingResult);
+        }
+        finally
         {
-            return (false, persistenceError ?? "Database persistence failed.", parsingResult);
+            semaphore.Release();
         }
-
-        return (true, null, parsingResult);
     }
 
     private async Task PersistValidatedTransactionsAsync(
@@ -264,8 +279,8 @@ public class BankParsingService : IBankParsingService
 
         _dbContext.Transactions.AddRange(entitiesToAdd);
 
-        // Update FileRecord processing status: 3 = Parsed / ImportCompleted
-        fileRecord.ProcessingStatus = 3;
+        // Update FileRecord processing status: 2 = Completed
+        fileRecord.ProcessingStatus = 2;
         fileRecord.UpdatedAt = DateTime.UtcNow;
         fileRecord.ProcessingError = null;
 

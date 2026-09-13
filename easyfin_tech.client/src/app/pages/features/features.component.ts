@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-features',
@@ -6,4 +7,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./features.component.css'],
   standalone: false
 })
-export class FeaturesComponent {}
+export class FeaturesComponent {
+  constructor(public authService: AuthService) {}
+
+  get isAuthenticated(): boolean {
+    return this.authService.isAuthenticated;
+  }
+}

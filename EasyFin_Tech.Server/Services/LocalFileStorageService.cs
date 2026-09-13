@@ -45,28 +45,63 @@ public class LocalFileStorageService : IFileStorageService
         var destinationPath = Path.Combine(targetDirectory, safeFileName);
         ValidateWithinRoot(destinationPath);
 
-        // Save using async file stream
-        await using (var fileStream = new FileStream(
-            destinationPath,
-            FileMode.Create,
-            FileAccess.Write,
-            FileShare.None,
-            bufferSize: 81920,
-            useAsync: true))
+        const int maxRetries = 3;
+        const int retryDelayMs = 100;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
         {
-            if (stream.CanSeek)
+            try
             {
-                stream.Position = 0;
+                // Save using async file stream without buffering entire file in memory
+                await using (var fileStream = new FileStream(
+                    destinationPath,
+                    FileMode.Create,
+                    FileAccess.Write,
+                    FileShare.None,
+                    bufferSize: 81920,
+                    useAsync: true))
+                {
+                    if (stream.CanSeek)
+                    {
+                        stream.Position = 0;
+                    }
+                    await stream.CopyToAsync(fileStream, cancellationToken);
+                    await fileStream.FlushAsync(cancellationToken);
+                }
+
+                _logger.LogInformation("Stored file {SafeFileName} successfully in controlled storage.", safeFileName);
+                return destinationPath;
             }
-            await stream.CopyToAsync(fileStream, cancellationToken);
-            await fileStream.FlushAsync(cancellationToken);
+            catch (IOException ex) when (attempt < maxRetries)
+            {
+                _logger.LogWarning("File {SafeFileName} is locked (attempt {Attempt}/{MaxRetries}). Retrying in {Delay}ms: {Message}",
+                    safeFileName, attempt, maxRetries, retryDelayMs, ex.Message);
+                await Task.Delay(retryDelayMs, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                // Clean up incomplete/corrupted file on failure or cancellation
+                if (File.Exists(destinationPath))
+                {
+                    try
+                    {
+                        File.Delete(destinationPath);
+                        _logger.LogWarning("Cleaned up partial file {SafeFileName} after failed/cancelled stream copy: {Message}", safeFileName, ex.Message);
+                    }
+                    catch (Exception cleanupEx)
+                    {
+                        _logger.LogError(cleanupEx, "Failed to clean up partial file {SafeFileName} after error.", safeFileName);
+                    }
+                }
+                throw;
+            }
         }
 
-        _logger.LogInformation("Stored file {SafeFileName} successfully in controlled storage.", safeFileName);
-        return destinationPath;
+        // Should never reach here, but just in case
+        throw new IOException($"Failed to save file {safeFileName} after {maxRetries} attempts.");
     }
 
-    public Task<Stream?> GetFileStreamAsync(string subDirectory, string safeFileName, CancellationToken cancellationToken = default)
+    public async Task<Stream?> GetFileStreamAsync(string subDirectory, string safeFileName, CancellationToken cancellationToken = default)
     {
         var targetDirectory = ResolveSafeDirectory(subDirectory);
         var targetPath = Path.Combine(targetDirectory, safeFileName);
@@ -75,41 +110,83 @@ public class LocalFileStorageService : IFileStorageService
         if (!File.Exists(targetPath))
         {
             _logger.LogWarning("File {SafeFileName} was not found in storage.", safeFileName);
-            return Task.FromResult<Stream?>(null);
+            return null;
         }
 
-        var fileStream = new FileStream(
+        const int maxRetries = 5;
+        const int retryDelayMs = 50;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                var fileStream = new FileStream(
+                    targetPath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite | FileShare.Delete,
+                    bufferSize: 81920,
+                    useAsync: true);
+
+                return fileStream;
+            }
+            catch (IOException ex) when (attempt < maxRetries)
+            {
+                _logger.LogWarning("File {SafeFileName} is momentarily locked for read (attempt {Attempt}/{MaxRetries}). Retrying in {Delay}ms: {Message}",
+                    safeFileName, attempt, maxRetries, retryDelayMs, ex.Message);
+                await Task.Delay(retryDelayMs, cancellationToken);
+            }
+        }
+
+        // Final attempt without catching IOException
+        return new FileStream(
             targetPath,
             FileMode.Open,
             FileAccess.Read,
-            FileShare.Read,
+            FileShare.ReadWrite | FileShare.Delete,
             bufferSize: 81920,
             useAsync: true);
-
-        return Task.FromResult<Stream?>(fileStream);
     }
 
-    public Task<bool> DeleteFileAsync(string subDirectory, string safeFileName, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteFileAsync(string subDirectory, string safeFileName, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var targetDirectory = ResolveSafeDirectory(subDirectory);
-            var targetPath = Path.Combine(targetDirectory, safeFileName);
-            ValidateWithinRoot(targetPath);
+        var targetDirectory = ResolveSafeDirectory(subDirectory);
+        var targetPath = Path.Combine(targetDirectory, safeFileName);
+        ValidateWithinRoot(targetPath);
 
-            if (File.Exists(targetPath))
-            {
-                File.Delete(targetPath);
-                _logger.LogInformation("Deleted file {SafeFileName} from storage during cleanup/rollback.", safeFileName);
-                return Task.FromResult(true);
-            }
-            return Task.FromResult(false);
-        }
-        catch (Exception ex)
+        const int maxRetries = 5;
+        const int retryDelayMs = 150;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
         {
-            _logger.LogError(ex, "Failed to delete file {SafeFileName} during cleanup.", safeFileName);
-            return Task.FromResult(false);
+            try
+            {
+                if (File.Exists(targetPath))
+                {
+                    File.Delete(targetPath);
+                    _logger.LogInformation("Deleted file {SafeFileName} from storage during cleanup/rollback.", safeFileName);
+                    return true;
+                }
+                return false;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                throw;
+            }
+            catch (IOException ex) when (attempt < maxRetries)
+            {
+                _logger.LogWarning("File {SafeFileName} is locked for deletion (attempt {Attempt}/{MaxRetries}). Retrying in {Delay}ms: {Message}",
+                    safeFileName, attempt, maxRetries, retryDelayMs, ex.Message);
+                await Task.Delay(retryDelayMs, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to delete file {SafeFileName} during cleanup.", safeFileName);
+                return false;
+            }
         }
+
+        return false;
     }
 
     public Task<bool> FileExistsAsync(string subDirectory, string safeFileName, CancellationToken cancellationToken = default)

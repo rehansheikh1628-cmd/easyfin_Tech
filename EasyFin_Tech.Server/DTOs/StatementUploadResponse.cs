@@ -10,6 +10,8 @@ public class StatementUploadResponse
 
     public Guid FileId { get; set; }
 
+    public Guid JobId { get; set; }
+
     public string OriginalFileName { get; set; } = string.Empty;
 
     public string StoredFileName { get; set; } = string.Empty;

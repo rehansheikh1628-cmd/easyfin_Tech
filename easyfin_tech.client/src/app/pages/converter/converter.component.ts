@@ -1,31 +1,22 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
+import { Subscription, timeout, throwError } from 'rxjs';
 import { 
   StatementService, 
-  StatementUploadResponse,
-  PdfExtractionResult,
-  PdfPageResult,
-  TransactionReviewDto,
-  StatementValidationSummaryDto,
-  CorrectTransactionRequest,
-  StatementTransactionsResponse
+  StatementUploadResponse, 
+  StatementJobStatusDto,
+  PdfExtractionResult, 
+  PdfPageResult, 
+  TransactionReviewDto, 
+  StatementValidationSummaryDto, 
+  CorrectTransactionRequest, 
+  StatementTransactionsResponse 
 } from '../../services/statement.service';
 
 export type UploadState = 'IDLE' | 'FILE_SELECTED' | 'VALIDATING' | 'UPLOADING' | 'UPLOADED' | 'ERROR';
 export type ExtractionState = 'IDLE' | 'EXTRACTING' | 'EXTRACTED' | 'NO_TEXT' | 'PASSWORD_REQUIRED' | 'ERROR';
 export type ParseState = 'IDLE' | 'PARSING' | 'PARSED' | 'ERROR';
 
-export interface StatementTransaction {
-  id: string;
-  date: string;
-  valueDate: string;
-  narration: string;
-  reference: string;
-  debit: number | null;
-  credit: number | null;
-  balance: number;
-  status: 'verified' | 'flagged';
-}
 
 @Component({
   selector: 'app-converter',
@@ -33,12 +24,28 @@ export interface StatementTransaction {
   styleUrls: ['./converter.component.css'],
   standalone: false
 })
-export class ConverterComponent {
+export class ConverterComponent implements OnInit, OnDestroy {
   currentStep = 1;
   selectedFile: File | null = null;
+  private uploadSubscription: Subscription | null = null;
   selectedBank = 'auto';
   statementPassword = '';
   isDragging = false;
+
+  // Background Job Processing States (Phase 6)
+  activeJobId: string | null = null;
+  jobStatus: StatementJobStatusDto | null = null;
+  isPollingJob = false;
+  isCancellingJob = false;
+  isRetryingJob = false;
+  private jobPollSubscription: any = null;
+  private readonly ACTIVE_JOB_KEY = 'easyfin_active_job_id';
+
+  // PDF Password Modal State (On-Demand for Encrypted PDFs)
+  showPasswordModal = false;
+  modalPassword = '';
+  passwordModalError: string | null = null;
+  isSubmittingPassword = false;
 
   // Real Ingestion States (Phase 2)
   uploadState: UploadState = 'IDLE';
@@ -93,107 +100,173 @@ export class ConverterComponent {
   isExportingExcel = false;
   exportError: string | null = null;
 
-  // Review & Sample Data
-  searchQuery = '';
-  typeFilter: 'all' | 'debit' | 'credit' = 'all';
-
-  sampleTransactions: StatementTransaction[] = [
-    {
-      id: 'TXN-001',
-      date: '01/08/2026',
-      valueDate: '01/08/2026',
-      narration: 'NEFT CR-HDFC0000240-ALPHA TECHNOLOGIES PVT LTD',
-      reference: 'N2140029104',
-      debit: null,
-      credit: 150000.00,
-      balance: 342850.00,
-      status: 'verified'
-    },
-    {
-      id: 'TXN-002',
-      date: '03/08/2026',
-      valueDate: '03/08/2026',
-      narration: 'UPI-AWS CLOUD HOSTING-BILLING@AMAZON',
-      reference: 'UPI/62189021',
-      debit: 14890.00,
-      credit: null,
-      balance: 327960.00,
-      status: 'verified'
-    },
-    {
-      id: 'TXN-003',
-      date: '05/08/2026',
-      valueDate: '05/08/2026',
-      narration: 'ACH DR-COMMERCIAL LEASE AUGUST 2026',
-      reference: 'ACH721094',
-      debit: 45000.00,
-      credit: null,
-      balance: 282960.00,
-      status: 'verified'
-    },
-    {
-      id: 'TXN-004',
-      date: '08/08/2026',
-      valueDate: '08/08/2026',
-      narration: 'RTGS CR-SBI000412-CLIENT RETENTION QUARTER 2',
-      reference: 'R410098210',
-      debit: null,
-      credit: 210000.00,
-      balance: 492960.00,
-      status: 'verified'
-    },
-    {
-      id: 'TXN-005',
-      date: '10/08/2026',
-      valueDate: '10/08/2026',
-      narration: 'IMPS P2A-AIRTEL BROADBAND FIBER LEASED LINE',
-      reference: 'IMP901238',
-      debit: 3450.00,
-      credit: null,
-      balance: 489510.00,
-      status: 'verified'
-    },
-    {
-      id: 'TXN-006',
-      date: '12/08/2026',
-      valueDate: '12/08/2026',
-      narration: 'SALARY DISBURSEMENT-AUGUST BATCH 1',
-      reference: 'CMS881920',
-      debit: 185000.00,
-      credit: null,
-      balance: 304510.00,
-      status: 'verified'
-    },
-    {
-      id: 'TXN-007',
-      date: '15/08/2026',
-      valueDate: '15/08/2026',
-      narration: 'GST PAYMENT TAX DEPOSIT-CHALLAN 082026',
-      reference: 'CPIN992104',
-      debit: 32400.00,
-      credit: null,
-      balance: 272110.00,
-      status: 'verified'
-    },
-    {
-      id: 'TXN-008',
-      date: '18/08/2026',
-      valueDate: '18/08/2026',
-      narration: 'INTEREST CREDIT-SAVINGS ACCOUNT SB-00214',
-      reference: 'INT-Q2-26',
-      debit: null,
-      credit: 4250.00,
-      balance: 276360.00,
-      status: 'verified'
-    }
-  ];
-
-  transactions: StatementTransaction[] = [];
 
   constructor(
     public statementService: StatementService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  ngOnInit(): void {
+    try {
+      const savedJobId = sessionStorage.getItem(this.ACTIVE_JOB_KEY);
+      if (savedJobId) {
+        this.resumeActiveJob(savedJobId);
+      }
+    } catch {
+      // Ignore in non-browser/storage-restricted environments
+    }
+  }
+
+  resumeActiveJob(jobId: string): void {
+    this.activeJobId = jobId;
+    this.startJobTracking(jobId);
+  }
+
+  startJobTracking(jobId: string): void {
+    this.activeJobId = jobId;
+    try {
+      sessionStorage.setItem(this.ACTIVE_JOB_KEY, jobId);
+    } catch {
+      // Ignore in storage-restricted environments
+    }
+    this.stopJobTracking();
+
+    const poll = () => {
+      this.isPollingJob = true;
+      this.statementService.getJobStatus(jobId).subscribe({
+        next: (status: StatementJobStatusDto) => {
+          this.jobStatus = status;
+          this.isPollingJob = false;
+
+          // If uploadResult is not set (e.g. on page refresh), synthesize basic details
+          if (!this.uploadResult) {
+            this.uploadResult = {
+              success: true,
+              message: 'Session restored',
+              fileId: status.fileId,
+              jobId: status.jobId,
+              originalFileName: status.fileName,
+              storedFileName: '',
+              fileSizeBytes: 0,
+              fileSizeFormatted: '',
+              contentType: 'application/pdf',
+              uploadedAt: status.enqueuedAt || new Date().toISOString(),
+              status: status.status,
+              processingStatus: status.statusCode,
+              isDuplicate: false,
+              fileHash: '',
+              clientId: '',
+              financialYearId: ''
+            };
+            this.uploadState = 'UPLOADED';
+          }
+
+          if (status.requiresPassword || status.status === 'RequiresPassword') {
+            this.stopJobTracking();
+            this.extractionState = 'PASSWORD_REQUIRED';
+            this.openPasswordModal();
+            this.cdr.markForCheck();
+            return;
+          }
+
+          if (status.status === 'Completed') {
+            this.stopJobTracking();
+            try { sessionStorage.removeItem(this.ACTIVE_JOB_KEY); } catch {}
+            this.parseState = 'PARSED';
+            this.loadReviewTransactions(1);
+            this.currentStep = 3;
+            this.cdr.markForCheck();
+            return;
+          }
+
+          if (status.status === 'Failed') {
+            this.stopJobTracking();
+            this.parseState = 'ERROR';
+            this.parseError = status.errorMessage || 'Background processing failed.';
+            this.cdr.markForCheck();
+            return;
+          }
+
+          if (status.status === 'Cancelled') {
+            this.stopJobTracking();
+            this.parseState = 'IDLE';
+            this.cdr.markForCheck();
+            return;
+          }
+
+          // Continue polling while Queued or Processing
+          this.jobPollSubscription = setTimeout(() => poll(), 1500);
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          this.isPollingJob = false;
+          if (err?.status === 404) {
+            this.stopJobTracking();
+            try { sessionStorage.removeItem(this.ACTIVE_JOB_KEY); } catch {}
+          } else {
+            // Retry on transient errors
+            this.jobPollSubscription = setTimeout(() => poll(), 3000);
+          }
+          this.cdr.markForCheck();
+        }
+      });
+    };
+
+    poll();
+  }
+
+  stopJobTracking(): void {
+    if (this.jobPollSubscription) {
+      clearTimeout(this.jobPollSubscription);
+      this.jobPollSubscription = null;
+    }
+    this.isPollingJob = false;
+  }
+
+  cancelActiveJob(): void {
+    if (!this.activeJobId) return;
+    this.isCancellingJob = true;
+    this.cdr.markForCheck();
+
+    this.statementService.cancelJob(this.activeJobId).subscribe({
+      next: () => {
+        this.isCancellingJob = false;
+        this.stopJobTracking();
+        if (this.jobStatus) {
+          this.jobStatus.status = 'Cancelled';
+          this.jobStatus.stage = 'Cancelled by user';
+          this.jobStatus.isTerminal = true;
+        }
+        try { sessionStorage.removeItem(this.ACTIVE_JOB_KEY); } catch {}
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        this.isCancellingJob = false;
+        alert(err?.error?.detail || 'Failed to cancel background job.');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  retryActiveJob(): void {
+    if (!this.activeJobId) return;
+    this.isRetryingJob = true;
+    this.cdr.markForCheck();
+
+    this.statementService.retryJob(this.activeJobId).subscribe({
+      next: (status: StatementJobStatusDto) => {
+        this.isRetryingJob = false;
+        this.jobStatus = status;
+        this.startJobTracking(this.activeJobId!);
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        this.isRetryingJob = false;
+        alert(err?.error?.detail || 'Failed to re-enqueue job.');
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   onFileDropped(event: DragEvent): void {
     event.preventDefault();
@@ -246,16 +319,6 @@ export class ConverterComponent {
       return;
     }
 
-    // Client-side Validation: 50MB Limit
-    const maxSizeBytes = 50 * 1024 * 1024;
-    if (file.size > maxSizeBytes) {
-      this.uploadError = 'This file is larger than the allowed upload size of 50 MB.';
-      this.uploadState = 'ERROR';
-      this.selectedFile = null;
-      this.cdr.markForCheck();
-      return;
-    }
-
     this.selectedFile = file;
     this.uploadState = 'FILE_SELECTED';
     this.cdr.markForCheck();
@@ -263,6 +326,11 @@ export class ConverterComponent {
 
   startUpload(): void {
     if (!this.selectedFile) return;
+
+    if (this.uploadSubscription) {
+      this.uploadSubscription.unsubscribe();
+      this.uploadSubscription = null;
+    }
 
     this.uploadState = 'UPLOADING';
     this.uploadProgress = 0;
@@ -273,7 +341,7 @@ export class ConverterComponent {
     this.extractionError = null;
     this.cdr.markForCheck();
 
-    this.statementService.uploadStatement(this.selectedFile).subscribe({
+    this.uploadSubscription = this.statementService.uploadStatement(this.selectedFile).subscribe({
       next: (event: HttpEvent<StatementUploadResponse>) => {
         switch (event.type) {
           case HttpEventType.Sent:
@@ -289,14 +357,20 @@ export class ConverterComponent {
             break;
 
           case HttpEventType.Response:
+            this.uploadSubscription = null;
             this.uploadProgress = 100;
             this.uploadResult = event.body;
             this.uploadState = 'UPLOADED';
             this.cdr.markForCheck();
+            if (this.uploadResult?.fileId) {
+              const jobId = this.uploadResult.jobId || this.uploadResult.fileId;
+              this.startJobTracking(jobId);
+            }
             break;
         }
       },
       error: (err: any) => {
+        this.uploadSubscription = null;
         this.uploadState = 'ERROR';
         if (err?.error?.detail && typeof err.error.detail === 'string') {
           this.uploadError = err.error.detail;
@@ -310,6 +384,7 @@ export class ConverterComponent {
         this.cdr.markForCheck();
       },
       complete: () => {
+        this.uploadSubscription = null;
         // Defensive safeguard: ensure the component is NEVER left permanently stuck in UPLOADING
         if (this.uploadState === 'UPLOADING') {
           if (this.uploadResult) {
@@ -325,21 +400,41 @@ export class ConverterComponent {
     });
   }
 
+  cancelUpload(): void {
+    if (this.uploadSubscription) {
+      this.uploadSubscription.unsubscribe();
+      this.uploadSubscription = null;
+    }
+    this.uploadState = 'FILE_SELECTED';
+    this.uploadProgress = 0;
+    this.uploadError = null;
+    this.cdr.markForCheck();
+  }
+
   triggerExtraction(): void {
     if (!this.uploadResult?.fileId) return;
+
+    if (this.extractionState === 'PASSWORD_REQUIRED' && !this.statementPassword) {
+      this.openPasswordModal();
+      return;
+    }
 
     this.extractionState = 'EXTRACTING';
     this.extractionError = null;
     this.cdr.markForCheck();
 
-    this.statementService.extractStatement(this.uploadResult.fileId, this.statementPassword || undefined).subscribe({
+    const extract$ = this.statementService.extractStatement(this.uploadResult.fileId, this.statementPassword || undefined);
+    if (!extract$) return;
+
+    extract$.subscribe({
       next: (result: PdfExtractionResult) => {
         this.extractionResult = result;
         this.selectedPageNumber = 1;
 
         if (result.extractionStatus === 'PasswordProtected') {
           this.extractionState = 'PASSWORD_REQUIRED';
-          this.extractionError = result.errors?.[0] || 'This PDF is password-protected. Please provide the document password in statement options.';
+          this.extractionError = result.errors?.[0] || 'This PDF is password protected. Enter the PDF password to continue.';
+          this.openPasswordModal();
         } else if (result.extractionStatus === 'NoDigitalTextDetected' || !result.hasUsableText) {
           this.extractionState = 'NO_TEXT';
           // Navigate to Step 2 to let user inspect the no-text diagnostics
@@ -355,13 +450,150 @@ export class ConverterComponent {
         this.cdr.markForCheck();
       },
       error: (err: any) => {
-        this.extractionState = 'ERROR';
-        if (err?.error?.detail && typeof err.error.detail === 'string') {
-          this.extractionError = err.error.detail;
-        } else if (err?.error?.title && typeof err.error.title === 'string') {
-          this.extractionError = err.error.title;
+        const isPasswordProtected =
+          err?.error?.requiresPassword === true ||
+          err?.error?.extensions?.requiresPassword === true ||
+          err?.error?.extractionStatus === 'PasswordProtected' ||
+          err?.error?.title === 'Password Protected PDF' ||
+          err?.error?.extensions?.extractionStatus === 'PasswordProtected' ||
+          (typeof err?.error?.detail === 'string' && err.error.detail.toLowerCase().includes('password'));
+
+        if (isPasswordProtected) {
+          this.extractionState = 'PASSWORD_REQUIRED';
+          this.extractionError = err?.error?.detail || 'This PDF is password protected. Enter the PDF password to continue.';
+          this.openPasswordModal();
         } else {
-          this.extractionError = 'PDF extraction request failed. Please check server logs.';
+          this.extractionState = 'ERROR';
+          if (err?.error?.detail && typeof err.error.detail === 'string') {
+            this.extractionError = err.error.detail;
+          } else if (err?.error?.title && typeof err.error.title === 'string') {
+            this.extractionError = err.error.title;
+          } else {
+            this.extractionError = 'PDF extraction request failed. Please check server logs.';
+          }
+        }
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  openPasswordModal(): void {
+    this.showPasswordModal = true;
+    this.modalPassword = '';
+    this.passwordModalError = null;
+    this.isSubmittingPassword = false;
+    this.cdr.markForCheck();
+  }
+
+  cancelPasswordModal(): void {
+    this.showPasswordModal = false;
+    this.modalPassword = '';
+    this.passwordModalError = null;
+    this.isSubmittingPassword = false;
+    this.cdr.markForCheck();
+  }
+
+  submitPasswordModal(): void {
+    if (!this.modalPassword || this.isSubmittingPassword) return;
+
+    // Background Job Processing (Phase 6): If active background job exists, unlock via unlockJob
+    if (this.activeJobId) {
+      this.isSubmittingPassword = true;
+      this.passwordModalError = null;
+      this.cdr.markForCheck();
+
+      const enteredPassword = this.modalPassword;
+      this.statementService.unlockJob(this.activeJobId, enteredPassword).subscribe({
+        next: (status: StatementJobStatusDto) => {
+          this.showPasswordModal = false;
+          this.modalPassword = '';
+          this.statementPassword = '';
+          this.passwordModalError = null;
+          this.isSubmittingPassword = false;
+          this.jobStatus = status;
+          this.startJobTracking(this.activeJobId!);
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          this.isSubmittingPassword = false;
+          this.modalPassword = '';
+          const isWrong = err?.status === 400 || (typeof err?.error?.detail === 'string' && err.error.detail.toLowerCase().includes('password'));
+          this.passwordModalError = isWrong
+            ? 'Incorrect PDF password. Please try again.'
+            : (err?.error?.detail || err?.error?.title || 'Failed to unlock PDF statement. Please try again.');
+          this.cdr.markForCheck();
+        }
+      });
+      return;
+    }
+
+    if (!this.uploadResult?.fileId) return;
+
+    this.isSubmittingPassword = true;
+    this.passwordModalError = null;
+    this.cdr.markForCheck();
+
+    const enteredPassword = this.modalPassword;
+    const extract$ = this.statementService.extractStatement(this.uploadResult.fileId, enteredPassword);
+    if (!extract$) {
+      this.isSubmittingPassword = false;
+      return;
+    }
+
+    extract$.subscribe({
+      next: (result: PdfExtractionResult) => {
+        if (result.extractionStatus === 'PasswordProtected') {
+          this.passwordModalError = 'Incorrect PDF password. Please try again.';
+          this.modalPassword = '';
+          this.isSubmittingPassword = false;
+          this.cdr.markForCheck();
+          return;
+        }
+
+        // Successfully unlocked: zero password persistence
+        this.showPasswordModal = false;
+        this.modalPassword = '';
+        this.statementPassword = '';
+        this.passwordModalError = null;
+        this.isSubmittingPassword = false;
+
+        this.extractionResult = result;
+        this.selectedPageNumber = 1;
+        if (result.extractionStatus === 'NoDigitalTextDetected' || !result.hasUsableText) {
+          this.extractionState = 'NO_TEXT';
+          this.currentStep = 2;
+        } else if (result.extractionStatus === 'Failed') {
+          this.extractionState = 'ERROR';
+          this.extractionError = result.errors?.[0] || 'PDF structure extraction failed.';
+        } else {
+          this.extractionState = 'EXTRACTED';
+          this.currentStep = 2;
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        this.isSubmittingPassword = false;
+        this.modalPassword = '';
+
+        const isWrongPassword =
+          err?.error?.isIncorrectPassword === true ||
+          err?.error?.extensions?.isIncorrectPassword === true ||
+          err?.error?.requiresPassword === true ||
+          err?.error?.extensions?.requiresPassword === true ||
+          err?.error?.extractionStatus === 'PasswordProtected' ||
+          err?.error?.title === 'Invalid PDF Password' ||
+          err?.error?.title === 'Password Protected PDF' ||
+          err?.error?.extensions?.extractionStatus === 'PasswordProtected' ||
+          (typeof err?.error?.detail === 'string' && err.error.detail.toLowerCase().includes('password'));
+
+        if (isWrongPassword) {
+          this.passwordModalError = 'Incorrect PDF password. Please try again.';
+        } else if (err?.error?.detail && typeof err.error.detail === 'string') {
+          this.passwordModalError = err.error.detail;
+        } else if (err?.error?.title && typeof err.error.title === 'string') {
+          this.passwordModalError = err.error.title;
+        } else {
+          this.passwordModalError = 'Failed to unlock PDF statement. Please try again.';
         }
         this.cdr.markForCheck();
       }
@@ -388,6 +620,11 @@ export class ConverterComponent {
   triggerParsing(): void {
     if (!this.uploadResult?.fileId) return;
 
+    if (this.extractionState === 'PASSWORD_REQUIRED') {
+      this.openPasswordModal();
+      return;
+    }
+
     this.parseState = 'PARSING';
     this.parseError = null;
     this.cdr.markForCheck();
@@ -403,7 +640,12 @@ export class ConverterComponent {
       },
       error: (err: any) => {
         this.parseState = 'ERROR';
-        if (err?.error?.detail) {
+        const isPasswordRelated =
+          (typeof err?.error?.detail === 'string' && (err.error.detail.toLowerCase().includes('password') || err.error.detail.toLowerCase().includes('encrypted')));
+        if (isPasswordRelated) {
+          this.extractionState = 'PASSWORD_REQUIRED';
+          this.openPasswordModal();
+        } else if (err?.error?.detail) {
           this.parseError = err.error.detail;
         } else if (err?.error?.title) {
           this.parseError = err.error.title;
@@ -591,6 +833,14 @@ export class ConverterComponent {
   }
 
   resetUpload(): void {
+    if (this.uploadSubscription) {
+      this.uploadSubscription.unsubscribe();
+      this.uploadSubscription = null;
+    }
+    this.stopJobTracking();
+    this.activeJobId = null;
+    this.jobStatus = null;
+    try { sessionStorage.removeItem(this.ACTIVE_JOB_KEY); } catch {}
     this.selectedFile = null;
     this.uploadState = 'IDLE';
     this.uploadProgress = 0;
@@ -600,6 +850,10 @@ export class ConverterComponent {
     this.extractionResult = null;
     this.extractionError = null;
     this.statementPassword = '';
+    this.showPasswordModal = false;
+    this.modalPassword = '';
+    this.passwordModalError = null;
+    this.isSubmittingPassword = false;
     this.selectedPageNumber = 1;
     this.selectedInspectionTab = 'summary';
     this.parseState = 'IDLE';
@@ -607,6 +861,7 @@ export class ConverterComponent {
     this.parseError = null;
     this.reviewTransactions = [];
     this.validationSummary = null;
+    this.currentStep = 1;
     this.isEditingTransaction = false;
     this.editingTransaction = null;
     this.successNotice = null;
@@ -615,45 +870,35 @@ export class ConverterComponent {
     this.cdr.markForCheck();
   }
 
-  loadSampleData(): void {
-    this.transactions = [...this.sampleTransactions];
-    this.currentStep = 3;
+  ngOnDestroy(): void {
+    if (this.uploadSubscription) {
+      this.uploadSubscription.unsubscribe();
+      this.uploadSubscription = null;
+    }
+    this.stopJobTracking();
   }
 
   setStep(step: number): void {
     this.currentStep = step;
   }
 
-  get totalCredits(): number {
-    return this.transactions.reduce((acc, t) => acc + (t.credit || 0), 0);
-  }
-
-  get totalDebits(): number {
-    return this.transactions.reduce((acc, t) => acc + (t.debit || 0), 0);
-  }
-
-  get netChange(): number {
-    return this.totalCredits - this.totalDebits;
-  }
-
-  get filteredTransactions(): StatementTransaction[] {
-    return this.transactions.filter(t => {
-      const matchesSearch = !this.searchQuery || 
-        t.narration.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        t.reference.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        t.date.includes(this.searchQuery);
-
-      if (!matchesSearch) return false;
-
-      if (this.typeFilter === 'debit') return t.debit !== null;
-      if (this.typeFilter === 'credit') return t.credit !== null;
-      return true;
-    });
+  formatDate(dateVal?: string | null): string {
+    if (!dateVal) return '-';
+    try {
+      if (/^\d{2}\/\d{2}\/\d{4}/.test(dateVal)) return dateVal.substring(0, 10);
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return dateVal;
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch {
+      return dateVal || '-';
+    }
   }
 
   downloadExcel(): void {
     if (!this.uploadResult?.fileId) {
-      this.exportDemoExcel();
       return;
     }
 
@@ -667,7 +912,12 @@ export class ConverterComponent {
     this.exportError = null;
     this.cdr.markForCheck();
 
-    this.statementService.exportExcel(this.uploadResult.fileId).subscribe({
+    this.statementService.exportExcel(this.uploadResult.fileId).pipe(
+      timeout({
+        each: 15000,
+        with: () => throwError(() => new Error('Excel generation request timed out. You can export verified transactions directly as CSV below.'))
+      })
+    ).subscribe({
       next: (blob: Blob) => {
         this.isExportingExcel = false;
         const bankName = (this.validationSummary?.bankName || 'Statement').replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -692,42 +942,137 @@ export class ConverterComponent {
       },
       error: async (err: any) => {
         this.isExportingExcel = false;
+        let msg = 'Failed to export statement to Excel.';
         if (err?.error instanceof Blob) {
           try {
             const errorText = await err.error.text();
-            const json = JSON.parse(errorText);
-            this.exportError = json?.detail || json?.title || 'Failed to export statement to Excel.';
+            try {
+              const json = JSON.parse(errorText);
+              msg = json?.detail || json?.title || msg;
+            } catch {
+              if (errorText.includes('Packaging') || errorText.includes('FileNotFoundException')) {
+                msg = 'Backend Excel engine dependency missing. You can export verified transactions directly as CSV below.';
+              } else {
+                msg = 'Server Excel export encountered an error. You can export verified transactions as CSV below.';
+              }
+            }
           } catch {
-            this.exportError = 'Failed to export statement to Excel.';
+            msg = 'Failed to export statement to Excel.';
           }
         } else {
-          this.exportError = err?.error?.detail || err?.error?.title || 'Failed to export statement to Excel.';
+          msg = err?.error?.detail || err?.error?.title || err?.message || msg;
         }
+        this.exportError = msg;
         this.cdr.markForCheck();
       }
     });
   }
 
-  exportDemoExcel(): void {
-    const headers = ['Date', 'Value Date', 'Particulars / Narration', 'Reference/UTR', 'Debit', 'Credit', 'Balance', 'Status'];
-    const rows = this.transactions.map(t => [
-      t.date,
-      t.valueDate,
-      `"${t.narration.replace(/"/g, '""')}"`,
-      t.reference,
-      t.debit ? t.debit.toFixed(2) : '',
-      t.credit ? t.credit.toFixed(2) : '',
-      t.balance.toFixed(2),
-      t.status
+  exportTransactionsAsCsv(): void {
+    const list = this.reviewTransactions.length > 0 ? this.reviewTransactions : [];
+    if (list.length === 0) {
+      return;
+    }
+    const headers = ['Sr No', 'Transaction Date', 'Value Date', 'Particulars / Description', 'Cheque / Ref', 'Debit (INR)', 'Credit (INR)', 'Balance (INR)', 'Validation Status'];
+    const rows = list.map((t, idx) => [
+      idx + 1,
+      this.formatDate(t.transactionDate),
+      this.formatDate(t.valueDate),
+      `"${(t.description || '').replace(/"/g, '""')}"`,
+      t.reference || t.utr || '',
+      t.debit !== null && t.debit !== undefined ? t.debit.toFixed(2) : '',
+      t.credit !== null && t.credit !== undefined ? t.credit.toFixed(2) : '',
+      t.balance !== null && t.balance !== undefined ? t.balance.toFixed(2) : '',
+      t.validationStatus || 'VALID'
     ]);
 
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const bankName = (this.validationSummary?.bankName || 'Statement').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const filename = `EasyFin_${bankName}_Ledger.csv`;
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', 'EasyFin_Statement_Export.csv');
+    link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  }
+
+  // =========================================================================
+  // 5-Stage Institutional Workflow Stepper Getters (Phase 8)
+  // =========================================================================
+  get step1Status(): 'completed' | 'active' | 'pending' | 'error' {
+    if (this.uploadState === 'ERROR') return 'error';
+    if (this.currentStep > 1 || this.uploadState === 'UPLOADED' || this.uploadResult !== null) return 'completed';
+    return 'active';
+  }
+
+  get step2Status(): 'completed' | 'active' | 'pending' | 'error' {
+    if (this.jobStatus?.status === 'Failed' || this.parseState === 'ERROR' || this.extractionState === 'ERROR' || this.extractionState === 'PASSWORD_REQUIRED') return 'error';
+    if (this.currentStep > 2 || this.jobStatus?.status === 'Completed' || this.parseState === 'PARSED' || this.reviewTransactions.length > 0) return 'completed';
+    if (this.currentStep === 2 || this.jobStatus?.status === 'Processing' || this.jobStatus?.status === 'Queued' || this.extractionState === 'EXTRACTING' || this.parseState === 'PARSING' || this.uploadState === 'UPLOADED') return 'active';
+    return 'pending';
+  }
+
+  get step3Status(): 'completed' | 'active' | 'pending' | 'error' {
+    if (this.validationSummary && this.validationSummary.invalidCount > 0) return 'error';
+    if (this.currentStep > 3 || (this.validationSummary && this.validationSummary.invalidCount === 0)) return 'completed';
+    if (this.currentStep === 3) return 'active';
+    return 'pending';
+  }
+
+  get step4Status(): 'completed' | 'active' | 'pending' | 'error' {
+    if (this.validationSummary && this.validationSummary.invalidCount > 0) return 'error';
+    if (this.currentStep > 3) return 'completed';
+    if (this.currentStep === 3 && (this.reviewTransactions.length > 0 || this.validationSummary !== null)) return 'active';
+    return 'pending';
+  }
+
+  get step5Status(): 'completed' | 'active' | 'pending' | 'error' {
+    if (this.exportError) return 'error';
+    if (this.validationSummary && this.validationSummary.invalidCount > 0) return 'error';
+    if (this.successNotice && this.successNotice.toLowerCase().includes('excel')) return 'completed';
+    if (this.currentStep === 4 || this.isExportingExcel) return 'active';
+    return 'pending';
+  }
+
+  onStepperClick(stepNumber: number): void {
+    if (stepNumber === 1) {
+      this.setStep(1);
+    } else if (stepNumber === 2) {
+      if (this.uploadResult || this.extractionResult || this.jobStatus) {
+        this.setStep(2);
+      }
+    } else if (stepNumber === 3 || stepNumber === 4) {
+      if (this.parseState === 'PARSED' || this.reviewTransactions.length > 0 || this.jobStatus?.status === 'Completed') {
+        this.setStep(3);
+      }
+    } else if (stepNumber === 5) {
+      if (this.parseState === 'PARSED' || this.reviewTransactions.length > 0 || this.jobStatus?.status === 'Completed') {
+        this.setStep(4);
+      }
+    }
+  }
+
+  get detectedBankName(): string {
+    return this.jobStatus?.detectedBankName || this.validationSummary?.bankName || this.parseResult?.bankName || '';
+  }
+
+  get totalTransactionCount(): number {
+    return this.jobStatus?.transactionCount || this.validationSummary?.totalTransactions || this.reviewTotalCount || 0;
+  }
+
+  get validationHealthStatus(): 'ready' | 'review' | 'blocked' | 'idle' {
+    if (!this.validationSummary) {
+      return 'idle';
+    }
+    if (this.validationSummary.invalidCount > 0) return 'blocked';
+    if (this.validationSummary.reviewCount > 0) return 'review';
+    return 'ready';
+  }
+
+  get isExportBlocked(): boolean {
+    return !!(this.validationSummary && this.validationSummary.invalidCount > 0);
   }
 }

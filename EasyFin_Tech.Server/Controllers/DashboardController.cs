@@ -14,16 +14,22 @@ using Microsoft.EntityFrameworkCore;
 namespace EasyFin_Tech.Server.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class DashboardController : ControllerBase
 {
     private readonly EasyFinDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
+    private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env;
 
-    public DashboardController(EasyFinDbContext dbContext, ICurrentUserService currentUserService)
+    public DashboardController(
+        EasyFinDbContext dbContext,
+        ICurrentUserService currentUserService,
+        Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
     {
         _dbContext = dbContext;
         _currentUserService = currentUserService;
+        _env = env;
     }
 
     private Guid? GetEffectiveUserId()
@@ -116,8 +122,8 @@ public class DashboardController : ControllerBase
         var result = new DashboardSummaryDto
         {
             Status = canConnect ? "Online / Connected" : "Degraded",
-            Database = "EasyFin_Tech",
-            Server = @"localhost\SQLEXPRESS",
+            Database = _env.IsDevelopment() ? "EasyFin_Tech" : "Production",
+            Server = _env.IsDevelopment() ? @"localhost\SQLEXPRESS" : "Protected",
             CanConnect = canConnect,
             TotalStatements = totalStatements,
             CompletedStatements = completedStatements,

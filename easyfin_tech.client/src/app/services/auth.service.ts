@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 export interface UserProfileDto {
   id?: string;
@@ -43,7 +44,9 @@ export interface RegisterRequest {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly baseUrl = '/api/auth';
+  private readonly baseUrl = environment.apiUrl && !environment.apiUrl.includes('YOUR-PRODUCTION')
+    ? `${environment.apiUrl}/api/auth`
+    : '/api/auth';
   private currentUserSubject = new BehaviorSubject<UserProfileDto | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 

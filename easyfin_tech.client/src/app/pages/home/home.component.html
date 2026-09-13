@@ -1,363 +1,875 @@
 <app-public-nav></app-public-nav>
 
-<main class="home-main">
-  <!-- Hero Section -->
+<main class="home-main" id="main-content">
+  <!-- ========================================================================
+       1. HERO SECTION
+       ======================================================================== -->
   <section class="hero-section">
-    <div class="hero-background-glow"></div>
+    <div class="hero-bg-glow"></div>
     <div class="hero-grid-pattern"></div>
-    
+
     <div class="container hero-container">
-      <!-- Left Column: Clear Value Proposition -->
       <div class="hero-content">
+        <!-- Trust / Product Badge -->
         <div class="hero-badge">
-          <span class="badge-pulse"></span>
-          <span class="badge-text">Financial Statement Automation</span>
+          <span class="pulse-dot" aria-hidden="true"></span>
+          <span class="hero-badge-text">FINANCIAL DOCUMENT AUTOMATION</span>
         </div>
 
+        <!-- Main Headline -->
         <h1 class="hero-title">
-          Convert Bank Statements. <br class="hero-br" />
-          <span class="text-gradient">Get Clean Excel.</span>
+          Turn financial documents into <br class="hero-br">
+          <span class="hero-title-gradient">accounting-ready data.</span>
         </h1>
 
+        <!-- Supporting Value Copy -->
         <p class="hero-subtitle">
-          Upload your bank statement PDF and get a structured Excel file with verified balances, ready for accounting.
+          Convert bank statements into structured Excel files, prepare accounting transactions, and export Tally-compatible XML &mdash; all inside one professional workspace.
         </p>
 
+        <!-- Primary & Secondary CTAs -->
         <div class="hero-actions">
-          <a routerLink="/converter" class="btn btn-lg btn-primary btn-hero-primary" id="hero-convert-btn">
-            <span>Convert Statement</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <a routerLink="/converter" class="btn btn-lg btn-primary hero-btn-primary" id="hero-convert-btn">
+            <span>Start Converting</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
           </a>
-          <a routerLink="/how-it-works" class="btn btn-lg btn-secondary btn-hero-secondary" id="hero-how-it-works-btn">
-            <span>How It Works</span>
+          <a routerLink="/excel-to-tally" class="btn btn-lg btn-secondary hero-btn-secondary" id="hero-tally-btn">
+            <span>Explore Excel &rarr; Tally</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
           </a>
         </div>
 
-        <!-- Lightweight Trust & Benefit Row -->
-        <div class="hero-benefits">
-          <div class="benefit-item">
-            <svg class="benefit-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Factual Value Highlights -->
+        <div class="hero-features-strip">
+          <div class="strip-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ef-accent-600)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            <span>Accurate Math</span>
+            <span>8 Supported Institutions &bull; 9 Profiles</span>
           </div>
-          <span class="benefit-sep">&bull;</span>
-          <div class="benefit-item">
-            <svg class="benefit-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <span class="strip-sep" aria-hidden="true">&bull;</span>
+          <div class="strip-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ef-accent-600)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            <span>Multi-Line Narration</span>
+            <span>Deterministic Math Checksums</span>
           </div>
-          <span class="benefit-sep">&bull;</span>
-          <div class="benefit-item">
-            <svg class="benefit-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <span class="strip-sep" aria-hidden="true">&bull;</span>
+          <div class="strip-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ef-accent-600)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            <span>Accounting Ready</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Column: Product Transformation Visual (PDF -> EasyFin -> Excel) -->
-      <div class="hero-visual">
-        <div class="transformation-stage">
-          <!-- Left Visual: Source PDF Card -->
-          <div class="stage-card card-pdf">
-            <div class="card-header">
-              <div class="card-tag tag-pdf">
-                <span class="tag-icon">PDF</span>
-                <span>Bank Statement</span>
-              </div>
-            </div>
-            <div class="pdf-document-body">
-              <div class="pdf-meta-row">
-                <span class="pdf-meta-label">A/C: *******4912</span>
-                <span class="pdf-meta-badge">Multi-Page</span>
-              </div>
-              <div class="pdf-text-lines">
-                <div class="pdf-line">
-                  <span class="p-date">04/08</span>
-                  <span class="p-text">UPI-728192-AWS CLOUD HOSTING</span>
-                  <span class="p-amt p-dr">-14,890.00</span>
-                </div>
-                <div class="pdf-line-wrap">
-                  <span class="p-sub">Ref: UPI/62910248/Payment</span>
-                </div>
-                <div class="pdf-line">
-                  <span class="p-date">12/08</span>
-                  <span class="p-text">RTGS CR-SBI002-CLIENT SETTLEMENT</span>
-                  <span class="p-amt p-cr">+2,10,000.00</span>
-                </div>
-              </div>
-              <div class="pdf-footer-note">Raw Coordinate Data</div>
-            </div>
-          </div>
-
-          <!-- Center Visual: EasyFin Processing Bridge -->
-          <div class="stage-connector">
-            <div class="connector-line">
-              <span class="flow-particle"></span>
-            </div>
-            <div class="connector-node">
-              <div class="node-glow"></div>
-              <div class="node-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                </svg>
-              </div>
-              <span class="node-label">EasyFin</span>
-            </div>
-            <div class="connector-line">
-              <span class="flow-particle delay"></span>
-            </div>
-          </div>
-
-          <!-- Right Visual: Structured Excel Card -->
-          <div class="stage-card card-excel">
-            <div class="card-header">
-              <div class="card-tag tag-excel">
-                <span class="tag-icon">XLSX</span>
-                <span>Structured Excel</span>
-              </div>
-              <span class="file-name">Statement_Ledger.xlsx</span>
-            </div>
-            <div class="excel-document-body">
-              <div class="mini-table">
-                <div class="mini-table-head">
-                  <span class="col-th">Date</span>
-                  <span class="col-th col-desc">Particulars</span>
-                  <span class="col-th text-right">Debit</span>
-                  <span class="col-th text-right">Credit</span>
-                  <span class="col-th text-right">Balance</span>
-                </div>
-                <div class="mini-table-row">
-                  <span class="col-td mono">04/08/2026</span>
-                  <span class="col-td col-desc">UPI: AWS Cloud Hosting</span>
-                  <span class="col-td mono text-danger text-right">14,890.00</span>
-                  <span class="col-td mono text-muted text-right">-</span>
-                  <span class="col-td mono text-right">3,27,960.00</span>
-                </div>
-                <div class="mini-table-row">
-                  <span class="col-td mono">12/08/2026</span>
-                  <span class="col-td col-desc">RTGS: Client Settlement</span>
-                  <span class="col-td mono text-muted text-right">-</span>
-                  <span class="col-td mono text-success text-right">2,10,000.00</span>
-                  <span class="col-td mono text-right">5,37,960.00</span>
-                </div>
-              </div>
-              <div class="excel-status-banner">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <span>Balance Parity: ₹0.00 Variance &bull; Tally Ready</span>
-              </div>
-            </div>
+            <span>Tally Prime XML Compatible</span>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Section 1: 3-Step Transformation Pipeline -->
-  <section class="section pipeline-section" id="how-it-works-preview">
+  <!-- ========================================================================
+       2. TRUST & VALUE PROOF STRIP
+       ======================================================================== -->
+  <section class="trust-strip-section" aria-label="Key Platform Capabilities">
+    <div class="container">
+      <div class="trust-strip-card card">
+        <div class="trust-stat-item">
+          <span class="stat-main font-bold">8 Supported Institutions</span>
+          <span class="stat-sub">9 calibrated layout profiles</span>
+        </div>
+        <div class="trust-sep" aria-hidden="true"></div>
+        <div class="trust-stat-item">
+          <span class="stat-main font-bold">Structured Excel Output</span>
+          <span class="stat-sub">Multi-sheet with native formulas</span>
+        </div>
+        <div class="trust-sep" aria-hidden="true"></div>
+        <div class="trust-stat-item">
+          <span class="stat-main font-bold">Validation Before Export</span>
+          <span class="stat-sub">Continuous balance checksums</span>
+        </div>
+        <div class="trust-sep" aria-hidden="true"></div>
+        <div class="trust-stat-item">
+          <span class="stat-main font-bold">Tally XML Workflow</span>
+          <span class="stat-sub">Standard voucher schema</span>
+        </div>
+        <div class="trust-sep" aria-hidden="true"></div>
+        <div class="trust-stat-item">
+          <span class="stat-main font-bold">Isolated Workspace</span>
+          <span class="stat-sub">Private tenant data storage</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       3. PRODUCT WORKFLOWS SECTION
+       ======================================================================== -->
+  <section class="section product-workflows-section">
     <div class="container">
       <div class="section-header text-center">
-        <span class="badge badge-accent">Workflow</span>
-        <h2 class="section-title">From PDF to Clean Excel in 3 Steps</h2>
+        <span class="badge badge-accent">Platform Architecture</span>
+        <h2 class="section-title">One workspace. Multiple accounting workflows.</h2>
         <p class="section-desc">
-          A deterministic engine built to convert complex, multi-page financial statements without manual typing.
+          Purpose-built financial pipelines that transform raw document inputs into verified, structured outputs for your accounting and audit stack.
         </p>
       </div>
 
-      <div class="pipeline-grid">
-        <div class="pipeline-card">
-          <div class="pipeline-step-header">
-            <span class="pipeline-step-num">01</span>
-            <div class="pipeline-step-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
+      <div class="product-cards-grid">
+        <!-- Card 1: Bank Statement to Excel -->
+        <div class="product-card card">
+          <div class="product-card-top">
+            <div class="product-badge-row">
+              <span class="badge badge-primary">CORE WORKFLOW</span>
+              <span class="badge badge-excel">.xlsx Export</span>
             </div>
+            <h3 class="product-title">Bank Statement &rarr; Excel</h3>
+            <p class="product-desc">
+              Extract transactions from supported bank statement PDFs and organize them into structured Excel data.
+            </p>
           </div>
-          <h3>Upload Statement</h3>
-          <p>
-            Drop your bank statement PDF. The engine scans digital glyphs, detects column coordinates, and identifies the bank format.
-          </p>
-          <div class="pipeline-feature-tag">Single or Multi-Page</div>
+
+          <div class="product-pipeline-preview" aria-label="Workflow pipeline">
+            <div class="pipeline-node-chip">PDF</div>
+            <span class="pipeline-arrow" aria-hidden="true">&rarr;</span>
+            <div class="pipeline-node-chip">Transactions</div>
+            <span class="pipeline-arrow" aria-hidden="true">&rarr;</span>
+            <div class="pipeline-node-chip chip-highlight">Excel</div>
+          </div>
+
+          <div class="product-card-action">
+            <a routerLink="/converter" class="btn btn-primary w-full" id="open-converter-btn">
+              <span>Open Converter &rarr;</span>
+            </a>
+          </div>
         </div>
 
-        <div class="pipeline-card">
-          <div class="pipeline-step-header">
-            <span class="pipeline-step-num">02</span>
-            <div class="pipeline-step-icon icon-teal">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Card 2: Excel to Tally XML -->
+        <div class="product-card card">
+          <div class="product-card-top">
+            <div class="product-badge-row">
+              <span class="badge badge-accent">ACCOUNTING WORKFLOW</span>
+              <span class="badge badge-warning">Tally XML</span>
+            </div>
+            <h3 class="product-title">Excel &rarr; Tally XML</h3>
+            <p class="product-desc">
+              Fill the official EasyFin Tech Excel template, validate transactions, preview the data, and generate Tally XML.
+            </p>
+          </div>
+
+          <div class="product-pipeline-preview" aria-label="Workflow pipeline">
+            <div class="pipeline-node-chip">XLSM</div>
+            <span class="pipeline-arrow" aria-hidden="true">&rarr;</span>
+            <div class="pipeline-node-chip">Validation</div>
+            <span class="pipeline-arrow" aria-hidden="true">&rarr;</span>
+            <div class="pipeline-node-chip chip-highlight">XML</div>
+          </div>
+
+          <div class="product-card-action">
+            <a routerLink="/excel-to-tally" class="btn btn-secondary w-full" id="open-tally-btn">
+              <span>Open Excel &rarr; Tally &rarr;</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Card 3: Bills & Invoices to Excel (Coming Soon) -->
+        <div class="product-card card product-card-future">
+          <div class="product-card-top">
+            <div class="product-badge-row">
+              <span class="badge badge-neutral">COMING SOON</span>
+              <span class="badge badge-neutral">Future Pipeline</span>
+            </div>
+            <h3 class="product-title">Bills &amp; Invoices &rarr; Excel</h3>
+            <p class="product-desc">
+              Extract invoice information and prepare structured accounting data from bills and invoices.
+            </p>
+          </div>
+
+          <div class="product-pipeline-preview" aria-label="Workflow pipeline">
+            <div class="pipeline-node-chip">Invoices</div>
+            <span class="pipeline-arrow" aria-hidden="true">&rarr;</span>
+            <div class="pipeline-node-chip">Parsing</div>
+            <span class="pipeline-arrow" aria-hidden="true">&rarr;</span>
+            <div class="pipeline-node-chip">Excel</div>
+          </div>
+
+          <div class="product-card-action">
+            <button type="button" class="btn btn-secondary w-full btn-disabled" disabled aria-disabled="true">
+              <span>Coming Soon</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       4. HOW IT WORKS (4-STEP WORKFLOW)
+       ======================================================================== -->
+  <section class="section how-it-works-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="badge badge-primary">Clear Methodology</span>
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-desc">
+          A clean four-step workflow engineered to turn unstructured financial documents into verified accounting records.
+        </p>
+      </div>
+
+      <div class="workflow-timeline-grid">
+        <!-- Step 1 -->
+        <div class="timeline-step-card card">
+          <div class="step-badge-circle">01</div>
+          <h3 class="step-title">Upload</h3>
+          <p class="step-desc">
+            Upload your supported financial document.
+          </p>
+          <div class="step-tag">PDF or XLSM Template</div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="timeline-step-card card">
+          <div class="step-badge-circle">02</div>
+          <h3 class="step-title">Process</h3>
+          <p class="step-desc">
+            EasyFin Tech extracts and structures the financial information.
+          </p>
+          <div class="step-tag">Deterministic Engine</div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="timeline-step-card card">
+          <div class="step-badge-circle">03</div>
+          <h3 class="step-title">Review</h3>
+          <p class="step-desc">
+            Review transactions, balances, warnings, and validation results.
+          </p>
+          <div class="step-tag">Checksum &amp; Parity Check</div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="timeline-step-card card">
+          <div class="step-badge-circle">04</div>
+          <h3 class="step-title">Export</h3>
+          <p class="step-desc">
+            Download structured Excel data or continue into the Tally XML workflow.
+          </p>
+          <div class="step-tag">.xlsx or Tally XML</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       5. FINANCIAL DATA VISUAL: REALISTIC TRANSACTION TABLE PREVIEW
+       ======================================================================== -->
+  <section class="section data-preview-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="badge badge-accent">Output Quality</span>
+        <h2 class="section-title">Structured Output Engineered for Accounting</h2>
+        <p class="section-desc">
+          Real spreadsheet cells, authentic calendar dates, and clean debit/credit classification &mdash; ready for immediate analysis and reconciliation.
+        </p>
+      </div>
+
+      <div class="card data-preview-card">
+        <div class="preview-card-topbar">
+          <div class="preview-title-wrap">
+            <div class="file-icon-box" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
               </svg>
             </div>
+            <div>
+              <span class="preview-filename font-bold">Bank_Statement_Reconciliation.xlsx</span>
+              <span class="preview-meta mono text-xs">Sheet: Transactions &bull; ClosedXML Engine</span>
+            </div>
           </div>
-          <h3>Parse &amp; Verify</h3>
-          <p>
-            Extract transactions with cross-page narration continuation. Continuous mathematical balance checksums flag discrepancies.
-          </p>
-          <div class="pipeline-feature-tag">Running Balance Integrity</div>
+          <div class="preview-badge-group">
+            <span class="badge badge-success">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Running Balance Matched</span>
+            </span>
+            <span class="badge badge-excel">Structured .xlsx</span>
+          </div>
         </div>
 
-        <div class="pipeline-card">
-          <div class="pipeline-step-header">
-            <span class="pipeline-step-num">03</span>
-            <div class="pipeline-step-icon icon-green">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="3" y1="9" x2="21" y2="9"></line>
-                <line x1="9" y1="21" x2="9" y2="9"></line>
-              </svg>
-            </div>
-          </div>
-          <h3>Export Clean Excel</h3>
-          <p>
-            Download your structured <code>.xlsx</code> workbook with true numeric cells, verified dates, and standard accounting schema.
-          </p>
-          <div class="pipeline-feature-tag">ClosedXML OpenXML Schema</div>
+        <!-- Illustrative Table Preview -->
+        <div class="table-responsive" tabindex="0" role="region" aria-label="Structured Transactions Preview">
+          <table class="financial-table">
+            <thead>
+              <tr>
+                <th style="width: 140px;">Date</th>
+                <th>Description</th>
+                <th class="text-right" style="width: 140px;">Debit</th>
+                <th class="text-right" style="width: 140px;">Credit</th>
+                <th class="text-right" style="width: 150px;">Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono font-bold">01 Apr 2025</td>
+                <td class="font-medium">Office Supplies</td>
+                <td class="amount amount-debit mono text-right">&#8377;4,250</td>
+                <td class="amount text-muted mono text-right">&mdash;</td>
+                <td class="balance mono text-right">&#8377;82,430</td>
+              </tr>
+              <tr>
+                <td class="mono font-bold">02 Apr 2025</td>
+                <td class="font-medium">Customer Receipt</td>
+                <td class="amount text-muted mono text-right">&mdash;</td>
+                <td class="amount amount-credit mono text-right">&#8377;18,500</td>
+                <td class="balance mono text-right">&#8377;1,00,930</td>
+              </tr>
+              <tr>
+                <td class="mono font-bold">03 Apr 2025</td>
+                <td class="font-medium">Bank Charges</td>
+                <td class="amount amount-debit mono text-right">&#8377;350</td>
+                <td class="amount text-muted mono text-right">&mdash;</td>
+                <td class="balance mono text-right">&#8377;1,00,580</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="preview-card-footer">
+          <span class="illustrative-notice text-xs text-muted">
+            <em>Illustrative UI data only. Demonstrates structured output styling produced by EasyFin Tech.</em>
+          </span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Section 2: Core Accounting Features -->
-  <section class="section features-section">
+  <!-- ========================================================================
+       6. VALIDATION / ACCOUNTING SAFETY SECTION
+       ======================================================================== -->
+  <section class="section validation-safety-section">
+    <div class="container">
+      <div class="safety-grid">
+        <div class="safety-content">
+          <span class="badge badge-warning">Accounting Integrity</span>
+          <h2 class="section-title">Review before you export.</h2>
+          <p class="section-desc text-left">
+            EasyFin Tech does not export blindly. The validation layer screens transactions to surface discrepancies before they corrupt your general ledger:
+          </p>
+
+          <div class="safety-checks-list">
+            <div class="check-point">
+              <div class="check-icon" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <strong class="text-primary">Invalid Dates &amp; Malformed Timestamps</strong>
+                <p class="text-muted text-sm">Flags unrecognized calendar formats before spreadsheet formulas fail.</p>
+              </div>
+            </div>
+
+            <div class="check-point">
+              <div class="check-icon" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <strong class="text-primary">Missing Amounts &amp; Zero-Value Rows</strong>
+                <p class="text-muted text-sm">Identifies unparsed numeric figures and empty ledger values.</p>
+              </div>
+            </div>
+
+            <div class="check-point">
+              <div class="check-icon" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <strong class="text-primary">Debit / Credit Conflicts</strong>
+                <p class="text-muted text-sm">Prevents conflicting simultaneous inflow and outflow amounts on a single row.</p>
+              </div>
+            </div>
+
+            <div class="check-point">
+              <div class="check-icon" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <strong class="text-primary">Missing Ledger Information</strong>
+                <p class="text-muted text-sm">Ensures required bank and party accounts are mapped before XML generation.</p>
+              </div>
+            </div>
+
+            <div class="check-point">
+              <div class="check-icon" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <strong class="text-primary">Duplicate Transactions &amp; Warnings</strong>
+                <p class="text-muted text-sm">Highlights potential duplicate entries and format warnings for manual review.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Validation Dashboard Panel -->
+        <div class="safety-visual">
+          <div class="card validation-panel-card">
+            <div class="panel-header">
+              <span class="panel-title font-bold">TRANSACTION REVIEW</span>
+              <span class="badge badge-accent">Diagnostic</span>
+            </div>
+
+            <div class="validation-counts-grid">
+              <div class="count-box count-valid">
+                <span class="count-num mono">4,328</span>
+                <span class="count-lbl">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Valid</span>
+                </span>
+              </div>
+              <div class="count-box count-warn">
+                <span class="count-num mono">12</span>
+                <span class="count-lbl">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                  <span>Warnings</span>
+                </span>
+              </div>
+              <div class="count-box count-invalid">
+                <span class="count-num mono">3</span>
+                <span class="count-lbl">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                  <span>Invalid</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="readiness-banner readiness-blocked">
+              <div class="readiness-indicator" aria-hidden="true"></div>
+              <div class="readiness-text">
+                <strong>Export readiness: NOT READY</strong>
+                <span>3 invalid transactions require ledger mapping or date correction before export.</span>
+              </div>
+            </div>
+
+            <div class="panel-checks-preview">
+              <div class="diag-row">
+                <span>Validation Rule:</span>
+                <strong class="mono text-xs">Debit/Credit Parity</strong>
+              </div>
+              <div class="diag-row">
+                <span>Continuity Check:</span>
+                <strong class="mono text-xs text-warning">2 Discrepancies Flagged</strong>
+              </div>
+              <div class="diag-row">
+                <span>Action:</span>
+                <strong class="mono text-xs text-primary">Inline Review Available</strong>
+              </div>
+            </div>
+
+            <div class="panel-disclaimer">
+              <small class="text-xs text-muted">Illustrative interface example. EasyFin Tech screens for common formatting and mathematical issues before export.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       7. SUPPORTED BANKS SECTION
+       ======================================================================== -->
+  <section class="section banks-section">
     <div class="container">
       <div class="section-header text-center">
-        <span class="badge badge-primary">Engineered For Accounting</span>
-        <h2 class="section-title">Accuracy You Can Audit</h2>
+        <span class="badge badge-primary">Institutional Coverage</span>
+        <h2 class="section-title">Built for real bank statements.</h2>
         <p class="section-desc">
-          Built specifically for finance professionals who cannot afford rounding errors or disordered text.
+          Layout-calibrated parsers for major Indian banks, handling complex multi-page statements, multi-line narrations, and running balance parity.
         </p>
       </div>
 
-      <div class="features-compact-grid">
-        <div class="feature-compact-card">
-          <div class="f-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
+      <!-- Moving Bank Names Marquee (Seamless Continuous Infinite Loop) -->
+      <div class="banks-marquee-container" role="region" aria-label="Supported Banking Institutions">
+        <div class="banks-marquee-track">
+          <!-- Primary Sequence (Accessible to screen readers) -->
+          <div class="banks-marquee-sequence">
+            <div class="bank-text-card">
+              <span class="bank-card-name">HDFC Bank</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">ICICI Bank</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">Axis Bank</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">Kotak Mahindra Bank</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">YES BANK</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">State Bank of India</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">Bank of India</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">Central Bank of India</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
           </div>
-          <div class="f-text">
-            <h3>Mathematical Checksums</h3>
-            <p>Verifies Opening Balance + Credits &minus; Debits = Closing Balance row-by-row before export.</p>
+
+          <!-- Secondary Sequence (Duplicate for seamless continuous loop, hidden from screen readers) -->
+          <div class="banks-marquee-sequence" aria-hidden="true">
+            <div class="bank-text-card">
+              <span class="bank-card-name">HDFC Bank</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">ICICI Bank</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">Axis Bank</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">Kotak Mahindra Bank</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">YES BANK</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">State Bank of India</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">Bank of India</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
+
+            <div class="bank-text-card">
+              <span class="bank-card-name">Central Bank of India</span>
+              <span class="bank-card-tag">Supported</span>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div class="feature-compact-card">
-          <div class="f-icon-wrap">
+      <div class="banks-cta-box text-center">
+        <a routerLink="/supported-banks" class="btn btn-outline" id="view-banks-btn">
+          <span>View Supported Banks &rarr;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       8. WHY EASYFIN SECTION
+       ======================================================================== -->
+  <section class="section why-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="badge badge-accent">Core Value</span>
+        <h2 class="section-title">Why EasyFin Tech</h2>
+        <p class="section-desc">
+          Engineered for accounting professionals who need dependable document conversion without manual data entry bottlenecks.
+        </p>
+      </div>
+
+      <div class="why-cards-grid">
+        <div class="why-card card">
+          <div class="why-icon-box" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="21" y1="10" x2="3" y2="10"></line>
-              <line x1="21" y1="6" x2="3" y2="6"></line>
-              <line x1="21" y1="14" x2="3" y2="14"></line>
-              <line x1="21" y1="18" x2="3" y2="18"></line>
+              <line x1="12" y1="20" x2="12" y2="10"></line>
+              <line x1="18" y1="20" x2="18" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="16"></line>
             </svg>
           </div>
-          <div class="f-text">
-            <h3>Narration Reconstruction</h3>
-            <p>Joins multi-line particulars, UTR numbers, and UPI handles into a single unified row.</p>
-          </div>
+          <h3 class="why-title font-bold">Structured Output</h3>
+          <p class="why-desc text-muted text-sm">Financial data is organized into usable rows and columns.</p>
         </div>
 
-        <div class="feature-compact-card">
-          <div class="f-icon-wrap">
+        <div class="why-card card">
+          <div class="why-icon-box" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-              <line x1="8" y1="21" x2="16" y2="21"></line>
-              <line x1="12" y1="17" x2="12" y2="21"></line>
+              <polyline points="9 11 12 14 22 4"></polyline>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
             </svg>
           </div>
-          <div class="f-text">
-            <h3>Native Spreadsheet Data</h3>
-            <p>Formatted with authentic numeric decimals and calendar dates—no green triangle text errors.</p>
-          </div>
+          <h3 class="why-title font-bold">Validation First</h3>
+          <p class="why-desc text-muted text-sm">Review transaction issues before export.</p>
         </div>
 
-        <div class="feature-compact-card">
-          <div class="f-icon-wrap">
+        <div class="why-card card">
+          <div class="why-icon-box" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
             </svg>
           </div>
-          <div class="f-text">
-            <h3>Private Tenant Processing</h3>
-            <p>Statements are isolated strictly to your account. Your client data is never used to train models.</p>
+          <h3 class="why-title font-bold">Accounting Workflow</h3>
+          <p class="why-desc text-muted text-sm">Designed around practical accounting workflows.</p>
+        </div>
+
+        <div class="why-card card">
+          <div class="why-icon-box" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="17 1 21 5 17 9"></polyline>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+              <polyline points="7 23 3 19 7 15"></polyline>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+            </svg>
+          </div>
+          <h3 class="why-title font-bold">Multiple Export Paths</h3>
+          <p class="why-desc text-muted text-sm">Move from bank statements to Excel and from Excel to Tally XML.</p>
+        </div>
+
+        <div class="why-card card">
+          <div class="why-icon-box" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+              <line x1="9" y1="22" x2="9" y2="2"></line>
+              <line x1="8" y1="6" x2="8.01" y2="6"></line>
+              <line x1="16" y1="6" x2="16.01" y2="6"></line>
+              <line x1="8" y1="10" x2="8.01" y2="10"></line>
+              <line x1="16" y1="10" x2="16.01" y2="10"></line>
+              <line x1="8" y1="14" x2="8.01" y2="14"></line>
+              <line x1="16" y1="14" x2="16.01" y2="14"></line>
+            </svg>
+          </div>
+          <h3 class="why-title font-bold">Professional Workspace</h3>
+          <p class="why-desc text-muted text-sm">Centralized workspace for your financial document workflows.</p>
+        </div>
+
+        <div class="why-card card">
+          <div class="why-icon-box" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="21" x2="21" y2="21"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <polyline points="5 10 5 21"></polyline>
+              <polyline points="19 10 19 21"></polyline>
+              <polyline points="9 10 9 21"></polyline>
+              <polyline points="14 10 14 21"></polyline>
+              <polygon points="12 2 20 7 4 7"></polygon>
+            </svg>
+          </div>
+          <h3 class="why-title font-bold">Built for Indian Accounting Workflows</h3>
+          <p class="why-desc text-muted text-sm">Handles Indian banking narrations, UPI codes, and standard Tally Prime import structures.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       9. USE-CASE SECTION
+       ======================================================================== -->
+  <section class="section use-case-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="badge badge-primary">Practice Profiles</span>
+        <h2 class="section-title">Built for Financial Teams</h2>
+        <p class="section-desc">
+          Tailored solutions whether you manage an accounting practice with hundreds of clients or corporate finance in-house.
+        </p>
+      </div>
+
+      <div class="use-case-grid">
+        <div class="use-case-card card">
+          <h3 class="font-bold">CA / Accounting Practices</h3>
+          <p class="text-sm text-muted mt-2">
+            Process large volumes of bank statements efficiently.
+          </p>
+          <ul class="use-case-bullets text-sm">
+            <li>High-volume statement extraction</li>
+            <li>Direct Tally XML voucher generation</li>
+            <li>Client workspace segregation</li>
+          </ul>
+        </div>
+
+        <div class="use-case-card card">
+          <h3 class="font-bold">Finance Teams</h3>
+          <p class="text-sm text-muted mt-2">
+            Turn statements into structured data for reconciliation and analysis.
+          </p>
+          <ul class="use-case-bullets text-sm">
+            <li>Continuous running balance checks</li>
+            <li>Structured spreadsheet workbooks</li>
+            <li>Private tenant storage</li>
+          </ul>
+        </div>
+
+        <div class="use-case-card card">
+          <h3 class="font-bold">Businesses</h3>
+          <p class="text-sm text-muted mt-2">
+            Prepare transactions for accounting workflows.
+          </p>
+          <ul class="use-case-bullets text-sm">
+            <li>Eliminate manual document retyping</li>
+            <li>Standardized Excel ledger templates</li>
+            <li>Fast audit preparation</li>
+          </ul>
+        </div>
+
+        <div class="use-case-card card">
+          <h3 class="font-bold">Bookkeeping Teams</h3>
+          <p class="text-sm text-muted mt-2">
+            Reduce repetitive document-to-data work.
+          </p>
+          <ul class="use-case-bullets text-sm">
+            <li>Cross-page narration joining</li>
+            <li>Pre-export transaction review</li>
+            <li>Direct Tally voucher import</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       10. SECURITY / PRIVACY VISUAL
+       ======================================================================== -->
+  <section class="section security-section">
+    <div class="container">
+      <div class="security-card card">
+        <div class="security-header text-left">
+          <span class="badge badge-accent">Security &amp; Architecture</span>
+          <h2 class="section-title">Security &amp; Data Privacy by Design</h2>
+          <p class="section-desc text-left">
+            Financial documents require disciplined technical boundaries. EasyFin Tech operates under strict architectural protections:
+          </p>
+        </div>
+
+        <div class="security-grid">
+          <div class="security-item">
+            <div class="security-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <strong class="text-primary">Authenticated Workspace</strong>
+            <p class="text-sm text-muted">Secure sessions with strict tenant boundaries isolate client files and conversion histories.</p>
+          </div>
+
+          <div class="security-item">
+            <div class="security-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="7.5" cy="15.5" r="5.5"></circle>
+                <path d="m21 2-9.6 9.6"></path>
+                <path d="m15.5 7.5 3 3L22 7l-3-3"></path>
+              </svg>
+            </div>
+            <strong class="text-primary">Protected Application Routes</strong>
+            <p class="text-sm text-muted">Role and session-based guards protect converters, file records, and tenant workspaces.</p>
+          </div>
+
+          <div class="security-item">
+            <div class="security-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <strong class="text-primary">Server-Side Validation</strong>
+            <p class="text-sm text-muted">Every calculation, column layout, and checksum is verified deterministically on the server before export.</p>
+          </div>
+
+          <div class="security-item">
+            <div class="security-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="8" y1="13" x2="16" y2="13"></line>
+                <line x1="8" y1="17" x2="16" y2="17"></line>
+              </svg>
+            </div>
+            <strong class="text-primary">Untrusted XLSM Treated as Data</strong>
+            <p class="text-sm text-muted">Uploaded macro-enabled spreadsheets are read strictly as passive tabular data streams.</p>
+          </div>
+
+          <div class="security-item">
+            <div class="security-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+              </svg>
+            </div>
+            <strong class="text-primary">No Macro Execution</strong>
+            <p class="text-sm text-muted">No VBA scripts or embedded macros are ever executed on the server during Excel &rarr; Tally processing.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Section 3: Supported Banks & Conversion Call-to-Action -->
-  <section class="section banks-cta-section">
+  <!-- ========================================================================
+       11. FINAL CALL TO ACTION (CTA)
+       ======================================================================== -->
+  <section class="section final-cta-section">
     <div class="container">
-      <div class="banks-cta-card">
-        <div class="banks-cta-glow"></div>
-        <div class="banks-cta-content">
-          <!-- Supported Bank Badges -->
-          <div class="supported-banks-strip">
-            <span class="strip-label">Supported Bank Parsers:</span>
-            <div class="strip-badges">
-              <span class="bank-pill">
-                <span class="bank-pill-dot"></span>
-                <strong>HDFC Bank</strong>
-              </span>
-              <span class="bank-pill">
-                <span class="bank-pill-dot"></span>
-                <strong>YES BANK</strong>
-              </span>
-              <span class="bank-pill">
-                <span class="bank-pill-dot"></span>
-                <strong>Axis Bank</strong>
-              </span>
-              <span class="bank-pill">
-                <span class="bank-pill-dot"></span>
-                <strong>Central Bank of India</strong>
-              </span>
-              <span class="bank-pill">
-                <span class="bank-pill-dot"></span>
-                <strong>ICICI Bank</strong>
-              </span>
-              <span class="bank-pill">
-                <span class="bank-pill-dot"></span>
-                <strong>State Bank of India</strong>
-              </span>
-              <span class="bank-pill">
-                <span class="bank-pill-dot"></span>
-                <strong>Bank of India</strong>
-              </span>
-            </div>
-          </div>
-
-          <h2 class="cta-heading">Ready to Convert Your Statement?</h2>
-          <p class="cta-subheading">
-            Upload your bank statement PDF and inspect extracted transactions immediately.
+      <div class="final-cta-card">
+        <div class="final-cta-glow" aria-hidden="true"></div>
+        <div class="final-cta-content text-center">
+          <h2 class="cta-title">Your financial documents are already structured enough to start.</h2>
+          <p class="cta-desc">
+            Start with a bank statement, review the extracted data, and move through your accounting workflow from one workspace.
           </p>
-
           <div class="cta-actions-row">
-            <a routerLink="/converter" class="btn btn-lg btn-accent" id="cta-bottom-convert-btn">
-              <span>Convert Statement Now</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <a routerLink="/converter" class="btn btn-lg btn-accent" id="final-cta-convert-btn">
+              <span>Start Converting</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                 <line x1="5" y1="12" x2="19" y2="12"></line>
                 <polyline points="12 5 19 12 12 19"></polyline>
               </svg>
             </a>
-            <a routerLink="/how-it-works" class="btn btn-lg btn-outline text-white" id="cta-bottom-how-btn">
-              <span>Explore Architecture</span>
+            <a routerLink="/excel-to-tally" class="btn btn-lg btn-outline text-white" id="final-cta-tally-btn">
+              <span>Explore Excel &rarr; Tally</span>
             </a>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -8,19 +8,37 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./signup.component.css'],
   standalone: false
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
   fullName = '';
   email = '';
   organization = '';
   password = '';
   isLoading = false;
   errorMessage: string | null = null;
+  showPassword = false;
 
   constructor(
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
+
+  ngOnInit(): void {
+    if (this.authService.isAuthenticated) {
+      this.router.navigate(['/dashboard']);
+      return;
+    }
+
+    this.authService.checkAuth().subscribe((user) => {
+      if (user) {
+        this.router.navigate(['/dashboard']);
+      }
+    });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
 
   onSignup(): void {
     if (!this.fullName || !this.email || !this.password) {
@@ -54,7 +72,7 @@ export class SignupComponent {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Registration failed. Please check your details.';
+        this.errorMessage = err.error?.detail || err.error?.message || 'Registration failed. Please check your details.';
         this.cdr.markForCheck();
       }
     });

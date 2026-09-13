@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CommonModule } from '@angular/common';
 import { ConverterComponent } from './converter.component';
 import { StatementService, StatementUploadResponse } from '../../services/statement.service';
-import { of, from, throwError } from 'rxjs';
+import { of, from, throwError, NEVER } from 'rxjs';
 import { HttpEvent, HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -22,6 +23,10 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
     getValidationSummary: ReturnType<typeof vi.fn>;
     revalidateStatement: ReturnType<typeof vi.fn>;
     exportExcel: ReturnType<typeof vi.fn>;
+    getJobStatus: ReturnType<typeof vi.fn>;
+    cancelJob: ReturnType<typeof vi.fn>;
+    retryJob: ReturnType<typeof vi.fn>;
+    unlockJob: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -36,12 +41,46 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
       correctTransaction: vi.fn(),
       getValidationSummary: vi.fn(),
       revalidateStatement: vi.fn(),
-      exportExcel: vi.fn()
+      exportExcel: vi.fn(),
+      getJobStatus: vi.fn().mockReturnValue(of({
+        jobId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        fileName: 'test.pdf',
+        status: 'Queued',
+        statusCode: 0,
+        stage: 'Queued in pool',
+        progressPercent: 10,
+        isTerminal: false,
+        requiresPassword: false
+      })),
+      cancelJob: vi.fn().mockReturnValue(of({ message: 'Cancelled', jobId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8' })),
+      retryJob: vi.fn().mockReturnValue(of({
+        jobId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        fileName: 'test.pdf',
+        status: 'Queued',
+        statusCode: 0,
+        stage: 'Re-enqueued',
+        progressPercent: 5,
+        isTerminal: false,
+        requiresPassword: false
+      })),
+      unlockJob: vi.fn().mockReturnValue(of({
+        jobId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        fileName: 'test.pdf',
+        status: 'Queued',
+        statusCode: 0,
+        stage: 'Unlocked and enqueued',
+        progressPercent: 15,
+        isTerminal: false,
+        requiresPassword: false
+      }))
     };
 
     await TestBed.configureTestingModule({
       declarations: [ConverterComponent],
-      imports: [FormsModule, RouterModule.forRoot([])],
+      imports: [CommonModule, FormsModule, RouterModule.forRoot([])],
       providers: [
         { provide: StatementService, useValue: mockStatementService }
       ]
@@ -49,6 +88,7 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
   });
 
   beforeEach(() => {
+    sessionStorage.clear();
     fixture = TestBed.createComponent(ConverterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -95,15 +135,15 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
     expect(component.uploadError).toContain('The selected file is empty');
   });
 
-  it('should reject a file larger than 50MB and set state to ERROR', () => {
-    const oversizedFile = new File(['data'], 'giant.pdf', { type: 'application/pdf' });
-    Object.defineProperty(oversizedFile, 'size', { value: 55 * 1024 * 1024 });
+  it('should not reject a file larger than 50MB with a client-side limit', () => {
+    const largeFile = new File(['data'], 'large_statement.pdf', { type: 'application/pdf' });
+    Object.defineProperty(largeFile, 'size', { value: 55 * 1024 * 1024 });
 
-    component.handleFileSelection(oversizedFile);
+    component.handleFileSelection(largeFile);
 
-    expect(component.uploadState).toBe('ERROR');
-    expect(component.selectedFile).toBeNull();
-    expect(component.uploadError).toContain('larger than the allowed upload size');
+    expect(component.uploadState).toBe('FILE_SELECTED');
+    expect(component.selectedFile).toBe(largeFile);
+    expect(component.uploadError).toBeNull();
   });
 
   it('should transition to UPLOADING and then UPLOADED on successful server upload', () => {
@@ -269,7 +309,47 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
     expect(component.currentStep).toBe(2);
   });
 
-  it('should handle PasswordProtected status properly', () => {
+  it('should verify Statement Options, Bank Layout dropdown, and permanent password input are completely removed', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    // Statement Options card must be completely absent
+    expect(compiled.querySelector('.upload-options-card')).toBeNull();
+    expect(compiled.querySelector('#bankSelect')).toBeNull();
+    expect(compiled.querySelector('#pdfPassword')).toBeNull();
+    expect(compiled.textContent).not.toContain('Statement Options');
+    expect(compiled.textContent).not.toContain('CONFIG');
+    expect(compiled.textContent).not.toContain('Bank Layout Detection');
+    expect(compiled.textContent).not.toContain('Standard Visual Bank Layout');
+    expect(compiled.textContent).not.toContain('Engine Architecture');
+    expect(compiled.textContent).not.toContain('ClosedXML OpenXML (.xlsx)');
+  });
+
+  it('should process unencrypted PDF automatically without showing password modal', () => {
+    component.uploadResult = {
+      fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8'
+    } as any;
+
+    const mockExtractionResult = {
+      fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+      pageCount: 2,
+      extractionStatus: 'DigitalTextExtracted',
+      hasUsableText: true,
+      pages: []
+    };
+
+    mockStatementService.extractStatement.mockReturnValue(of(mockExtractionResult));
+
+    component.triggerExtraction();
+    fixture.detectChanges();
+
+    expect(component.extractionState).toBe('EXTRACTED');
+    expect(component.showPasswordModal).toBe(false);
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.password-modal-backdrop')).toBeNull();
+  });
+
+  it('should pause and show professional password modal when PDF is password-protected', () => {
     component.uploadResult = {
       fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8'
     } as any;
@@ -293,9 +373,102 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
     mockStatementService.extractStatement.mockReturnValue(of(mockExtractionResult));
 
     component.triggerExtraction();
+    fixture.detectChanges();
 
     expect(component.extractionState).toBe('PASSWORD_REQUIRED');
-    expect(component.extractionError).toContain('Document is encrypted and requires a password.');
+    expect(component.showPasswordModal).toBe(true);
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const modalBackdrop = compiled.querySelector('.password-modal-backdrop');
+    expect(modalBackdrop).not.toBeNull();
+
+    const heading = compiled.querySelector('#pwdModalTitle');
+    expect(heading?.textContent?.trim()).toBe('This PDF is password protected.');
+
+    const subheading = compiled.querySelector('.password-modal-subheading');
+    expect(subheading?.textContent?.trim()).toBe('Enter the PDF password to continue.');
+
+    const passwordInput = compiled.querySelector('#modalPdfPassword') as HTMLInputElement;
+    expect(passwordInput).not.toBeNull();
+    expect(passwordInput.type).toBe('password');
+  });
+
+  it('should show clear error when incorrect password is submitted in modal and keep modal open', () => {
+    component.uploadResult = {
+      fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8'
+    } as any;
+    component.showPasswordModal = true;
+    component.modalPassword = 'wrong_password';
+
+    // Mock server returning 400 with PasswordProtected title and extensions
+    mockStatementService.extractStatement.mockReturnValue(
+      throwError(() => ({
+        status: 400,
+        error: {
+          title: 'Invalid PDF Password',
+          detail: 'Incorrect PDF password. Please try again.',
+          requiresPassword: true,
+          extractionStatus: 'PasswordProtected',
+          isIncorrectPassword: true
+        }
+      }))
+    );
+
+    component.submitPasswordModal();
+    fixture.detectChanges();
+
+    expect(component.showPasswordModal).toBe(true);
+    expect(component.passwordModalError).toBe('Incorrect PDF password. Please try again.');
+    expect(component.modalPassword).toBe(''); // Cleared for security
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const errorAlert = compiled.querySelector('.modal-error-alert');
+    expect(errorAlert?.textContent).toContain('Incorrect PDF password. Please try again.');
+  });
+
+  it('should unlock successfully with correct password, continue workflow, and clear client-side password', () => {
+    component.uploadResult = {
+      fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8'
+    } as any;
+    component.showPasswordModal = true;
+    component.modalPassword = 'correct_password_123';
+
+    const mockUnlockedResult = {
+      fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+      originalFileName: 'protected.pdf',
+      pageCount: 3,
+      extractionStatus: 'DigitalTextExtracted',
+      hasUsableText: true,
+      pages: [{ pageNumber: 1, rawText: 'Statement content' }]
+    };
+
+    mockStatementService.extractStatement.mockReturnValue(of(mockUnlockedResult));
+
+    component.submitPasswordModal();
+    fixture.detectChanges();
+
+    expect(mockStatementService.extractStatement).toHaveBeenCalledWith('9A7E688C-841D-4C64-9D0C-8B988CCD63F8', 'correct_password_123');
+    expect(component.showPasswordModal).toBe(false);
+    expect(component.extractionState).toBe('EXTRACTED');
+    expect(component.currentStep).toBe(2);
+
+    // SECURITY CHECK: Password must be completely wiped from memory
+    expect(component.modalPassword).toBe('');
+    expect(component.statementPassword).toBe('');
+    expect(component.passwordModalError).toBeNull();
+  });
+
+  it('should cancel password modal cleanly and clear state', () => {
+    component.showPasswordModal = true;
+    component.modalPassword = 'partially_typed';
+    component.passwordModalError = 'Previous error';
+
+    component.cancelPasswordModal();
+    fixture.detectChanges();
+
+    expect(component.showPasswordModal).toBe(false);
+    expect(component.modalPassword).toBe('');
+    expect(component.passwordModalError).toBeNull();
   });
 
   it('should switch inspection pages and tabs correctly', () => {
@@ -317,6 +490,91 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
     expect(component.selectedInspectionTab).toBe('rawText');
   });
 
+  it('should verify the entire page-analysis section is completely removed from Step 2 UI', () => {
+    component.currentStep = 2;
+    component.extractionResult = {
+      fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+      originalFileName: 'test_statement.pdf',
+      pageCount: 3,
+      extractionStatus: 'DigitalTextExtracted',
+      hasUsableText: true,
+      wordCount: 120,
+      characterCount: 850,
+      textBlockCount: 45,
+      candidateRowCount: 12,
+      candidateTableCount: 1,
+      durationMs: 34,
+      pages: [
+        {
+          pageNumber: 1,
+          width: 612,
+          height: 792,
+          rawText: 'Raw extracted text from page 1',
+          wordCount: 40,
+          characterCount: 280,
+          hasUsableText: true,
+          textBlocks: [],
+          candidateRows: [],
+          candidateTables: [],
+          repeatedHeaders: [],
+          repeatedFooters: []
+        }
+      ],
+      warnings: [],
+      errors: []
+    } as any;
+    component.uploadResult = { fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8' } as any;
+    mockStatementService.extractStatement.mockReturnValue(of(component.extractionResult));
+    component.triggerExtraction();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    // The overview card and actions must remain intact
+    expect(compiled.querySelector('.inspection-overview-card')).not.toBeNull();
+    expect(compiled.textContent).toContain('Document Visual Geometry Inspection');
+    expect(compiled.textContent).toContain('Back to Upload');
+    expect(compiled.textContent).toContain('Parse Transactions & Review');
+
+    // The entire page-analysis section and all its sub-elements must be completely absent from DOM
+    expect(compiled.querySelector('.inspection-detail-card')).toBeNull();
+    expect(compiled.querySelector('.page-nav-bar')).toBeNull();
+    expect(compiled.querySelector('.page-pills')).toBeNull();
+    expect(compiled.querySelector('.page-dim-badge')).toBeNull();
+    expect(compiled.querySelector('.inspection-tab-bar')).toBeNull();
+    expect(compiled.querySelector('.raw-text-toolbar')).toBeNull();
+    expect(compiled.querySelector('.raw-text-box')).toBeNull();
+    expect(compiled.querySelector('.candidate-rows-list')).toBeNull();
+    expect(compiled.querySelector('.candidate-table-card')).toBeNull();
+
+    // Specific text strings must not be rendered anywhere in this step
+    const renderedText = compiled.textContent || '';
+    expect(renderedText).not.toContain('Select Page:');
+    expect(renderedText).not.toContain('Page Overview');
+    expect(renderedText).not.toContain('Raw Page Text');
+    expect(renderedText).not.toContain('Text Blocks & Coordinates');
+    expect(renderedText).not.toContain('Page Header Diagnostics');
+    expect(renderedText).not.toContain('Page Footer Diagnostics');
+    expect(renderedText).not.toContain('Page Text Preview');
+    expect(renderedText).not.toContain('View Full Raw Text');
+    expect(renderedText).not.toContain('Raw extracted text from page 1');
+
+    // Technical processing-details badges and separators must be removed
+    expect(compiled.querySelectorAll('.meta-dot').length).toBe(0);
+    expect(renderedText).not.toContain('Duration:');
+    expect(renderedText).not.toContain('Deterministic Visual Line Grouping');
+    expect(renderedText).not.toContain('Coords: Top-Left');
+
+    // Retained elements: status badge, filename, action buttons, statistics
+    expect(renderedText).toContain('DigitalTextExtracted');
+    expect(renderedText).toContain('test_statement.pdf');
+    expect(renderedText).toContain('Pages');
+    expect(renderedText).toContain('Words');
+    expect(renderedText).toContain('Characters');
+    expect(renderedText).toContain('Text Blocks');
+    expect(renderedText).toContain('Candidate Rows');
+    expect(renderedText).toContain('Candidate Tables');
+  });
+
   it('should reset state completely when resetUpload is called', () => {
     component.selectedFile = new File(['%PDF'], 'test.pdf');
     component.uploadState = 'UPLOADED';
@@ -325,6 +583,8 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
     component.extractionState = 'EXTRACTED';
     component.extractionResult = { pageCount: 1 } as any;
     component.statementPassword = 'secret';
+    component.showPasswordModal = true;
+    component.modalPassword = 'secret_modal';
 
     component.resetUpload();
 
@@ -336,6 +596,9 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
     expect(component.extractionState).toBe('IDLE');
     expect(component.extractionResult).toBeNull();
     expect(component.statementPassword).toBe('');
+    expect(component.showPasswordModal).toBe(false);
+    expect(component.modalPassword).toBe('');
+    expect(component.passwordModalError).toBeNull();
     expect(component.selectedPageNumber).toBe(1);
     expect(component.parseState).toBe('IDLE');
     expect(component.parseResult).toBeNull();
@@ -570,5 +833,274 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
 
     expect(component.isExportingExcel).toBe(false);
     expect(component.exportError).toBe('Server failed to generate spreadsheet.');
+  });
+
+  // =========================================================================
+  // Phase 8: Workflow Stepper & Contextual State Tests
+  // =========================================================================
+  it('should accurately compute 5-stage stepper statuses across pipeline states', () => {
+    // Initial IDLE state
+    expect(component.step1Status).toBe('active');
+    expect(component.step2Status).toBe('pending');
+    expect(component.step3Status).toBe('pending');
+    expect(component.step4Status).toBe('pending');
+    expect(component.step5Status).toBe('pending');
+
+    // Upload error state
+    component.uploadState = 'ERROR';
+    expect(component.step1Status).toBe('error');
+
+    // Uploaded state
+    component.uploadState = 'UPLOADED';
+    component.uploadResult = { fileId: 'FILE-STEP-TEST' } as any;
+    expect(component.step1Status).toBe('completed');
+    expect(component.step2Status).toBe('active');
+
+    // Processing / Extraction state
+    component.extractionState = 'EXTRACTING';
+    expect(component.step2Status).toBe('active');
+
+    // Extraction error
+    component.extractionState = 'ERROR';
+    expect(component.step2Status).toBe('error');
+
+    // Parsed state with clean validation
+    component.extractionState = 'EXTRACTED';
+    component.parseState = 'PARSED';
+    component.validationSummary = {
+      totalTransactions: 25,
+      validCount: 25,
+      reviewCount: 0,
+      invalidCount: 0,
+      correctedCount: 0,
+      bankName: 'HDFC Bank',
+      isReadyForExport: true
+    } as any;
+    component.currentStep = 3;
+
+    expect(component.step2Status).toBe('completed');
+    expect(component.step3Status).toBe('completed');
+    expect(component.step4Status).toBe('active');
+    expect(component.step5Status).toBe('pending');
+    expect(component.isExportBlocked).toBe(false);
+    expect(component.validationHealthStatus).toBe('ready');
+    expect(component.detectedBankName).toBe('HDFC Bank');
+    expect(component.totalTransactionCount).toBe(25);
+
+    // Validation with invalid transactions (blocking export)
+    component.validationSummary!.invalidCount = 2;
+    component.validationSummary!.isReadyForExport = false;
+    expect(component.step3Status).toBe('error');
+    expect(component.step4Status).toBe('error');
+    expect(component.step5Status).toBe('error');
+    expect(component.isExportBlocked).toBe(true);
+    expect(component.validationHealthStatus).toBe('blocked');
+
+    // Excel exported successfully
+    component.validationSummary!.invalidCount = 0;
+    component.successNotice = 'Excel workbook exported successfully.';
+    expect(component.step5Status).toBe('completed');
+  });
+
+  it('should navigate with onStepperClick only when stage prerequisites are satisfied', () => {
+    // In IDLE: only step 1 is accessible
+    component.currentStep = 1;
+    component.onStepperClick(2);
+    expect(component.currentStep).toBe(1);
+    component.onStepperClick(3);
+    expect(component.currentStep).toBe(1);
+    component.onStepperClick(5);
+    expect(component.currentStep).toBe(1);
+
+    // When file uploaded: step 2 becomes accessible
+    component.uploadResult = { fileId: 'TEST-FILE' } as any;
+    component.onStepperClick(2);
+    expect(component.currentStep).toBe(2);
+
+    // When transactions parsed: step 3 and 5 become accessible
+    component.parseState = 'PARSED';
+    component.reviewTransactions = [{ id: 'TXN-1' } as any];
+    component.onStepperClick(3);
+    expect(component.currentStep).toBe(3);
+
+    component.onStepperClick(5);
+    expect(component.currentStep).toBe(4);
+
+    // Can always return to step 1
+    component.onStepperClick(1);
+    expect(component.currentStep).toBe(1);
+  });
+
+  it('should verify sample review data banner and upload-information badge row are completely removed', () => {
+    component.currentStep = 1;
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.sample-test-bar')).toBeNull();
+    expect(compiled.textContent).not.toContain('Need to test the 9-column transaction ledger right away?');
+    expect(compiled.textContent).not.toContain('Load Sample Review Data');
+    expect(compiled.textContent).not.toContain('Max 50 MB');
+    expect(compiled.textContent).not.toContain('50 MB');
+
+    // Verify upload information badge row is completely removed
+    expect(compiled.querySelector('.drop-badges-row')).toBeNull();
+    expect(compiled.querySelector('.spec-pill')).toBeNull();
+    expect(compiled.textContent).not.toContain('PDF Document');
+    expect(compiled.textContent).not.toContain('In-Memory Security');
+    expect(compiled.textContent).not.toContain('SHA-256 Verified');
+
+    // Verify Choose PDF button and dropzone remain intact
+    expect(compiled.querySelector('.dropzone')).not.toBeNull();
+    expect(compiled.querySelector('.btn-file')).not.toBeNull();
+
+    expect((component as any).loadSampleData).toBeUndefined();
+    expect((component as any).sampleTransactions).toBeUndefined();
+    expect((component as any).transactions).toBeUndefined();
+  });
+
+  it('should cancel in-flight upload, unsubscribe from stream, and return state to FILE_SELECTED', () => {
+    const file = new File(['%PDF-1.4 test'], 'statement.pdf', { type: 'application/pdf' });
+    component.handleFileSelection(file);
+    mockStatementService.uploadStatement.mockReturnValue(NEVER);
+
+    component.startUpload();
+    expect(component.uploadState).toBe('UPLOADING');
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const cancelBtn = compiled.querySelector('.uploading-actions-right button');
+    expect(cancelBtn).not.toBeNull();
+
+    component.cancelUpload();
+    expect(component.uploadState).toBe('FILE_SELECTED');
+    expect(component.uploadProgress).toBe(0);
+    expect(component.selectedFile).toBe(file);
+  });
+
+  // =========================================================================
+  // Phase 6: Background Processing & Job System Tests
+  // =========================================================================
+  it('should automatically track background job when upload completes', () => {
+    const validFile = new File(['%PDF-1.4 test'], 'august_statement.pdf', { type: 'application/pdf' });
+    component.handleFileSelection(validFile);
+
+    const mockResponse: StatementUploadResponse = {
+      success: true,
+      message: 'Bank statement uploaded successfully.',
+      fileId: 'JOB-P6-TEST-1',
+      jobId: 'JOB-P6-TEST-1',
+      originalFileName: 'august_statement.pdf',
+      storedFileName: 'JOB-P6-TEST-1.pdf',
+      fileSizeBytes: 1024,
+      fileSizeFormatted: '1.00 KB',
+      contentType: 'application/pdf',
+      uploadedAt: new Date().toISOString(),
+      status: 'Queued',
+      processingStatus: 0,
+      isDuplicate: false,
+      fileHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+      clientId: 'TENANT-1',
+      financialYearId: 'FY-1'
+    };
+
+    mockStatementService.uploadStatement.mockReturnValue(of(new HttpResponse({ body: mockResponse, status: 200 })));
+    mockStatementService.getJobStatus.mockReturnValue(of({
+      jobId: 'JOB-P6-TEST-1',
+      fileId: 'JOB-P6-TEST-1',
+      fileName: 'august_statement.pdf',
+      status: 'Processing',
+      statusCode: 1,
+      stage: 'Extracting PDF layout geometry',
+      progressPercent: 35,
+      isTerminal: false,
+      requiresPassword: false
+    }));
+
+    component.startUpload();
+
+    expect(component.activeJobId).toBe('JOB-P6-TEST-1');
+    expect(mockStatementService.getJobStatus).toHaveBeenCalledWith('JOB-P6-TEST-1');
+    expect(component.jobStatus?.status).toBe('Processing');
+    expect(component.jobStatus?.stage).toBe('Extracting PDF layout geometry');
+  });
+
+  it('should cancel active job cleanly when user requests cancellation', () => {
+    component.activeJobId = 'JOB-P6-CANCEL-1';
+    component.jobStatus = {
+      jobId: 'JOB-P6-CANCEL-1',
+      fileId: 'JOB-P6-CANCEL-1',
+      fileName: 'august_statement.pdf',
+      status: 'Processing',
+      statusCode: 1,
+      stage: 'Processing PDF',
+      progressPercent: 40,
+      isTerminal: false,
+      requiresPassword: false
+    };
+
+    mockStatementService.cancelJob.mockReturnValue(of({ message: 'Cancelled', jobId: 'JOB-P6-CANCEL-1' }));
+
+    component.cancelActiveJob();
+
+    expect(mockStatementService.cancelJob).toHaveBeenCalledWith('JOB-P6-CANCEL-1');
+    expect(component.jobStatus?.status).toBe('Cancelled');
+    expect(component.jobStatus?.isTerminal).toBe(true);
+  });
+
+  it('should retry a failed job and re-enter tracking pipeline', () => {
+    component.activeJobId = 'JOB-P6-RETRY-1';
+    component.jobStatus = {
+      jobId: 'JOB-P6-RETRY-1',
+      fileId: 'JOB-P6-RETRY-1',
+      fileName: 'august_statement.pdf',
+      status: 'Failed',
+      statusCode: 3,
+      stage: 'Failed',
+      progressPercent: 100,
+      isTerminal: true,
+      requiresPassword: false,
+      errorMessage: 'Network glitch'
+    };
+
+    mockStatementService.retryJob.mockReturnValue(of({
+      jobId: 'JOB-P6-RETRY-1',
+      fileId: 'JOB-P6-RETRY-1',
+      fileName: 'august_statement.pdf',
+      status: 'Queued',
+      statusCode: 0,
+      stage: 'Re-enqueued in pool',
+      progressPercent: 5,
+      isTerminal: false,
+      requiresPassword: false
+    }));
+
+    component.retryActiveJob();
+
+    expect(mockStatementService.retryJob).toHaveBeenCalledWith('JOB-P6-RETRY-1');
+    expect(component.activeJobId).toBe('JOB-P6-RETRY-1');
+  });
+
+  it('should unlock password-protected background job and resume polling', () => {
+    component.activeJobId = 'JOB-P6-PWD-1';
+    component.modalPassword = 'SecretPassword123';
+
+    mockStatementService.unlockJob.mockReturnValue(of({
+      jobId: 'JOB-P6-PWD-1',
+      fileId: 'JOB-P6-PWD-1',
+      fileName: 'protected.pdf',
+      status: 'Queued',
+      statusCode: 0,
+      stage: 'Unlocked and enqueued for processing',
+      progressPercent: 15,
+      isTerminal: false,
+      requiresPassword: false
+    }));
+
+    component.submitPasswordModal();
+
+    expect(mockStatementService.unlockJob).toHaveBeenCalledWith('JOB-P6-PWD-1', 'SecretPassword123');
+    expect(component.showPasswordModal).toBe(false);
+    expect(component.modalPassword).toBe('');
+    expect(component.statementPassword).toBe('');
   });
 });

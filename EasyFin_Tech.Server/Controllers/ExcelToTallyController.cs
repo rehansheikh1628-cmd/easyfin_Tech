@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace EasyFin_Tech.Server.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/excel-to-tally")]
 public class ExcelToTallyController : ControllerBase
 {
@@ -132,7 +133,7 @@ public class ExcelToTallyController : ControllerBase
             return StatusCode(500, new ExcelValidationResult
             {
                 Success = false,
-                ErrorMessage = $"An error occurred processing the Excel file: {ex.Message}",
+                ErrorMessage = "An error occurred while processing the Excel file. Please verify the template structure and try again.",
                 IsReadyForXmlGeneration = false
             });
         }

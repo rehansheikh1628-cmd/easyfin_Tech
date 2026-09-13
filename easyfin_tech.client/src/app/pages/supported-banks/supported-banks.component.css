@@ -1,206 +1,876 @@
-.page-body {
-  background-color: var(--ef-bg-app);
+/* ==========================================================================
+   EasyFin Institutional Supported Banks Directory Styles (Phase 13)
+   ========================================================================== */
+
+.supported-banks-page {
+  background-color: var(--ef-canvas, #f8fafc);
+  min-height: 100vh;
+  color: var(--ef-brand-950, #0b132b);
+  font-family: inherit;
 }
 
-.page-header {
-  padding: 4.5rem 0 3rem;
-  background: linear-gradient(180deg, #ffffff 0%, var(--ef-bg-app) 100%);
-  border-bottom: 1px solid var(--ef-border);
+/* 1. Page Header */
+.banks-header {
+  padding: 3rem 0 2.5rem;
+  background: linear-gradient(180deg, #ffffff 0%, var(--ef-canvas, #f8fafc) 100%);
+  border-bottom: 1px solid var(--ef-border, #e2e8f0);
 }
 
-.page-title {
-  font-size: 2.75rem;
-  font-weight: 800;
-  color: var(--ef-primary-950);
-  margin-top: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.page-subtitle {
-  font-size: 1.1875rem;
-  color: var(--ef-text-secondary);
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.6;
-}
-
-/* Honest Banner */
-.honest-banner {
-  background-color: #ffffff;
-  border-left: 4px solid var(--ef-accent-600);
-  padding: 2rem 2.5rem;
-  margin-bottom: 3.5rem;
-}
-
-.banner-badge {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--ef-accent-700);
-  letter-spacing: 0.08em;
-  margin-bottom: 0.35rem;
-}
-
-.banner-header h2 {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--ef-primary-950);
-  margin-bottom: 0.75rem;
-}
-
-.honest-banner p {
-  font-size: 0.9375rem;
-  color: var(--ef-text-secondary);
-  line-height: 1.6;
-}
-
-/* Category Sections */
-.category-section {
-  margin-bottom: 3.5rem;
-}
-
-.cat-header {
+.header-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--ef-text-muted, #64748b);
   margin-bottom: 1.5rem;
 }
 
-.cat-header h2 {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--ef-primary-950);
-  margin-bottom: 0.375rem;
+.breadcrumb-link {
+  color: var(--ef-accent-600, #0d9488);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
 }
 
-.cat-header p {
-  font-size: 0.9375rem;
-  color: var(--ef-text-muted);
+.breadcrumb-link:hover {
+  color: var(--ef-accent-700, #0f766e);
+  text-decoration: underline;
 }
 
-.bank-cards-grid {
+.breadcrumb-sep {
+  color: var(--ef-border, #cbd5e1);
+}
+
+.breadcrumb-current {
+  color: var(--ef-text-secondary, #475569);
+  font-weight: 600;
+}
+
+.header-title-wrap {
+  max-width: 820px;
+  margin: 0 auto 2.25rem;
+}
+
+.page-title {
+  font-family: var(--ef-font-heading);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--ef-brand-950, #0b132b);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 0.75rem 0 1rem;
+}
+
+.page-subtitle {
+  font-size: 1.125rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Feature Capability Strip */
+.banks-features-strip {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.25rem;
+  background: #ffffff;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: var(--ef-radius-lg, 12px);
+  padding: 1.25rem 1.5rem;
+  max-width: 1120px;
+  margin: 0 auto;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 6px 16px -4px rgba(15, 23, 42, 0.02);
 }
 
-.bank-card {
-  padding: 1.5rem;
+.feature-strip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.feature-strip-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--ef-radius-md, 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.feature-strip-icon.icon-excel {
+  background-color: var(--ef-excel-50, #f0fdf4);
+  color: var(--ef-excel-600, #16a34a);
+  border: 1px solid var(--ef-excel-100, #dcfce7);
+}
+
+.feature-strip-icon.icon-profiles {
+  background-color: var(--ef-accent-50, #f0fdfa);
+  color: var(--ef-accent-700, #0f766e);
+  border: 1px solid var(--ef-accent-100, #ccfbf1);
+}
+
+.feature-strip-icon.icon-validated {
+  background-color: #f8fafc;
+  color: var(--ef-brand-700, #1e3a8a);
+  border: 1px solid #e2e8f0;
+}
+
+.feature-strip-icon.icon-tally {
+  background-color: var(--ef-tally-amber-bg, #fffbeb);
+  color: var(--ef-tally-amber, #d97706);
+  border: 1px solid var(--ef-tally-amber-border, #fde68a);
+}
+
+.feature-strip-text {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 1.25rem;
 }
 
-.bank-card-top {
+.feature-strip-title {
+  font-family: var(--ef-font-heading, inherit);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ef-brand-950, #0b132b);
+  line-height: 1.3;
+  margin-bottom: 0.25rem;
+}
+
+.feature-strip-desc {
+  font-size: 0.8125rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* 2. Workflow Boundary Clarification Banner */
+.workflow-boundary-section {
+  padding: 1.75rem 0 0.5rem;
+}
+
+.boundary-card {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
   display: flex;
   align-items: flex-start;
   gap: 1rem;
 }
 
-.bank-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--ef-radius-md);
-  background-color: var(--ef-bg-subtle);
-  color: var(--ef-primary-800);
+.boundary-icon-box {
+  color: var(--ef-accent-600, #0d9488);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.boundary-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #115e59;
+  margin: 0 0 0.25rem;
+}
+
+.boundary-text {
+  font-size: 0.875rem;
+  color: #134e4a;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 3. Directory Filter Toolbar */
+.directory-filter-section {
+  padding: 1.5rem 0 1rem;
+}
+
+.filter-toolbar {
+  background: #ffffff;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  box-shadow: 0 2px 4px rgba(11, 19, 43, 0.04);
+}
+
+.search-input-wrap {
+  position: relative;
+  flex: 1 1 360px;
+  min-width: 260px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ef-text-muted, #94a3b8);
+  pointer-events: none;
+}
+
+.search-field {
+  width: 100%;
+  padding-left: 2.5rem;
+  padding-right: 2.25rem;
+  height: 2.625rem;
+  font-size: 0.9375rem;
+  border-radius: 8px;
+  border: 1px solid var(--ef-border, #cbd5e1);
+  background-color: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.search-field:focus {
+  outline: none;
+  border-color: var(--ef-accent-600, #0d9488);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--ef-text-muted, #94a3b8);
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.clear-search-btn:hover {
+  color: var(--ef-brand-950, #0b132b);
+}
+
+/* Category Pills */
+.category-pills-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.category-pill {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 20px;
+  border: 1px solid var(--ef-border, #cbd5e1);
+  background: #ffffff;
+  color: var(--ef-text-secondary, #475569);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+}
+
+.category-pill:hover {
+  background: #f1f5f9;
+  color: var(--ef-brand-950, #0b132b);
+}
+
+.category-pill.active {
+  background: var(--ef-brand-950, #0b132b);
+  border-color: var(--ef-brand-950, #0b132b);
+  color: #ffffff;
+}
+
+.category-pill .pill-count {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+/* Results Meta Strip */
+.results-meta-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  padding: 0 0.5rem;
+}
+
+.results-count {
+  font-size: 0.8125rem;
+  color: var(--ef-text-muted, #64748b);
+}
+
+.results-count strong {
+  color: var(--ef-brand-950, #0b132b);
+}
+
+.reset-filters-link {
+  background: none;
+  border: none;
+  color: var(--ef-accent-600, #0d9488);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.reset-filters-link:hover {
+  color: var(--ef-accent-700, #0f766e);
+}
+
+/* 4. Banks Directory Grid */
+.banks-directory-section {
+  padding: 1.5rem 0 3rem;
+}
+
+.banks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.bank-profile-card {
+  background: #ffffff;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 6px rgba(11, 19, 43, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.bank-profile-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(11, 19, 43, 0.08);
+  border-color: #cbd5e1;
+}
+
+.bank-header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.bank-avatar-badge {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: -0.02em;
+  border: 1px solid;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.bank-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.bank-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.bank-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ef-brand-950, #0b132b);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.category-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: var(--ef-text-secondary, #475569);
+  white-space: nowrap;
+}
+
+.badge-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 12px;
+}
+
+.status-supported {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10b981;
+}
+
+.pdf-type-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background: #f8fafc;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  color: var(--ef-text-secondary, #475569);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.parser-code-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: var(--ef-accent-700, #0f766e);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+}
+
+/* Statement Scope */
+.statement-scope-box {
+  background: #f8fafc;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 6px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.8125rem;
+  margin-bottom: 0.875rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.scope-label {
+  color: var(--ef-text-muted, #64748b);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.scope-value {
+  color: var(--ef-brand-950, #0b132b);
+}
+
+.bank-description {
+  font-size: 0.875rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.5;
+  margin: 0 0 1rem;
+}
+
+/* Features */
+.bank-features-box {
+  margin-bottom: 1rem;
+}
+
+.section-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ef-text-muted, #64748b);
+  margin: 0 0 0.5rem;
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--ef-brand-950, #0b132b);
+}
+
+.feature-check {
+  color: var(--ef-success, #16a34a);
+  flex-shrink: 0;
+}
+
+/* Validated Formats */
+.validated-formats-box {
+  background: #f8fafc;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.formats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.format-entry {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--ef-border, #e2e8f0);
+}
+
+.format-entry:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.format-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.format-code {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: var(--ef-brand-950, #0b132b);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.format-name {
+  font-size: 0.8125rem;
+  color: var(--ef-brand-950, #0b132b);
+}
+
+.format-details {
+  font-size: 0.75rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Limitations / Unvalidated Notice */
+.limitations-notice {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 0.625rem 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #92400e;
+  line-height: 1.45;
+  margin-top: auto;
+}
+
+.limitations-icon {
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.limitations-text {
+  flex: 1;
+}
+
+/* 5. Search Empty State */
+.search-empty-state {
+  text-align: center;
+  padding: 3.5rem 2rem;
+  background: #ffffff;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.empty-icon-circle {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: var(--ef-text-muted, #94a3b8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+
+.search-empty-state h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ef-brand-950, #0b132b);
+  margin: 0 0 0.5rem;
+}
+
+.search-empty-state p {
+  font-size: 0.9375rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+/* 6. Technical Advisory Section */
+.advisory-section {
+  padding: 1.5rem 0 3rem;
+}
+
+.advisory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.advisory-card {
+  background: #ffffff;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 1.75rem;
+  box-shadow: 0 2px 6px rgba(11, 19, 43, 0.04);
+}
+
+.advisory-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.advisory-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid var(--ef-border);
 }
 
-.bank-title-area h3 {
+.advisory-icon.bg-amber {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.advisory-icon.bg-teal {
+  background: #f0fdfa;
+  color: var(--ef-accent-600, #0d9488);
+  border: 1px solid #99f6e4;
+}
+
+.advisory-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--ef-brand-950, #0b132b);
+  margin: 0 0 0.25rem;
+}
+
+.advisory-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.advisory-text {
+  font-size: 0.875rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.6;
+  margin: 0 0 1rem;
+}
+
+.advisory-callout {
+  background: #fffbeb;
+  border-left: 3px solid #d97706;
+  padding: 0.75rem 1rem;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.8125rem;
+  color: #92400e;
+  line-height: 1.5;
+  margin-bottom: 0.875rem;
+}
+
+.quick-check-tip {
+  font-size: 0.8125rem;
+  color: var(--ef-brand-950, #0b132b);
+  background: #f8fafc;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  padding: 0.625rem 0.875rem;
+  border-radius: 6px;
+  line-height: 1.45;
+}
+
+.variation-guidelines {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.variation-guidelines li {
+  font-size: 0.8125rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.5;
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.variation-guidelines li::before {
+  content: "•";
+  color: var(--ef-accent-600, #0d9488);
+  font-size: 1.25rem;
+  position: absolute;
+  left: 0;
+  top: -0.15rem;
+}
+
+.variation-guidelines strong {
+  color: var(--ef-brand-950, #0b132b);
+}
+
+/* 7. Converter CTA Section */
+.converter-cta-section {
+  padding: 2rem 0 5rem;
+}
+
+.cta-banner {
+  background: linear-gradient(135deg, #0b132b 0%, #1e293b 100%);
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 3.5rem 2rem;
+  color: #ffffff;
+  box-shadow: 0 12px 36px rgba(11, 19, 43, 0.16);
+}
+
+.cta-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0.5rem 0 0.875rem;
+}
+
+.cta-subtitle {
+  font-size: 1.0625rem;
+  color: #94a3b8;
+  max-width: 640px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+.cta-actions {
+  display: flex;
+  justify-content: center;
+}
+
+/* Shared UI Utilities */
+.text-teal {
+  color: var(--ef-accent-600, #0d9488) !important;
+}
+
+.text-success {
+  color: var(--ef-success, #16a34a) !important;
+}
+
+.text-warning {
+  color: #d97706 !important;
+}
+
+.btn-excel {
+  background: linear-gradient(135deg, #107c41 0%, #0b5c30 100%);
+  color: #ffffff;
+  border: 1px solid #0e6b38;
+  padding: 0.875rem 1.75rem;
   font-size: 1rem;
   font-weight: 700;
-  color: var(--ef-primary-950);
-  margin-bottom: 0.25rem;
-}
-
-.bank-note {
-  font-size: 0.75rem;
-  color: var(--ef-text-muted);
-  line-height: 1.4;
-}
-
-.bank-status-pill {
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--ef-accent-700);
-  background-color: var(--ef-accent-50);
-  padding: 0.25rem 0.6rem;
-  border-radius: var(--ef-radius-full);
-  width: fit-content;
+  gap: 0.625rem;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(16, 124, 65, 0.25);
+  transition: all 0.2s ease;
 }
 
-.status-pip {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--ef-accent-500);
+.btn-excel:hover {
+  background: linear-gradient(135deg, #0e6b38 0%, #084824 100%);
+  box-shadow: 0 6px 16px rgba(16, 124, 65, 0.35);
+  transform: translateY(-1px);
+  color: #ffffff;
 }
 
-/* Request Bank Box */
-.request-bank-box {
-  padding: 3rem;
-  background-color: #ffffff;
-  margin-top: 2rem;
-}
-
-.request-content h2 {
-  font-size: 1.75rem;
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.request-content p {
-  color: var(--ef-text-muted);
-  margin-bottom: 2rem;
-  max-width: 650px;
-}
-
-.request-form {
-  max-width: 750px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr auto;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
-}
-
-.form-hint {
-  font-size: 0.75rem;
-  color: var(--ef-text-muted);
-}
-
-.request-success-alert {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  background-color: var(--ef-success-bg);
-  border: 1px solid var(--ef-success-border);
-  color: var(--ef-text-primary);
-  padding: 1rem 1.5rem;
-  border-radius: var(--ef-radius-md);
-  font-size: 0.9375rem;
-}
-
+/* Responsive Breakpoints */
 @media (max-width: 1024px) {
-  .bank-cards-grid {
+  .banks-features-strip {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    padding: 1.25rem;
+  }
+
+  .banks-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .advisory-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .bank-cards-grid {
-    grid-template-columns: 1fr;
+  .page-title {
+    font-size: 2rem;
   }
 
-  .form-row {
+  .banks-features-strip {
     grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .filter-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .category-pills-group {
+    justify-content: flex-start;
+  }
+
+  .cta-title {
+    font-size: 1.5rem;
+  }
+
+  .cta-banner {
+    padding: 2.5rem 1.5rem;
   }
 }

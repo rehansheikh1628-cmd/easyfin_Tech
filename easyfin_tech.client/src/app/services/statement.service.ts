@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpEvent, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface StatementUploadResponse {
   success: boolean;
   message: string;
   fileId: string;
+  jobId?: string;
   originalFileName: string;
   storedFileName: string;
   fileSizeBytes: number;
@@ -19,6 +21,24 @@ export interface StatementUploadResponse {
   fileHash: string;
   clientId: string;
   financialYearId: string;
+}
+
+export interface StatementJobStatusDto {
+  jobId: string;
+  fileId: string;
+  fileName: string;
+  status: 'Queued' | 'Processing' | 'Completed' | 'Failed' | 'Cancelled' | 'RequiresPassword' | string;
+  statusCode: number;
+  stage: string;
+  progressPercent: number;
+  errorMessage?: string | null;
+  enqueuedAt?: string | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  isTerminal: boolean;
+  requiresPassword: boolean;
+  transactionCount?: number | null;
+  detectedBankName?: string | null;
 }
 
 export interface StatementSummaryDto {
@@ -148,7 +168,9 @@ export interface PdfExtractionResult {
   providedIn: 'root'
 })
 export class StatementService {
-  private readonly baseUrl = '/api/statements';
+  private readonly baseUrl = environment.apiUrl && !environment.apiUrl.includes('YOUR-PRODUCTION')
+    ? `${environment.apiUrl}/api/statements`
+    : '/api/statements';
 
   constructor(private http: HttpClient) {}
 
@@ -195,6 +217,10 @@ export class StatementService {
         console.error('Failed to download statement', err);
       }
     });
+  }
+
+  deleteStatement(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
   extractStatement(id: string, password?: string): Observable<PdfExtractionResult> {
@@ -252,6 +278,22 @@ export class StatementService {
     return this.http.get(`${this.baseUrl}/${id}/export/excel`, {
       responseType: 'blob'
     });
+  }
+
+  getJobStatus(fileId: string): Observable<StatementJobStatusDto> {
+    return this.http.get<StatementJobStatusDto>(`${this.baseUrl}/${fileId}/job-status`);
+  }
+
+  cancelJob(fileId: string): Observable<{ message: string; jobId: string }> {
+    return this.http.post<{ message: string; jobId: string }>(`${this.baseUrl}/${fileId}/cancel`, {});
+  }
+
+  retryJob(fileId: string): Observable<StatementJobStatusDto> {
+    return this.http.post<StatementJobStatusDto>(`${this.baseUrl}/${fileId}/retry`, {});
+  }
+
+  unlockJob(fileId: string, password: string): Observable<StatementJobStatusDto> {
+    return this.http.post<StatementJobStatusDto>(`${this.baseUrl}/${fileId}/unlock`, { password });
   }
 
   formatBytes(bytes: number): string {

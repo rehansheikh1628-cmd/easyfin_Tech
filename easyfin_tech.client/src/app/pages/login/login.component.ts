@@ -14,6 +14,8 @@ export class LoginComponent implements OnInit {
   rememberMe = true;
   isLoading = false;
   errorMessage: string | null = null;
+  showPassword = false;
+  showForgotNotice = false;
   private returnUrl = '/dashboard';
 
   constructor(
@@ -28,7 +30,23 @@ export class LoginComponent implements OnInit {
     // If already authenticated, redirect straight to returnUrl
     if (this.authService.isAuthenticated) {
       this.router.navigateByUrl(this.returnUrl);
+      return;
     }
+
+    // Verify session on cold load
+    this.authService.checkAuth().subscribe((user) => {
+      if (user) {
+        this.router.navigateByUrl(this.returnUrl);
+      }
+    });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleForgotNotice(): void {
+    this.showForgotNotice = !this.showForgotNotice;
   }
 
   onLogin(): void {

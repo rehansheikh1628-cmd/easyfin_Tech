@@ -17,7 +17,7 @@ describe('DashboardComponent (Phase 7 / Step 1)', () => {
   const sampleSummary: DashboardSummary = {
     status: 'Online / Connected',
     database: 'EasyFin_Tech',
-    server: 'localhost\\SQLEXPRESS',
+    server: 'SQL Server Connected',
     canConnect: true,
     totalStatements: 4,
     completedStatements: 2,
@@ -158,7 +158,7 @@ describe('DashboardComponent (Phase 7 / Step 1)', () => {
     const emptySummary: DashboardSummary = {
       status: 'Online / Connected',
       database: 'EasyFin_Tech',
-      server: 'localhost\\SQLEXPRESS',
+      server: 'SQL Server Connected',
       canConnect: true,
       totalStatements: 0,
       completedStatements: 0,
@@ -216,5 +216,19 @@ describe('DashboardComponent (Phase 7 / Step 1)', () => {
       item.id,
       item.originalFileName
     );
+  });
+
+  it('7. should ensure System Connectivity widget and its details are completely absent from DOM', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.querySelector('.system-status-widget')).toBeNull();
+    expect(compiled.querySelector('.status-box-header')).toBeNull();
+    expect(compiled.querySelector('.db-live-pip')).toBeNull();
+
+    const text = compiled.textContent || '';
+    expect(text).not.toContain('System Connectivity');
+    expect(text).not.toContain('Service:');
+    expect(text).not.toContain('Data Connected');
   });
 });

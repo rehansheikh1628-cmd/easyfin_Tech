@@ -662,6 +662,28 @@ public class TransactionValidationTests : IClassFixture<CustomWebApplicationFact
         return (client, auth);
     }
 
+    /// <summary>
+    /// Waits for the background worker to finish processing a statement.
+    /// This prevents race conditions between explicit /parse calls and the background worker.
+    /// </summary>
+    private async Task<StatementJobStatusDto?> WaitForProcessingAsync(HttpClient client, Guid fileId, int timeoutSeconds = 15)
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(timeoutSeconds);
+        StatementJobStatusDto? lastStatus = null;
+        while (DateTime.UtcNow < deadline)
+        {
+            var statusResp = await client.GetAsync($"/api/statements/{fileId}/job-status");
+            if (statusResp.IsSuccessStatusCode)
+            {
+                lastStatus = await statusResp.Content.ReadFromJsonAsync<StatementJobStatusDto>(JsonOptions);
+                if (lastStatus != null && lastStatus.IsTerminal)
+                    return lastStatus;
+            }
+            await Task.Delay(200);
+        }
+        return lastStatus;
+    }
+
     [Fact]
     public async Task Test26_ParseAndVerifyPristineSnapshotCreated()
     {
@@ -677,9 +699,8 @@ public class TransactionValidationTests : IClassFixture<CustomWebApplicationFact
         Assert.NotNull(uploadResult);
         var fileId = uploadResult.FileId;
 
-        // Parse statement
-        var parseResp = await client.PostAsync($"/api/statements/{fileId}/parse", null);
-        Assert.True(parseResp.IsSuccessStatusCode);
+        // Wait for background worker to finish processing
+        var jobStatus = await WaitForProcessingAsync(client, fileId);
 
         // Fetch transactions
         var txResp = await client.GetAsync($"/api/statements/{fileId}/transactions");
@@ -708,7 +729,8 @@ public class TransactionValidationTests : IClassFixture<CustomWebApplicationFact
         var uploadResult = await uploadResp.Content.ReadFromJsonAsync<StatementUploadResponse>(JsonOptions);
         var fileId = uploadResult!.FileId;
 
-        await client.PostAsync($"/api/statements/{fileId}/parse", null);
+        // Wait for background worker to finish processing
+        await WaitForProcessingAsync(client, fileId);
 
         var txResp = await client.GetAsync($"/api/statements/{fileId}/transactions");
         var statementResult = await txResp.Content.ReadFromJsonAsync<StatementTransactionsResponse>(JsonOptions);
@@ -730,7 +752,8 @@ public class TransactionValidationTests : IClassFixture<CustomWebApplicationFact
         };
 
         var putResp = await client.PutAsJsonAsync($"/api/statements/{fileId}/transactions/{targetTx.Id}", correctionRequest);
-        Assert.True(putResp.IsSuccessStatusCode);
+        var putBody = await putResp.Content.ReadAsStringAsync();
+        Assert.True(putResp.IsSuccessStatusCode, $"PUT correction failed with {putResp.StatusCode}: {putBody}");
 
         var updatedTx = await putResp.Content.ReadFromJsonAsync<TransactionReviewDto>(JsonOptions);
         Assert.NotNull(updatedTx);
@@ -766,7 +789,8 @@ public class TransactionValidationTests : IClassFixture<CustomWebApplicationFact
         var uploadResult = await uploadResp.Content.ReadFromJsonAsync<StatementUploadResponse>(JsonOptions);
         var fileId = uploadResult!.FileId;
 
-        await client.PostAsync($"/api/statements/{fileId}/parse", null);
+        // Wait for background worker to finish processing
+        await WaitForProcessingAsync(client, fileId);
 
         var txResp = await client.GetAsync($"/api/statements/{fileId}/transactions");
         var statementResult = await txResp.Content.ReadFromJsonAsync<StatementTransactionsResponse>(JsonOptions);
@@ -785,7 +809,8 @@ public class TransactionValidationTests : IClassFixture<CustomWebApplicationFact
             Reason = "First correction: narration fix"
         };
         var resp1 = await client.PutAsJsonAsync($"/api/statements/{fileId}/transactions/{targetTx.Id}", req1);
-        Assert.True(resp1.IsSuccessStatusCode);
+        var resp1Body = await resp1.Content.ReadAsStringAsync();
+        Assert.True(resp1.IsSuccessStatusCode, $"PUT correction 1 failed with {resp1.StatusCode}: {resp1Body}");
 
         // Correction 2: Update reference
         var req2 = new CorrectTransactionRequest
@@ -827,7 +852,8 @@ public class TransactionValidationTests : IClassFixture<CustomWebApplicationFact
         var uploadResult = await uploadResp.Content.ReadFromJsonAsync<StatementUploadResponse>(JsonOptions);
         var fileId = uploadResult!.FileId;
 
-        await client.PostAsync($"/api/statements/{fileId}/parse", null);
+        // Wait for background worker to finish processing
+        await WaitForProcessingAsync(client, fileId);
 
         var txResp = await client.GetAsync($"/api/statements/{fileId}/transactions");
         var statementResult = await txResp.Content.ReadFromJsonAsync<StatementTransactionsResponse>(JsonOptions);
@@ -871,7 +897,8 @@ public class TransactionValidationTests : IClassFixture<CustomWebApplicationFact
         var uploadResult = await uploadResp.Content.ReadFromJsonAsync<StatementUploadResponse>(JsonOptions);
         var fileIdA = uploadResult!.FileId;
 
-        await clientA.PostAsync($"/api/statements/{fileIdA}/parse", null);
+        // Wait for background worker to finish processing
+        await WaitForProcessingAsync(clientA, fileIdA);
 
         // User B attempts to get transactions of User A
         var crossResp = await clientB.GetAsync($"/api/statements/{fileIdA}/transactions");
@@ -894,7 +921,8 @@ public class TransactionValidationTests : IClassFixture<CustomWebApplicationFact
         var uploadResult = await uploadResp.Content.ReadFromJsonAsync<StatementUploadResponse>(JsonOptions);
         var fileIdA = uploadResult!.FileId;
 
-        await clientA.PostAsync($"/api/statements/{fileIdA}/parse", null);
+        // Wait for background worker to finish processing
+        await WaitForProcessingAsync(clientA, fileIdA);
 
         var txResp = await clientA.GetAsync($"/api/statements/{fileIdA}/transactions");
         var statementResult = await txResp.Content.ReadFromJsonAsync<StatementTransactionsResponse>(JsonOptions);
@@ -925,7 +953,8 @@ public class TransactionValidationTests : IClassFixture<CustomWebApplicationFact
         var uploadResult = await uploadResp.Content.ReadFromJsonAsync<StatementUploadResponse>(JsonOptions);
         var fileId = uploadResult!.FileId;
 
-        await client.PostAsync($"/api/statements/{fileId}/parse", null);
+        // Wait for background worker to finish processing
+        await WaitForProcessingAsync(client, fileId);
 
         // Filter by type=debit
         var debitResp = await client.GetAsync($"/api/statements/{fileId}/transactions?type=debit");
