@@ -22,7 +22,7 @@ describe('App', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have title EasyFin Tech', () => {
-    expect(component.title).toEqual('EasyFin Tech');
+  it('should have title CompactFin Tech', () => {
+    expect(component.title).toEqual('CompactFin Tech');
   });
 });

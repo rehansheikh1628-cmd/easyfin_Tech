@@ -2,6 +2,10 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://easyfintechserver20260916025433-enhwcrhaa5dcacba.westus3-01.azurewebsites.net/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

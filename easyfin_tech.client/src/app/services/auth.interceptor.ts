@@ -12,23 +12,55 @@ import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private router: Router) {}
 
-  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    const cloned = request.clone({
+  constructor(
+    private router: Router
+  ) {}
+
+  intercept(
+    request: HttpRequest<unknown>,
+    next: HttpHandler
+  ): Observable<HttpEvent<unknown>> {
+
+    const clonedRequest = request.clone({
       withCredentials: true
     });
 
-    return next.handle(cloned).pipe(
+    return next.handle(clonedRequest).pipe(
       catchError((error: HttpErrorResponse) => {
+
         if (error.status === 401) {
+
           const url = request.url.toLowerCase();
-          if (!url.includes('/api/auth/login') && !url.includes('/api/auth/me') && !url.includes('/api/auth/register')) {
-            this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+
+          const isLoginRequest =
+            url.includes('/api/auth/login');
+
+          const isMeRequest =
+            url.includes('/api/auth/me');
+
+          const isRegisterRequest =
+            url.includes('/api/auth/register');
+
+          if (
+            !isLoginRequest &&
+            !isMeRequest &&
+            !isRegisterRequest
+          ) {
+            this.router.navigate(
+              ['/login'],
+              {
+                queryParams: {
+                  returnUrl: this.router.url
+                }
+              }
+            );
           }
         }
+
         return throwError(() => error);
       })
     );
   }
 }
+
