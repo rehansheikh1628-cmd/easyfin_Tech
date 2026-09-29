@@ -1,15 +1,15 @@
 <#
 ================================================================================
- EasyFin Tech — IIS Production Deployment & Configuration Script
+ ACCUFEX — IIS Production Deployment & Configuration Script
  Run in an Elevated PowerShell Prompt (Run as Administrator)
 ================================================================================
 #>
 
 [CmdletBinding()]
 param (
-    [string]$SiteName = "EasyFinTech",
-    [string]$AppPoolName = "EasyFinTechPool",
-    [string]$PhysicalPath = "C:\inetpub\easyfin-tech",
+    [string]$SiteName = "Accufex",
+    [string]$AppPoolName = "AccufexPool",
+    [string]$PhysicalPath = "C:\inetpub\accufex",
     [string]$DomainName = "localhost",
     [int]$HttpPort = 80,
     [int]$HttpsPort = 443,
@@ -19,7 +19,7 @@ param (
 $ErrorActionPreference = "Stop"
 
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host " EasyFin Tech — Production IIS Deployment & Setup Tool" -ForegroundColor Cyan
+Write-Host " ACCUFEX — Production IIS Deployment & Setup Tool" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
 # 1. Administrator Check

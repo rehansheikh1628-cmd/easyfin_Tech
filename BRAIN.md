@@ -1,14 +1,14 @@
-# EasyFin_Tech — Project Brain
+# ACCUFEX — Project Brain
 *Persistent Project Context, Architecture Map & AI Working Memory*
 
 > **AUTHORITY NOTICE**:  
-> `BRAIN.md` is the persistent context layer for EasyFin_Tech. It documents verified architecture, locked components, technology versions, design decisions, and project rules. It must **not** replace source code or invent unverified features. If source code and `BRAIN.md` diverge, verified source code is authoritative; update `BRAIN.md` accordingly.
+> `BRAIN.md` is the persistent context layer for ACCUFEX. It documents verified architecture, locked components, technology versions, design decisions, and project rules. It must **not** replace source code or invent unverified features. If source code and `BRAIN.md` diverge, verified source code is authoritative; update `BRAIN.md` accordingly.
 
 ---
 
 ## 1. Project Overview
 
-- **Project Name**: `EasyFin_Tech`
+- **Project Name**: `ACCUFEX`
 - **Primary Product**: Bank Statement PDF → Excel Financial Normalizer & Converter
 - **Core Principle**: **Accuracy > Feature Count** (Zero financial hallucinations, verifiable mathematical continuity, complete auditability).
 - **Core Workflow Pipeline**:
@@ -44,17 +44,17 @@
 ## 3. Solution Structure
 
 ```
-EasyFin_Tech/
-├── EasyFin_Tech.slnx                     # Solution descriptor (.NET 10 SLNX format)
+ACCUFEX/
+├── Accufex.slnx                          # Solution descriptor (.NET 10 SLNX format)
 ├── BRAIN.md                              # Persistent project memory & architecture context
 │
-├── EasyFin_Tech.Server/                  # ASP.NET Core Web API Backend
+├── Accufex.Server/                       # ASP.NET Core Web API Backend
 │   ├── Controllers/                      # REST API Endpoints
 │   │   ├── AuthController.cs             # Registration, Login, Logout, Session state
 │   │   ├── DashboardController.cs        # User dashboard metrics & client summary
 │   │   └── StatementsController.cs       # Upload, Extraction, Parse, Review, Correct, Validate
 │   ├── Data/
-│   │   └── EasyFinDbContext.cs           # EF Core DbContext (SQL Server source of truth)
+│   │   └── AccufexDbContext.cs           # EF Core DbContext (SQL Server source of truth)
 │   ├── Models/                           # Database Entities (User, Client, FileRecord, etc.)
 │   ├── DTOs/                             # Request/Response Data Transfer Objects
 │   ├── Parsing/                          # Multi-Bank Parsing Subsystem
@@ -64,7 +64,7 @@ EasyFin_Tech/
 │   │   ├── BankParsingService.cs         # Pipeline coordinator (Extract -> Parse -> Snapshot -> Persist)
 │   │   ├── Interfaces/                   # Parser contracts (IBankStatementParser, etc.)
 │   │   ├── Models/                       # ParsedTransaction, BankParsingResult
-│   │   └── Parsers/                      # Concrete Bank Parsers (HDFC-v1, YES-v1, AXIS-v1)
+│   │   └── Parsers/                      # Concrete Bank Parsers (HDFC, YES, AXIS, ICICI, SBI, etc.)
 │   ├── Validation/                       # Transaction Validation & Sidecar Audit Subsystem
 │   │   ├── Models/                       # ValidationStatus, OriginalTransactionSnapshot, Sidecar
 │   │   └── Services/                     # TransactionValidationService, TransactionCorrectionStore
@@ -80,7 +80,7 @@ EasyFin_Tech/
 │   ├── Options/                          # Strongly typed options (FileUploadOptions)
 │   └── Program.cs                        # Application bootstrap, auth cookie, pipeline setup
 │
-├── easyfin_tech.client/                  # Angular Single Page Application
+├── accufex.client/                       # Angular Single Page Application
 │   ├── src/app/
 │   │   ├── pages/                        # Feature workspaces
 │   │   │   ├── converter/                # Primary 3-step statement converter & review UI
@@ -94,13 +94,13 @@ EasyFin_Tech/
 │   │   └── guards/                       # Route protection (auth guard)
 │   └── package.json                      # Angular dependencies & script runner
 │
-└── EasyFin_Tech.Server.Tests/            # Comprehensive Automated Test Suite
-    ├── AxisParserTests.cs                # 35 Axis Bank unit & fixture tests
-    ├── HdfcParserTests.cs                # 32 HDFC Bank unit & fixture tests
-    ├── YesBankParserTests.cs             # 30 YES BANK unit & fixture tests
-    ├── TransactionValidationTests.cs     # 27 Phase 5 validation & correction tests
-    ├── ExcelExportTests.cs               # 24 Phase 6 Excel generation & IDOR tests
-    ├── SecurityTests.cs                  # 16 Authorization & IDOR prevention tests
+└── Accufex.Server.Tests/                 # Comprehensive Automated Test Suite
+    ├── AxisParserTests.cs                # Axis Bank unit & fixture tests
+    ├── HdfcParserTests.cs                # HDFC Bank unit & fixture tests
+    ├── YesBankParserTests.cs             # YES BANK unit & fixture tests
+    ├── TransactionValidationTests.cs     # Phase 5 validation & correction tests
+    ├── ExcelExportTests.cs               # Phase 6 Excel generation & IDOR tests
+    ├── ProductionSecurityTests.cs        # Authorization & IDOR prevention tests
     ├── PdfExtractionTests.cs             # Geometry, text blocks & table detection tests
     └── StatementIngestionTests.cs        # Upload, hashing & file storage tests
 ```

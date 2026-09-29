@@ -1,0 +1,550 @@
+/* ==========================================================================
+   ACCUFEX Features Page Styles (Phase 14)
+   ========================================================================== */
+
+.features-page {
+  background-color: var(--ef-canvas, #f8fafc);
+  min-height: 100vh;
+  color: var(--ef-brand-950, #0b132b);
+  font-family: inherit;
+}
+
+/* 1. Hero */
+.features-hero {
+  padding: 3.5rem 0 3rem;
+  background: linear-gradient(180deg, #ffffff 0%, var(--ef-canvas, #f8fafc) 100%);
+  border-bottom: 1px solid var(--ef-border, #e2e8f0);
+}
+
+.header-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--ef-text-muted, #64748b);
+  margin-bottom: 1.5rem;
+}
+
+.breadcrumb-link {
+  color: var(--ef-accent-600, #0d9488);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-sep {
+  color: var(--ef-border, #cbd5e1);
+}
+
+.breadcrumb-current {
+  color: var(--ef-text-secondary, #475569);
+  font-weight: 600;
+}
+
+.hero-content {
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-family: var(--ef-font-heading);
+  font-size: 2.75rem;
+  font-weight: 700;
+  color: var(--ef-brand-950, #0b132b);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 0.75rem 0 1rem;
+}
+
+.page-subtitle {
+  font-size: 1.1875rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.6;
+  margin: 0 0 2rem;
+}
+
+/* Quick Workflow Anchor Pills */
+.workflow-anchors-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.anchor-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #ffffff;
+  border: 1px solid var(--ef-border, #cbd5e1);
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ef-text-secondary, #475569);
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(11, 19, 43, 0.04);
+  transition: all 0.15s ease;
+}
+
+.anchor-pill:hover {
+  border-color: var(--ef-accent-600, #0d9488);
+  color: var(--ef-brand-950, #0b132b);
+  transform: translateY(-1px);
+}
+
+.pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.bg-teal { background-color: var(--ef-accent-600, #0d9488); }
+.bg-amber { background-color: #d97706; }
+.bg-green { background-color: #16a34a; }
+.bg-navy { background-color: #0b132b; }
+.bg-muted { background-color: #94a3b8; }
+
+/* 2. Core Workflow Block Cards */
+.feature-block-section {
+  padding: 2.5rem 0;
+}
+
+.feature-block-card {
+  background: #ffffff;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 16px rgba(11, 19, 43, 0.04);
+}
+
+.feature-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.badge-outline {
+  background: transparent;
+  border: 1px solid var(--ef-border, #cbd5e1);
+  color: var(--ef-text-muted, #64748b);
+}
+
+.feature-grid-2col {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.feature-grid-2col.reverse-on-desktop {
+  grid-template-columns: 0.8fr 1.2fr;
+}
+
+.feature-heading {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--ef-brand-950, #0b132b);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin: 0 0 1rem;
+}
+
+.feature-lead {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--ef-brand-950, #0b132b);
+  line-height: 1.5;
+  margin: 0 0 0.875rem;
+}
+
+.feature-body {
+  font-size: 0.9375rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+.feature-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.feature-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.5;
+}
+
+.check-icon {
+  color: var(--ef-accent-600, #0d9488);
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.feature-checklist strong {
+  color: var(--ef-brand-950, #0b132b);
+}
+
+.feature-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Workflow Visual Diagram Box */
+.feature-diagram-box {
+  background: #f8fafc;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.diagram-header {
+  border-bottom: 1px solid var(--ef-border, #e2e8f0);
+  padding-bottom: 0.75rem;
+}
+
+.diagram-title {
+  color: var(--ef-text-muted, #64748b);
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.pipeline-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.pipeline-node {
+  background: #ffffff;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  box-shadow: 0 1px 3px rgba(11, 19, 43, 0.03);
+}
+
+.node-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.node-info {
+  flex: 1;
+}
+
+.node-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ef-brand-950, #0b132b);
+  margin-bottom: 0.15rem;
+}
+
+.node-desc {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ef-text-muted, #64748b);
+}
+
+.pipeline-arrow {
+  text-align: center;
+  color: var(--ef-text-muted, #94a3b8);
+  font-size: 1.125rem;
+  line-height: 0.5;
+}
+
+/* Digital PDF Advisory Note */
+.digital-notice-callout {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 0.75rem 0.875rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.75rem;
+  color: #92400e;
+  line-height: 1.45;
+}
+
+.digital-notice-callout svg {
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* 4. Deep-Dive Capabilities Grid */
+.deep-dive-section {
+  padding: 3.5rem 0;
+}
+
+.section-title-wrap {
+  max-width: 680px;
+  margin: 0 auto 3rem;
+}
+
+.section-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--ef-brand-950, #0b132b);
+  letter-spacing: -0.02em;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.section-subtitle {
+  font-size: 1.0625rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.capabilities-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.capability-card {
+  background: #ffffff;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(11, 19, 43, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.capability-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(11, 19, 43, 0.08);
+}
+
+.cap-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 8px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.capability-card h3 {
+  font-size: 1.1875rem;
+  font-weight: 700;
+  color: var(--ef-brand-950, #0b132b);
+  margin: 0 0 0.75rem;
+}
+
+.capability-card p {
+  font-size: 0.875rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.55;
+  margin: 0 0 1rem;
+}
+
+.math-formula-box {
+  background: #f8fafc;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 6px;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ef-accent-700, #0f766e);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.cap-meta {
+  font-size: 0.8125rem;
+  color: var(--ef-text-muted, #64748b);
+  margin: 0;
+}
+
+.cap-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.cap-checklist li {
+  font-size: 0.8125rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.45;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.cap-checklist li::before {
+  content: "•";
+  color: var(--ef-accent-600, #0d9488);
+  font-size: 1.125rem;
+  position: absolute;
+  left: 0;
+  top: -0.15rem;
+}
+
+.cap-checklist strong {
+  color: var(--ef-brand-950, #0b132b);
+}
+
+/* Coming Soon Card */
+.coming-soon-card {
+  background: #f8fafc;
+  border-style: dashed;
+}
+
+.coming-soon-badge-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.coming-soon-badge-wrap h3 {
+  margin: 0;
+}
+
+.coming-soon-text {
+  font-size: 0.875rem;
+  color: var(--ef-text-secondary, #475569);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.coming-soon-notice {
+  background: #ffffff;
+  border: 1px solid var(--ef-border, #e2e8f0);
+  border-radius: 6px;
+  padding: 0.75rem 0.875rem;
+  font-size: 0.75rem;
+  color: var(--ef-text-muted, #64748b);
+  line-height: 1.45;
+  margin-top: auto;
+}
+
+/* 5. Bottom Action CTA */
+.features-cta-section {
+  padding: 2rem 0 5rem;
+}
+
+.cta-banner {
+  background: linear-gradient(135deg, #0b132b 0%, #1e293b 100%);
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 3.5rem 2rem;
+  color: #ffffff;
+  box-shadow: 0 12px 36px rgba(11, 19, 43, 0.16);
+}
+
+.cta-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0.5rem 0 0.875rem;
+}
+
+.cta-subtitle {
+  font-size: 1.0625rem;
+  color: #94a3b8;
+  max-width: 640px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+.cta-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-excel {
+  background: linear-gradient(135deg, #107c41 0%, #0b5c30 100%);
+  color: #ffffff;
+  border: 1px solid #0e6b38;
+  padding: 0.875rem 1.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(16, 124, 65, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-excel:hover {
+  background: linear-gradient(135deg, #0e6b38 0%, #084824 100%);
+  box-shadow: 0 6px 16px rgba(16, 124, 65, 0.35);
+  transform: translateY(-1px);
+  color: #ffffff;
+}
+
+/* Responsive Adaptations */
+@media (max-width: 1024px) {
+  .feature-grid-2col,
+  .feature-grid-2col.reverse-on-desktop {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .capabilities-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .capabilities-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-title {
+    font-size: 1.5rem;
+  }
+
+  .cta-banner {
+    padding: 2.5rem 1.5rem;
+  }
+}

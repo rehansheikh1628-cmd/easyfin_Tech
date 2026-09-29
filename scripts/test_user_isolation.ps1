@@ -1,4 +1,4 @@
-# EasyFin Tech - Multi-User Data Isolation Verification Script
+# ACCUFEX - Multi-User Data Isolation Verification Script
 $ErrorActionPreference = "Stop"
 $BaseUrl = "https://localhost:5001"
 
@@ -18,13 +18,13 @@ function Record-Test([string]$name, [bool]$passed, [string]$details) {
 }
 
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host " EasyFin Tech - Multi-User Isolation Verification Suite" -ForegroundColor Cyan
+Write-Host " ACCUFEX - Multi-User Isolation Verification Suite" -ForegroundColor Cyan
 Write-Host " Target URL: $BaseUrl" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
 try {
     # 1. Register User A
-    $userA_Email = "usera_" + (Get-Random) + "@easyfintest.local"
+    $userA_Email = "usera_" + (Get-Random) + "@accufextest.local"
     $userA_Password = "PasswordA#2026!"
     $tempFileA = [System.IO.Path]::GetTempFileName()
     $bodyA = @{ Email = $userA_Email; Password = $userA_Password; FullName = "User Alpha" } | ConvertTo-Json -Compress
@@ -39,7 +39,7 @@ try {
     Record-Test "Register User A" $regAOk "Created User A ($userA_Email)"
 
     # 2. Register User B
-    $userB_Email = "userb_" + (Get-Random) + "@easyfintest.local"
+    $userB_Email = "userb_" + (Get-Random) + "@accufextest.local"
     $userB_Password = "PasswordB#2026!"
     $tempFileB = [System.IO.Path]::GetTempFileName()
     $bodyB = @{ Email = $userB_Email; Password = $userB_Password; FullName = "User Beta" } | ConvertTo-Json -Compress

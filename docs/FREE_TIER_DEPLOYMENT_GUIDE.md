@@ -42,9 +42,9 @@ This guide provides the complete, step-by-step instructions to deploy EasyFin Te
 3. **Configure Project Settings**:
    - **Project Name**: `easyfin-tech`
    - **Framework Preset**: `Angular`
-   - **Root Directory**: Click `Edit` and select `easyfin_tech.client`.
+   - **Root Directory**: Click `Edit` and select `accufex.client`.
    - **Build Command**: `npm run build` (or leave default: `ng build`)
-   - **Output Directory**: `dist/easyfin_tech.client/browser`
+   - **Output Directory**: `dist/accufex.client/browser`
    - **Install Command**: `npm install`
 4. **Deploy**:
    - Click **Deploy**.
@@ -68,7 +68,7 @@ This guide provides the complete, step-by-step instructions to deploy EasyFin Te
    - **Branch**: `master`
    - **Root Directory**: Leave blank (repo root).
    - **Runtime**: `Docker`
-   - **Dockerfile Path**: `EasyFin_Tech.Server/Dockerfile`
+   - **Dockerfile Path**: `Accufex.Server/Dockerfile`
    - **Instance Type**: `Free` (0.1 CPU, 512 MB RAM).
 4. **Environment Variables**:
    Under **Environment Variables**, add the following:

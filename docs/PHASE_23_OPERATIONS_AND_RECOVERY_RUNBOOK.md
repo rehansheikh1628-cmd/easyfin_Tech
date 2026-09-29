@@ -1,7 +1,7 @@
-# EasyFin Tech — Phase 23 Operations & Recovery Runbook
+# ACCUFEX — Phase 23 Operations & Recovery Runbook
 
 ## Document Information
-- **Application**: EasyFin Tech (Financial Statement Ingestion, Validation & Tally XML Export)
+- **Application**: ACCUFEX (Financial Statement Ingestion, Validation & Tally XML Export)
 - **Version**: Production Release 1.0 (Phase 23)
 - **Classification**: Confidential / Operations & Disaster Recovery Guide
 - **Last Verified**: September 2026
@@ -10,7 +10,7 @@
 
 ## 1. Production Architecture Overview
 
-EasyFin Tech is deployed as a single unified web application on Windows Server with Microsoft IIS and Microsoft SQL Server:
+ACCUFEX is deployed as a single unified web application on Windows Server with Microsoft IIS and Microsoft SQL Server:
 
 ```text
                Internet / Users (HTTPS Port 443)
@@ -18,14 +18,14 @@ EasyFin Tech is deployed as a single unified web application on Windows Server w
                              ▼
      ┌───────────────────────────────────────────────┐
      │           Microsoft IIS Web Server            │
-     │      (Site: EasyFinTech, Port 80 & 443)       │
+     │      (Site: Accufex, Port 80 & 443)           │
      │      AspNetCoreModuleV2 (In-Process)          │
      └───────────────────────┬───────────────────────┘
                              │
                              ▼
      ┌───────────────────────────────────────────────┐
-     │      EasyFin_Tech.Server (.NET 10 Web API)    │
-     │      Application Pool: EasyFinTechPool        │
+     │      Accufex.Server (.NET 10 Web API)         │
+     │      Application Pool: AccufexPool            │
      │      - No Managed Code                        │
      │      - StartMode = AlwaysRunning              │
      │      - IdleTimeout = 00:00:00                 │
@@ -52,7 +52,7 @@ EasyFin Tech is deployed as a single unified web application on Windows Server w
 | **Hosting Environment** | `appsettings.Production.json` | `ASPNETCORE_ENVIRONMENT=Production` | `VERIFIED` |
 | **Connection String** | Environment Variable / AppSettings | Uses placeholder `YOUR_PROD_SQL_SERVER` in git; real server supplied via env var | `VERIFIED` |
 | **HTTPS Redirection & HSTS** | `Program.cs` | Enforced in non-dev; HSTS 30-day max-age enabled | `VERIFIED` |
-| **Authentication Cookie** | `Program.cs` | `EasyFin_Auth`: `SecurePolicy=Always`, `HttpOnly=true`, `SameSite=Lax` | `VERIFIED` |
+| **Authentication Cookie** | `Program.cs` | `Accufex_Auth`: `SecurePolicy=Always`, `HttpOnly=true`, `SameSite=Lax` | `VERIFIED` |
 | **Swagger / OpenAPI** | `Program.cs` | Only mapped when `env.IsDevelopment()`; blocked in Production | `VERIFIED` |
 | **Security Headers** | `web.config` | `nosniff`, `SAMEORIGIN`, `strict-origin-when-cross-origin`, `X-Powered-By` removed | `VERIFIED` |
 | **Request Limit** | `web.config` & `Program.cs` | 50MB (`52428800` bytes) in Kestrel, FormOptions, and RequestFiltering | `VERIFIED` |

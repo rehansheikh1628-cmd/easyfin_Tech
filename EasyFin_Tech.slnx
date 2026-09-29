@@ -1,8 +1,0 @@
-<Solution>
-  <Project Path="easyfin_tech.client/easyfin_tech.client.esproj">
-    <Build />
-    <Deploy />
-  </Project>
-  <Project Path="EasyFin_Tech.Server.Tests/EasyFin_Tech.Server.Tests.csproj" />
-  <Project Path="EasyFin_Tech.Server/EasyFin_Tech.Server.csproj" />
-</Solution>

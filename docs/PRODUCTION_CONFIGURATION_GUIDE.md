@@ -1,7 +1,7 @@
-# EasyFin Tech — Production Configuration, Secrets & Environment Guide
+# ACCUFEX — Production Configuration, Secrets & Environment Guide
 
 ## Document Overview
-- **Application**: EasyFin Tech (Financial Statement Ingestion, Validation & Tally XML Export)
+- **Application**: ACCUFEX (Financial Statement Ingestion, Validation & Tally XML Export)
 - **Target Platform**: ASP.NET Core 10.0 Web API + Angular 22.1.5 Client SPA
 - **Classification**: Confidential / Production Deployment & Hardening Manual
 - **Status**: Production Release Ready
@@ -10,7 +10,7 @@
 
 ## 1. Environment Separation Architecture
 
-EasyFin Tech enforces strict configuration separation between **Development** and **Production**:
+ACCUFEX enforces strict configuration separation between **Development** and **Production**:
 
 | Component | Development Environment | Production Environment |
 | :--- | :--- | :--- |
@@ -143,16 +143,16 @@ When hosting behind a reverse proxy (IIS, Azure App Service, Nginx, Cloudflare, 
 To compile the Angular client for production:
 
 ```bash
-cd easyfin_tech.client
+cd accufex.client
 npm run build
 ```
 
-- Target: `dist/easyfin_tech.client`
+- Target: `dist/accufex.client`
 - Configuration: `production`
 - Optimization: Enabled (minification, tree-shaking, dead-code removal)
 - Source Maps: Disabled
 - Environment: Swaps `environment.ts` for `environment.prod.ts` via `fileReplacements` in `angular.json`.
-- When deploying as a unified application, copy `dist/easyfin_tech.client/browser/*` into `EasyFin_Tech.Server/wwwroot/`.
+- When deploying as a unified application, copy `dist/accufex.client/browser/*` into `Accufex.Server/wwwroot/`.
 
 ---
 

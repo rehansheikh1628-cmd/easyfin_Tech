@@ -1,4 +1,4 @@
-# EasyFin Tech - Upload Limits and Rejection Verification
+# ACCUFEX - Upload Limits and Rejection Verification
 $ErrorActionPreference = "Stop"
 $BaseUrl = "https://localhost:5001"
 
@@ -15,7 +15,7 @@ Remove-Item $tempDummy -Force -ErrorAction SilentlyContinue
 Write-Host "Unauthenticated Upload Status: $unauthCode (Expected 401)" -ForegroundColor $(if ($unauthCode -eq "401") { "Green" } else { "Red" })
 
 # 2. Authenticated user uploading 51MB file -> 413 Payload Too Large
-$testEmail = "limit_test_" + (Get-Random) + "@easyfin.local"
+$testEmail = "limit_test_" + (Get-Random) + "@accufex.local"
 $testPass = "Password#2026!"
 $cookieFile = [System.IO.Path]::GetTempFileName()
 $regJson = [System.IO.Path]::GetTempFileName()

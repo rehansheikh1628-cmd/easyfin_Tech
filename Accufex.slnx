@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="accufex.client/accufex.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="Accufex.Server.Tests/Accufex.Server.Tests.csproj" />
+  <Project Path="Accufex.Server/Accufex.Server.csproj" />
+</Solution>

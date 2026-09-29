@@ -1,15 +1,15 @@
-# EasyFin Tech - Application Storage Restore Automation
+# ACCUFEX - Application Storage Restore Automation
 [CmdletBinding()]
 param (
     [string]$BackupStoragePath = "",
-    [string]$TargetStorageDir = "C:\inetpub\easyfin-tech\Storage",
-    [string]$BackupRootDir = "C:\FileBackups\EasyFin_Tech"
+    [string]$TargetStorageDir = "C:\inetpub\accufex\Storage",
+    [string]$BackupRootDir = "C:\FileBackups\Accufex"
 )
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host " EasyFin Tech - Application Storage Restore Tool" -ForegroundColor Cyan
+Write-Host " ACCUFEX - Application Storage Restore Tool" -ForegroundColor Cyan
 Write-Host " Target Storage: $TargetStorageDir" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 

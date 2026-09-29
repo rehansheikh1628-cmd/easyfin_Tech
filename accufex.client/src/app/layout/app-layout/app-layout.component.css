@@ -1,0 +1,168 @@
+/* ==========================================================================
+   ACCUFEX — Authenticated Workspace Layout
+   Horizontal Top Navigation Shell • Context Subbar • Full-Viewport Surface
+   ========================================================================== */
+
+.workspace-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  background-color: var(--ef-canvas);
+  position: relative;
+}
+
+/* --------------------------------------------------------------------------
+   Workspace Context Subbar (Breadcrumb & Connectivity Meta)
+   -------------------------------------------------------------------------- */
+.workspace-subbar {
+  background-color: var(--ef-surface);
+  border-bottom: 1px solid var(--ef-border);
+  padding: 0.625rem 0;
+  width: 100%;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+}
+
+.subbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+.subbar-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--ef-font-body);
+  font-size: 0.8125rem;
+}
+
+.subbar-category {
+  color: var(--ef-text-muted);
+  font-weight: 500;
+}
+
+.subbar-sep {
+  color: var(--ef-border-strong);
+  font-weight: 400;
+}
+
+.subbar-current {
+  color: var(--ef-text-primary);
+  font-weight: 600;
+}
+
+.subbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.subbar-meta-sep {
+  color: var(--ef-border-strong);
+  font-size: 0.75rem;
+}
+
+.subbar-tenant {
+  font-family: var(--ef-font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ef-text-secondary);
+  background: var(--ef-surface-subtle);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--ef-radius-sm);
+  border: 1px solid var(--ef-border);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   System Connectivity Pill
+   -------------------------------------------------------------------------- */
+.db-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  background-color: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #047857;
+  font-family: var(--ef-font-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.db-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  animation: efPulseDot 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes efPulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+}
+
+.db-text {
+  line-height: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Full-Width Workspace Content Surface
+   -------------------------------------------------------------------------- */
+.workspace-content {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1600px) {
+  .workspace-content {
+    max-width: 1560px;
+    padding: 2.25rem 2rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Media Queries
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .subbar-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
+  }
+
+  .subbar-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .workspace-content {
+    padding: 1.25rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .subbar-category,
+  .subbar-sep {
+    display: none;
+  }
+}

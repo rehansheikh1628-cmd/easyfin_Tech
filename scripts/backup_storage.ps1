@@ -1,15 +1,15 @@
-# EasyFin Tech - Application Storage Backup Automation (Robocopy Enterprise Standard)
+# ACCUFEX - Application Storage Backup Automation (Robocopy Enterprise Standard)
 [CmdletBinding()]
 param (
-    [string]$StorageSourceDir = "C:\inetpub\easyfin-tech\Storage",
-    [string]$BackupTargetDir = "C:\FileBackups\EasyFin_Tech",
+    [string]$StorageSourceDir = "C:\inetpub\accufex\Storage",
+    [string]$BackupTargetDir = "C:\FileBackups\Accufex",
     [int]$RetentionDays = 30
 )
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host " EasyFin Tech - Storage Backup Automation" -ForegroundColor Cyan
+Write-Host " ACCUFEX - Storage Backup Automation" -ForegroundColor Cyan
 Write-Host " Source: $StorageSourceDir" -ForegroundColor Cyan
 Write-Host " Target: $BackupTargetDir" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
@@ -17,8 +17,8 @@ Write-Host "=================================================================" -
 if (-not (Test-Path $StorageSourceDir)) {
     if (Test-Path ".\publish\Storage") {
         $StorageSourceDir = (Resolve-Path ".\publish\Storage").Path
-    } elseif (Test-Path ".\EasyFin_Tech.Server\Storage") {
-        $StorageSourceDir = (Resolve-Path ".\EasyFin_Tech.Server\Storage").Path
+    } elseif (Test-Path ".\Accufex.Server\Storage") {
+        $StorageSourceDir = (Resolve-Path ".\Accufex.Server\Storage").Path
     } else {
         Write-Error "Storage source directory not found: $StorageSourceDir"
     }

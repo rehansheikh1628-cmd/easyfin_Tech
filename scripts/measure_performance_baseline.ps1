@@ -1,9 +1,9 @@
-# EasyFin Tech - Performance Baseline Measurement Script
+# ACCUFEX - Performance Baseline Measurement Script
 $ErrorActionPreference = "Stop"
 $BaseUrl = "https://localhost:5001"
 
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host " EasyFin Tech - Production Performance Baseline Metrics" -ForegroundColor Cyan
+Write-Host " ACCUFEX - Production Performance Baseline Metrics" -ForegroundColor Cyan
 Write-Host " Target URL: $BaseUrl" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
@@ -38,7 +38,7 @@ try {
 
     # 2. Registration and Session Establishment
     $regFile = [System.IO.Path]::GetTempFileName()
-    $email = "perf_" + (Get-Random) + "@easyfin.local"
+    $email = "perf_" + (Get-Random) + "@accufex.local"
     @{ Email = $email; Password = "Password#2026!"; FullName = "Perf User" } | ConvertTo-Json -Compress | Out-File -FilePath $regFile -Encoding utf8
     Measure-Endpoint "User Registration and Auth Cookie Issue" "$BaseUrl/api/auth/register" "POST" $regFile $cookieFile
     Remove-Item $regFile -Force -ErrorAction SilentlyContinue

@@ -1,5 +1,4 @@
-# ============================================================================
-# EasyFin Tech — Phase 23 Production E2E Verification Script
+# ACCUFEX — Phase 23 Production E2E Verification Script
 # Tests the live production instance running from the publish package.
 # Uses curl.exe for reliable cross-platform TLS handling on Windows.
 # ============================================================================
@@ -24,7 +23,7 @@ function Record-Test([string]$name, [bool]$passed, [string]$details) {
 }
 
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host " EasyFin Tech - Phase 23 Production End-to-End Test Suite" -ForegroundColor Cyan
+Write-Host " ACCUFEX - Phase 23 Production End-to-End Test Suite" -ForegroundColor Cyan
 Write-Host " Target URL: $baseUrl" -ForegroundColor Cyan
 Write-Host "=================================================================`n" -ForegroundColor Cyan
 
@@ -65,7 +64,7 @@ try {
     Record-Test "Protected Route 401 Without Auth" ($unauthCode -eq "401") "Returned HTTP $unauthCode Unauthorized"
 
     # Register New Production Test User
-    $testEmail = "prod_user_" + (Get-Random) + "@easyfintech.test"
+    $testEmail = "prod_user_" + (Get-Random) + "@accufex.test"
     $testPassword = "SecurePassword#2026!"
 
     $regJsonFile = [System.IO.Path]::GetTempFileName()
@@ -87,8 +86,8 @@ try {
 
     # Verify Authentication Cookie in cookie jar
     $cookieContent = [System.IO.File]::ReadAllText($cookieFile)
-    $hasAuthCookie = $cookieContent -match "EasyFin_Auth"
-    Record-Test "Authentication Cookie Issued" $hasAuthCookie "Found EasyFin_Auth cookie in jar"
+    $hasAuthCookie = $cookieContent -match "Accufex_Auth"
+    Record-Test "Authentication Cookie Issued" $hasAuthCookie "Found Accufex_Auth cookie in jar"
 
     # Authenticated Identity Check (/api/auth/me)
     $meResp = curl.exe -k -s -b $cookieFile "$baseUrl/api/auth/me"
@@ -123,7 +122,7 @@ try {
 
     foreach ($route in $spaRoutes) {
         $spaHtml = curl.exe -k -s "$baseUrl$route"
-        $isHtml = ($spaHtml -match "<app-root>") -or ($spaHtml -match "easyfin-tech")
+        $isHtml = ($spaHtml -match "<app-root>") -or ($spaHtml -match "accufex")
         Record-Test "Direct SPA Route: $route" $isHtml "HTTP 200 OK, rendered SPA index shell"
     }
 

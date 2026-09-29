@@ -1,6 +1,6 @@
 <#
 ================================================================================
- EasyFin Tech — Production Deployment Rollback & Snapshot Automation
+ ACCUFEX — Production Deployment Rollback & Snapshot Automation
  Safe, reliable rollback to a previous known-good deployment snapshot
 ================================================================================
 #>
@@ -9,16 +9,16 @@
 param (
     [Parameter(Mandatory=$false)]
     [string]$Action = "rollback", # Options: 'snapshot', 'rollback', 'list'
-    [string]$ProductionDir = "C:\inetpub\easyfin-tech",
-    [string]$SnapshotsRootDir = "C:\inetpub\easyfin-tech-snapshots",
-    [string]$AppPoolName = "EasyFinTechPool",
+    [string]$ProductionDir = "C:\inetpub\accufex",
+    [string]$SnapshotsRootDir = "C:\inetpub\accufex-snapshots",
+    [string]$AppPoolName = "AccufexPool",
     [string]$TargetSnapshotName = ""
 )
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host " EasyFin Tech — Production Deployment Rollback Automation" -ForegroundColor Cyan
+Write-Host " ACCUFEX — Production Deployment Rollback Automation" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
 # 1. Administrator Check
