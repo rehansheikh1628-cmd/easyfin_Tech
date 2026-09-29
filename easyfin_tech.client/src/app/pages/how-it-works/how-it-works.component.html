@@ -14,7 +14,7 @@
         <span class="badge badge-accent mb-2">Deterministic Architecture</span>
         <h1 class="page-title" id="howItWorksMainTitle">From financial data to structured output.</h1>
         <p class="page-subtitle">
-          Follow the step-by-step workflow from file ingestion to validated, usable accounting data. CompactFin Tech maintains completely separate pipelines for statement parsing and Tally XML generation.
+          Follow the step-by-step workflow from file ingestion to validated, usable accounting data. ACCUFEX maintains completely separate pipelines for statement parsing and Tally XML generation.
         </p>
       </div>
     </div>
@@ -159,7 +159,7 @@
             </div>
             <h3 class="step-heading">Extract Coordinates &amp; Bounding Boxes</h3>
             <p class="step-description">
-              CompactFin Tech extracts characters, words, and bounding box geometry directly from the PDF's native font glyphs using PdfPig. Processing occurs entirely in-process on the application server with zero third-party cloud extraction dependencies.
+              ACCUFEX extracts characters, words, and bounding box geometry directly from the PDF's native font glyphs using PdfPig. Processing occurs entirely in-process on the application server with zero third-party cloud extraction dependencies.
             </p>
             <div class="step-specs-grid">
               <div class="spec-cell">
@@ -303,7 +303,7 @@
         <div class="advisory-body">
           <h4>Digital PDF Requirement &bull; OCR Limitations</h4>
           <p>
-            CompactFin Tech's standard parser workflow processes <strong>native digital PDFs</strong> with selectable text layers. Scanned PDFs, camera photos, passbook printouts, and image-only documents require Optical Character Recognition (OCR) and are <strong>not currently included in the standard digital-PDF parser workflow</strong>.
+            ACCUFEX's standard parser workflow processes <strong>native digital PDFs</strong> with selectable text layers. Scanned PDFs, camera photos, passbook printouts, and image-only documents require Optical Character Recognition (OCR) and are <strong>not currently included in the standard digital-PDF parser workflow</strong>.
           </p>
         </div>
       </div>
@@ -339,9 +339,9 @@
               <span class="step-phase">Stage: Preparation</span>
               <span class="step-target">Template Acquisition</span>
             </div>
-            <h3 class="step-heading">Download Official CompactFin Tech Template (.xlsm)</h3>
+            <h3 class="step-heading">Download Official ACCUFEX Template (.xlsm)</h3>
             <p class="step-description">
-              Download the official, standardized CompactFin Tech Excel template directly from the application. The workbook contains pre-configured columns matching the required schema for Tally voucher generation.
+              Download the official, standardized ACCUFEX Excel template directly from the application. The workbook contains pre-configured columns matching the required schema for Tally voucher generation.
             </p>
             <div class="step-specs-grid">
               <div class="spec-cell">
@@ -354,7 +354,7 @@
               </div>
               <div class="spec-cell">
                 <span class="spec-label">Source of Truth</span>
-                <span class="spec-value font-mono">CompactFin Tech Official Template</span>
+                <span class="spec-value font-mono">ACCUFEX Official Template</span>
               </div>
             </div>
           </div>
@@ -397,9 +397,9 @@
               <span class="step-phase">Stage: Upload</span>
               <span class="step-target">Workbook Ingestion</span>
             </div>
-            <h3 class="step-heading">Upload Completed Workbook to CompactFin Tech</h3>
+            <h3 class="step-heading">Upload Completed Workbook to ACCUFEX</h3>
             <p class="step-description">
-              Upload the completed .xlsm workbook to the secure /excel-to-tally endpoint. CompactFin Tech reads the spreadsheet using ClosedXmlExcelReaderService with strict workbook validation.
+              Upload the completed .xlsm workbook to the secure /excel-to-tally endpoint. ACCUFEX reads the spreadsheet using ClosedXmlExcelReaderService with strict workbook validation.
             </p>
             <div class="step-specs-grid">
               <div class="spec-cell">
@@ -560,7 +560,7 @@
             Bills and invoices present fundamentally different layout challenges from bank statements: variable vendor invoice structures, multi-rate tax breakdowns, line-item quantity grids, and optical scans.
           </p>
           <p>
-            CompactFin Tech's engineering principle is <strong>Accuracy &gt; Feature Count</strong>. We do not release or advertise features that rely on speculative or probabilistic guessing. The Bills &amp; Invoices workflow is currently undergoing architectural evaluation and is not yet available in production.
+            ACCUFEX's engineering principle is <strong>Accuracy &gt; Feature Count</strong>. We do not release or advertise features that rely on speculative or probabilistic guessing. The Bills &amp; Invoices workflow is currently undergoing architectural evaluation and is not yet available in production.
           </p>
           <div class="roadmap-notice">
             <strong>Current production availability:</strong> Workflows 1 (Bank Statement PDF &rarr; Excel) and 2 (Excel &rarr; Tally XML) are fully active and validated.
@@ -576,21 +576,21 @@
       <div class="philosophy-card card">
         <div class="philosophy-header">
           <span class="badge badge-primary mb-1">Core Philosophy</span>
-          <h2>The Validation Difference: Why CompactFin Tech Verifies Every Rupee</h2>
+          <h2>The Validation Difference: Why ACCUFEX Verifies Every Rupee</h2>
         </div>
         <div class="philosophy-grid">
           <div class="philosophy-point">
             <div class="point-num font-mono">01</div>
             <h3>Text Extraction is Not Accounting</h3>
             <p>
-              Tools that simply extract text from PDFs often miss decimal commas, split descriptions across phantom rows, or swap debit and credit columns. CompactFin Tech requires every transaction to reconcile arithmetically against running balances.
+              Tools that simply extract text from PDFs often miss decimal commas, split descriptions across phantom rows, or swap debit and credit columns. ACCUFEX requires every transaction to reconcile arithmetically against running balances.
             </p>
           </div>
           <div class="philosophy-point">
             <div class="point-num font-mono">02</div>
             <h3>Pristine Snapshots &amp; Sidecar Audits</h3>
             <p>
-              When corrections are made in the review grid, CompactFin Tech does not mutate raw extraction records. Edits are persisted in an immutable sidecar audit trail, preserving full evidentiary provenance for Chartered Accountants.
+              When corrections are made in the review grid, ACCUFEX does not mutate raw extraction records. Edits are persisted in an immutable sidecar audit trail, preserving full evidentiary provenance for Chartered Accountants.
             </p>
           </div>
           <div class="philosophy-point">
@@ -611,7 +611,7 @@
       <div class="security-info-card card">
         <div class="sec-header">
           <span class="badge badge-outline mb-1">Storage &amp; Privacy</span>
-          <h2>What Happens to Your Files in CompactFin Tech</h2>
+          <h2>What Happens to Your Files in ACCUFEX</h2>
         </div>
         <div class="sec-grid">
           <div class="sec-item">

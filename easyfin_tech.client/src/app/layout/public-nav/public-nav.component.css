@@ -30,10 +30,36 @@
    -------------------------------------------------------------------------- */
 .brand-link {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  align-items: center;
   text-decoration: none;
   flex-shrink: 0;
+}
+
+.brand-logo {
+  height: 38px;
+  width: auto;
+  max-width: 190px;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .brand-logo {
+    height: 32px;
+    max-width: 155px;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 .brand-text {

@@ -140,7 +140,7 @@ export class ExcelToTallyComponent {
 
     const ext = file.name.split('.').pop()?.toLowerCase();
     if (ext !== 'xlsm' && ext !== 'xlsx' && ext !== 'xls') {
-      this.errorMessage = `Invalid file format '.${ext}'. Please upload the official CompactFin Tech Excel template (.xlsm) or .xlsx.`;
+      this.errorMessage = `Invalid file format '.${ext}'. Please upload the official ACCUFEX Excel template (.xlsm) or .xlsx.`;
       this.cdr.markForCheck();
       return;
     }
@@ -208,7 +208,7 @@ export class ExcelToTallyComponent {
         next: (blob) => {
           this.templateDownloaded = true;
           this.excelService.saveBlob(blob, 'EasyFin_Tally_Import_Template_v1.xlsm');
-          this.successMessage = 'Official CompactFin Tech .XLSM template downloaded successfully.';
+          this.successMessage = 'Official ACCUFEX .XLSM template downloaded successfully.';
           this.cdr.markForCheck();
           setTimeout(() => {
             this.successMessage = null;

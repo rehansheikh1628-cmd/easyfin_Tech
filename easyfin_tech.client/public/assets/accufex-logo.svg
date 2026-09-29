@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 90" width="100%" height="90" fill="none">
+  <defs>
+    <!-- Background / Icon Gradients -->
+    <linearGradient id="accufex-primary-grad" x1="15" y1="75" x2="65" y2="15" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1D4ED8"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="accufex-accent-grad" x1="45" y1="50" x2="78" y2="22" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+    <filter id="subtle-shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#1E3A8A" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- LOGO ICON (Geometric 'A' + Execution Vector) -->
+  <g filter="url(#subtle-shadow)">
+    <!-- Base Left Stem of 'A' -->
+    <path d="M 22 72 L 44 18 C 45.5 14.5 49.5 14.5 51 18 L 61 42 L 48 58 L 36 58 L 22 72 Z" 
+          fill="url(#accufex-primary-grad)" />
+    
+    <!-- Forward Execution / Verification Check Wing -->
+    <path d="M 46 54 L 56 36 L 76 68 C 77.8 70.8 75.8 74 72 74 L 52 74 C 49 74 47 71 46 68 L 46 54 Z" 
+          fill="#1E40AF" />
+    
+    <!-- The Accent Reconcile Wing -->
+    <path d="M 52 42 L 67 18 C 69 15 73 15 75 18 L 84 34 C 85 36 84 38 82 39 L 60 52 C 57 54 54 50 52 42 Z" 
+          fill="url(#accufex-accent-grad)" />
+
+    <!-- Center Precision Node -->
+    <circle cx="53" cy="50" r="3.5" fill="#FFFFFF" />
+  </g>
+
+  <!-- WORDMARK TYPOGRAPHY (MERGED) -->
+  <g transform="translate(102, 53)">
+    <!-- ACCUFEX as a single unbroken string -->
+    <text font-family="Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          font-size="38" 
+          font-weight="800" 
+          letter-spacing="-0.03em" 
+          fill="#0F172A">ACCU<tspan font-weight="700" fill="#2563EB">FEX</tspan></text>
+    
+    <!-- Subtitle aligned with the merged word -->
+    <text x="2" y="18" 
+          font-family="Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          font-size="9" 
+          font-weight="600" 
+          letter-spacing="0.22em" 
+          fill="#64748B">AUTOMATED COMPLIANCE &amp; LEDGER</text>
+  </g>
+</svg>

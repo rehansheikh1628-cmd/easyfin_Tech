@@ -65,8 +65,8 @@ describe('PublicNavComponent (Navigation Redesign)', () => {
     const brandTag = fixture.debugElement.query(By.css('.brand-tag')).nativeElement;
     const brandCrest = fixture.debugElement.query(By.css('.brand-crest'));
 
-    expect(brandTitle.textContent.trim()).toBe('CompactFin Tech');
-    expect(brandTag.textContent.trim()).toBe('A product by EAZ Technologies');
+    expect(brandTitle.textContent.trim()).toBe('ACCUFEX');
+    expect(brandTag.textContent.trim()).toBe('AUTOMATED COMPLIANCE & LEDGER');
     expect(brandCrest).toBeNull();
   });
 
