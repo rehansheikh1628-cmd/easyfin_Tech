@@ -98,15 +98,15 @@
 }
 
 .workflow-select-card.active {
-  border-color: var(--ef-accent-600, #0d9488);
-  background: #f0fdfa;
-  box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.12);
+  border-color: var(--ef-primary-600, #245C49);
+  background: var(--ef-primary-50, #F0F7F4);
+  box-shadow: 0 0 0 4px rgba(36, 92, 73, 0.15);
 }
 
 .workflow-select-card.coming-soon.active {
-  border-color: #d97706;
-  background: #fffbeb;
-  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.12);
+  border-color: var(--ef-accent-500, #B9964D);
+  background: var(--ef-accent-50, #FAF6EE);
+  box-shadow: 0 0 0 4px rgba(185, 150, 77, 0.15);
 }
 
 .wf-status-row {
@@ -142,14 +142,14 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #10b981;
+  background-color: var(--ef-primary-600, #245C49);
 }
 
 .status-dot-amber {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #d97706;
+  background-color: var(--ef-accent-500, #B9964D);
 }
 
 .wf-code-tag {
@@ -178,14 +178,14 @@
 .wf-select-action {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: var(--ef-accent-600, #0d9488);
+  color: var(--ef-primary-600, #245C49);
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
 }
 
 .workflow-select-card.coming-soon .wf-select-action {
-  color: #d97706;
+  color: var(--ef-accent-700, #8E7132);
 }
 
 /* 3. Active Workflow Details & Steps Timeline */
@@ -237,7 +237,7 @@
   width: 3.25rem;
   height: 3.25rem;
   border-radius: 10px;
-  background: var(--ef-brand-950, #0b132b);
+  background: var(--ef-primary-600, #245C49);
   color: #ffffff;
   font-size: 1.125rem;
   font-weight: 700;
@@ -245,7 +245,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(11, 19, 43, 0.15);
+  box-shadow: 0 4px 12px rgba(36, 92, 73, 0.25);
 }
 
 .step-card {
@@ -472,12 +472,12 @@
 }
 
 .cta-banner {
-  background: linear-gradient(135deg, #0b132b 0%, #1e293b 100%);
-  border: 1px solid #334155;
+  background: linear-gradient(135deg, #2C1D18 0%, #201410 100%);
+  border: 1px solid rgba(185, 150, 77, 0.3);
   border-radius: 16px;
   padding: 3.5rem 2rem;
   color: #ffffff;
-  box-shadow: 0 12px 36px rgba(11, 19, 43, 0.16);
+  box-shadow: 0 12px 36px rgba(44, 29, 24, 0.25);
 }
 
 .cta-title {
@@ -490,7 +490,7 @@
 
 .cta-subtitle {
   font-size: 1.0625rem;
-  color: #94a3b8;
+  color: #D8C7A2;
   max-width: 640px;
   margin: 0 auto 2rem;
   line-height: 1.6;
@@ -504,9 +504,9 @@
 }
 
 .btn-excel {
-  background: linear-gradient(135deg, #107c41 0%, #0b5c30 100%);
+  background: var(--ef-primary-600, #245C49);
   color: #ffffff;
-  border: 1px solid #0e6b38;
+  border: 1px solid var(--ef-primary-700, #1E4E3E);
   padding: 0.875rem 1.75rem;
   font-size: 1rem;
   font-weight: 700;
@@ -515,13 +515,13 @@
   align-items: center;
   gap: 0.625rem;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(16, 124, 65, 0.25);
+  box-shadow: 0 4px 12px rgba(36, 92, 73, 0.3);
   transition: all 0.2s ease;
 }
 
 .btn-excel:hover {
-  background: linear-gradient(135deg, #0e6b38 0%, #084824 100%);
-  box-shadow: 0 6px 16px rgba(16, 124, 65, 0.35);
+  background: var(--ef-primary-700, #1E4E3E);
+  box-shadow: 0 6px 16px rgba(36, 92, 73, 0.4);
   transform: translateY(-1px);
   color: #ffffff;
 }

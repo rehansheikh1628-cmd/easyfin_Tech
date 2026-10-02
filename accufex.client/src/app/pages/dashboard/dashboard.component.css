@@ -18,12 +18,12 @@
    ========================================================================== */
 
 .workspace-header {
-  background: linear-gradient(135deg, var(--ef-primary-950) 0%, var(--ef-primary-900) 60%, var(--ef-primary-850) 100%);
+  background: linear-gradient(135deg, #2C1D18 0%, #382520 60%, #442E27 100%);
   color: #ffffff;
   border-radius: var(--ef-radius-2xl);
   padding: 2.75rem 2.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 45px -12px rgba(5, 10, 20, 0.35);
+  border: 1px solid rgba(185, 150, 77, 0.2);
+  box-shadow: 0 20px 45px -12px rgba(44, 29, 24, 0.45);
 }
 
 .header-badge-row {
@@ -39,9 +39,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.3rem 0.75rem;
-  background-color: rgba(20, 184, 166, 0.15);
-  border: 1px solid rgba(20, 184, 166, 0.3);
-  color: #2dd4bf;
+  background-color: rgba(36, 92, 73, 0.25);
+  border: 1px solid rgba(36, 92, 73, 0.5);
+  color: #D6ECE4;
   border-radius: var(--ef-radius-full);
   font-size: 0.75rem;
   font-weight: 700;
@@ -49,9 +49,9 @@
 }
 
 .operational-badge.badge-warning {
-  background-color: rgba(245, 158, 11, 0.15);
-  border-color: rgba(245, 158, 11, 0.3);
-  color: #fbbf24;
+  background-color: rgba(185, 150, 77, 0.2);
+  border-color: rgba(185, 150, 77, 0.45);
+  color: #EAD9B4;
 }
 
 .pulse-dot {
@@ -59,14 +59,14 @@
   height: 7px;
   border-radius: 50%;
   background-color: var(--ef-accent-400);
-  box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.7);
+  box-shadow: 0 0 0 0 rgba(185, 150, 77, 0.7);
   animation: pulse-ring 2.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }
 
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.6); }
-  70% { box-shadow: 0 0 0 6px rgba(45, 212, 191, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(185, 150, 77, 0.6); }
+  70% { box-shadow: 0 0 0 6px rgba(185, 150, 77, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(185, 150, 77, 0); }
 }
 
 .workspace-tenant-pill {

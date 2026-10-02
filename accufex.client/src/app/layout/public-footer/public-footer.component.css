@@ -4,9 +4,9 @@
    ========================================================================== */
 
 .site-footer {
-  background-color: var(--ef-brand-950);
-  color: var(--ef-neutral-400);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--ef-brand-900);
+  color: #D8C7A2;
+  border-top: 1px solid rgba(185, 150, 77, 0.22);
   margin-top: auto;
   width: 100%;
 }
@@ -62,14 +62,14 @@
 .brand-copyright {
   font-size: 0.75rem;
   font-weight: 400;
-  color: #94A3B8;
+  color: #C8ABA0;
   font-family: var(--ef-font-body);
 }
 
 .brand-desc {
   font-size: 0.875rem;
   line-height: 1.6;
-  color: #94A3B8;
+  color: #C8ABA0;
   max-width: 320px;
 }
 
@@ -79,9 +79,9 @@
   gap: 0.5rem;
   font-size: 0.71875rem;
   font-weight: 600;
-  color: var(--ef-accent-300, #5EEAD4);
-  background-color: rgba(13, 148, 136, 0.12);
-  border: 1px solid rgba(13, 148, 136, 0.28);
+  color: var(--ef-accent-300, #DBC085);
+  background-color: rgba(185, 150, 77, 0.12);
+  border: 1px solid rgba(185, 150, 77, 0.3);
   padding: 0.375rem 0.75rem;
   border-radius: var(--ef-radius-full);
   width: fit-content;
@@ -117,7 +117,7 @@
 
 .col-links a {
   font-size: 0.875rem;
-  color: #94A3B8;
+  color: #C8ABA0;
   text-decoration: none;
   transition: color var(--ef-transition-fast);
   display: inline-flex;
@@ -126,12 +126,12 @@
 }
 
 .col-links a:hover {
-  color: var(--ef-text-white);
+  color: var(--ef-cream, #F4EAD5);
 }
 
 .static-feature-link {
   font-size: 0.84375rem;
-  color: #64748B;
+  color: #A88579;
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -148,11 +148,11 @@
    Footer Bottom Sub-Bar
    -------------------------------------------------------------------------- */
 .footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 1.75rem;
   padding-bottom: 1.75rem;
   font-size: 0.8125rem;
-  color: #64748B;
+  color: #8B675B;
 }
 
 .bottom-container {
@@ -184,18 +184,18 @@
 }
 
 .bottom-sep {
-  color: #475569;
+  color: #593E35;
   font-size: 0.625rem;
 }
 
 .bottom-copy {
   font-weight: 400;
-  color: #94A3B8;
+  color: #C8ABA0;
 }
 
 .bottom-right {
   font-size: 0.78125rem;
-  color: #64748B;
+  color: #8B675B;
 }
 
 /* --------------------------------------------------------------------------

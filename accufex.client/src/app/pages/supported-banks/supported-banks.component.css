@@ -152,8 +152,8 @@
 }
 
 .boundary-card {
-  background: #f0fdfa;
-  border: 1px solid #99f6e4;
+  background: var(--ef-surface-subtle, #F4EAD5);
+  border: 1px solid var(--ef-accent-border, #E5D5B2);
   border-radius: 10px;
   padding: 1rem 1.5rem;
   display: flex;
@@ -162,7 +162,7 @@
 }
 
 .boundary-icon-box {
-  color: var(--ef-accent-600, #0d9488);
+  color: var(--ef-accent-700, #8E7132);
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
@@ -170,13 +170,13 @@
 .boundary-title {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #115e59;
+  color: var(--ef-brand-900, #2C1D18);
   margin: 0 0 0.25rem;
 }
 
 .boundary-text {
   font-size: 0.875rem;
-  color: #134e4a;
+  color: var(--ef-text-secondary, #4D3A34);
   line-height: 1.5;
   margin: 0;
 }
@@ -279,8 +279,8 @@
 }
 
 .category-pill.active {
-  background: var(--ef-brand-950, #0b132b);
-  border-color: var(--ef-brand-950, #0b132b);
+  background: var(--ef-primary-600, #245C49);
+  border-color: var(--ef-primary-600, #245C49);
   color: #ffffff;
 }
 
@@ -764,12 +764,12 @@
 }
 
 .cta-banner {
-  background: linear-gradient(135deg, #0b132b 0%, #1e293b 100%);
-  border: 1px solid #334155;
+  background: linear-gradient(135deg, #2C1D18 0%, #201410 100%);
+  border: 1px solid rgba(185, 150, 77, 0.3);
   border-radius: 16px;
   padding: 3.5rem 2rem;
   color: #ffffff;
-  box-shadow: 0 12px 36px rgba(11, 19, 43, 0.16);
+  box-shadow: 0 12px 36px rgba(44, 29, 24, 0.25);
 }
 
 .cta-title {
@@ -782,7 +782,7 @@
 
 .cta-subtitle {
   font-size: 1.0625rem;
-  color: #94a3b8;
+  color: #D8C7A2;
   max-width: 640px;
   margin: 0 auto 2rem;
   line-height: 1.6;
@@ -795,21 +795,21 @@
 
 /* Shared UI Utilities */
 .text-teal {
-  color: var(--ef-accent-600, #0d9488) !important;
+  color: var(--ef-primary-600, #245C49) !important;
 }
 
 .text-success {
-  color: var(--ef-success, #16a34a) !important;
+  color: var(--ef-primary-600, #245C49) !important;
 }
 
 .text-warning {
-  color: #d97706 !important;
+  color: var(--ef-accent-700, #8E7132) !important;
 }
 
 .btn-excel {
-  background: linear-gradient(135deg, #107c41 0%, #0b5c30 100%);
+  background: var(--ef-primary-600, #245C49);
   color: #ffffff;
-  border: 1px solid #0e6b38;
+  border: 1px solid var(--ef-primary-700, #1E4E3E);
   padding: 0.875rem 1.75rem;
   font-size: 1rem;
   font-weight: 700;
@@ -818,13 +818,13 @@
   align-items: center;
   gap: 0.625rem;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(16, 124, 65, 0.25);
+  box-shadow: 0 4px 12px rgba(36, 92, 73, 0.3);
   transition: all 0.2s ease;
 }
 
 .btn-excel:hover {
-  background: linear-gradient(135deg, #0e6b38 0%, #084824 100%);
-  box-shadow: 0 6px 16px rgba(16, 124, 65, 0.35);
+  background: var(--ef-primary-700, #1E4E3E);
+  box-shadow: 0 6px 16px rgba(36, 92, 73, 0.4);
   transform: translateY(-1px);
   color: #ffffff;
 }

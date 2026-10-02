@@ -133,9 +133,9 @@
 }
 
 .settings-tab-btn.active {
-  background-color: var(--ef-accent-50);
-  border-color: var(--ef-accent-border);
-  color: var(--ef-accent-700);
+  background-color: var(--ef-primary-50, #F0F7F4);
+  border-color: var(--ef-primary-100, #D6ECE4);
+  color: var(--ef-primary-700, #1E4E3E);
 }
 
 .tab-icon {
@@ -156,7 +156,7 @@
 }
 
 .settings-tab-btn.active .tab-icon {
-  background-color: var(--ef-accent-600);
+  background-color: var(--ef-primary-600, #245C49);
   color: #ffffff;
 }
 
@@ -183,7 +183,7 @@
 }
 
 .settings-tab-btn.active .tab-desc {
-  color: var(--ef-accent-700);
+  color: var(--ef-primary-600, #245C49);
 }
 
 /* --------------------------------------------------------------------------
@@ -582,7 +582,7 @@
 }
 
 input:checked + .slider {
-  background-color: var(--ef-accent-600);
+  background-color: var(--ef-primary-600, #245C49);
 }
 
 input:focus-visible + .slider {

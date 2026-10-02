@@ -6,139 +6,181 @@
    ========================================================================== */
 
 :root {
+  /* ========================================================================
+     ACCUFEX Institutional FinTech Design System & Tokens
+     Core 4-Color Reference Palette:
+     1. Forest Green: #245C49 (Primary Interactive, Active, Selected, Primary Accents)
+     2. Antique Gold: #B9964D (Secondary Accents, Highlights, Premium Indicators)
+     3. Cream:        #F4EAD5 (Soft Page/Section Backgrounds, Elevated Highlights)
+     4. Espresso:     #2C1D18 (Primary Dark Text, Headings, Footer, Dark Surfaces)
+     Strictly Zero Deep Emerald (#063B2E) • Mathematical Precision & Accessibility
+     ======================================================================== */
+
   /* ------------------------------------------------------------------------
-     1. Canvas & Surface Elevation
+     Centralized Semantic Color Variables
      ------------------------------------------------------------------------ */
-  --ef-canvas: #F8FAFC;
-  --ef-surface: #FFFFFF;
-  --ef-surface-subtle: #F1F5F9;
-  --ef-surface-muted: #E2E8F0;
+  --color-primary:       #245C49;
+  --color-primary-hover: #1E4E3E;
+  --color-primary-active:#183F32;
+  --color-accent:        #B9964D;
+  --color-accent-hover:  #A3833E;
+  --color-accent-text:   #8E7132;
+  --color-background:    #FAF7F2;
+  --color-cream:         #F4EAD5;
+  --color-surface:       #FFFFFF;
+  --color-surface-cream: #F4EAD5;
+  --color-text:          #2C1D18;
+  --color-text-muted:    #766058;
+  --color-border:        #E5D8BE;
+  --color-dark:          #2C1D18;
+
+  /* ------------------------------------------------------------------------
+     1. Canvas & Surface Elevation (Warm Cream Tint & Clean White Surfaces)
+     ------------------------------------------------------------------------ */
+  --ef-canvas:         #FAF7F2;
+  --ef-surface:        #FFFFFF;
+  --ef-surface-subtle: #F4EAD5; /* Core Cream #F4EAD5 */
+  --ef-surface-muted:  #ECE0C8;
 
   /* Legacy surface mapping for component backwards-compatibility */
-  --ef-bg-app: var(--ef-canvas);
+  --ef-bg-app:     var(--ef-canvas);
   --ef-bg-surface: var(--ef-surface);
-  --ef-bg-subtle: var(--ef-surface-subtle);
-  --ef-bg-muted: var(--ef-surface-muted);
+  --ef-bg-subtle:  var(--ef-surface-subtle);
+  --ef-bg-muted:   var(--ef-surface-muted);
 
   /* ------------------------------------------------------------------------
-     2. Brand Color Palette (Deep Institutional Navy & Slate)
+     2. Brand Color Palette (Deep Institutional Espresso #2C1D18)
      ------------------------------------------------------------------------ */
-  --ef-brand-950: #0B132B;
-  --ef-brand-900: #0F172A;
-  --ef-brand-850: #15203A;
-  --ef-brand-800: #1E293B;
-  --ef-brand-700: #334155;
-  --ef-brand-600: #475569;
-  --ef-brand-500: #64748B;
-  --ef-brand-400: #94A3B8;
-  --ef-brand-100: #E2E8F0;
-  --ef-brand-50:  #F8FAFC;
+  --ef-brand-950: #201410;
+  --ef-brand-900: #2C1D18; /* Core Espresso */
+  --ef-brand-850: #382520;
+  --ef-brand-800: #442E27;
+  --ef-brand-700: #593E35;
+  --ef-brand-600: #705045;
+  --ef-brand-500: #8B675B;
+  --ef-brand-400: #A88579;
+  --ef-brand-300: #C8ABA0;
+  --ef-brand-200: #E5D8BE;
+  --ef-brand-100: #F4EAD5; /* Core Cream */
+  --ef-brand-50:  #FAF7F2;
 
-  /* Legacy primary aliases */
-  --ef-primary-950: var(--ef-brand-950);
-  --ef-primary-900: var(--ef-brand-900);
-  --ef-primary-850: var(--ef-brand-850);
-  --ef-primary-800: var(--ef-brand-800);
-  --ef-primary-700: var(--ef-brand-700);
-  --ef-primary-600: #2563EB;
-  --ef-primary-500: #3B82F6;
-  --ef-primary-400: #60A5FA;
-  --ef-primary-100: #DBEAFE;
-  --ef-primary-50:  #EFF6FF;
+  /* Primary Interactive Scale (Forest Green #245C49) */
+  --ef-primary:        #245C49;
+  --ef-primary-hover:  #1E4E3E;
+  --ef-primary-active: #183F32;
+  --ef-primary-950:    #201410; /* Espresso for dark gradients */
+  --ef-primary-900:    #2C1D18;
+  --ef-primary-850:    #382520;
+  --ef-primary-800:    #442E27;
+  --ef-primary-700:    #1E4E3E;
+  --ef-primary-600:    #245C49; /* Core Forest Green */
+  --ef-primary-500:    #2F735C;
+  --ef-primary-400:    #429277;
+  --ef-primary-300:    #74B49F;
+  --ef-primary-200:    #A8D4C5;
+  --ef-primary-100:    #D6ECE4;
+  --ef-primary-50:     #F0F7F4;
 
   /* ------------------------------------------------------------------------
-     3. Financial Precision Accent (Emerald / Teal)
+     3. Financial Precision & Secondary Accent (Antique Gold #B9964D)
      ------------------------------------------------------------------------ */
-  --ef-accent-700: #0F766E;
-  --ef-accent-600: #0D9488;
-  --ef-accent-500: #14B8A6;
-  --ef-accent-400: #2DD4BF;
-  --ef-accent-100: #CCFBF1;
-  --ef-accent-50:  #F0FDFA;
-  --ef-accent-border: #CCFBF1;
+  --ef-accent:        #B9964D;
+  --ef-accent-hover:  #A3833E;
+  --ef-accent-text:   #8E7132;
+  --ef-accent-900:    #57441B;
+  --ef-accent-800:    #755C27;
+  --ef-accent-700:    #8E7132; /* Accessible text on light backgrounds */
+  --ef-accent-600:    #A3833E;
+  --ef-accent-500:    #B9964D; /* Core Antique Gold */
+  --ef-accent-400:    #C9A862;
+  --ef-accent-300:    #DBC085;
+  --ef-accent-200:    #EAD9B4;
+  --ef-accent-100:    #F4EBD8;
+  --ef-accent-50:     #FAF6EE;
+  --ef-accent-border: #E5D5B2;
 
   /* ------------------------------------------------------------------------
      4. Financial Ledger Colors (Debit & Credit Distinction)
      ------------------------------------------------------------------------ */
-  --ef-debit: #DC2626;
-  --ef-debit-bg: rgba(220, 38, 38, 0.08);
-  --ef-debit-border: rgba(220, 38, 38, 0.22);
+  --ef-debit:        #C0392B;
+  --ef-debit-bg:     rgba(192, 57, 43, 0.08);
+  --ef-debit-border: rgba(192, 57, 43, 0.22);
 
-  --ef-credit: #16A34A;
-  --ef-credit-bg: rgba(22, 163, 74, 0.08);
-  --ef-credit-border: rgba(22, 163, 74, 0.22);
+  --ef-credit:        #245C49; /* Harmonized with Forest Green */
+  --ef-credit-bg:     rgba(36, 92, 73, 0.08);
+  --ef-credit-border: rgba(36, 92, 73, 0.22);
 
   /* ------------------------------------------------------------------------
      5. Ecosystem Integration Colors (Excel & Tally)
      ------------------------------------------------------------------------ */
-  --ef-excel-700: #0C6133;
-  --ef-excel-600: #107C41;
-  --ef-excel-500: #158A4B;
-  --ef-excel-100: #E2F6E9;
-  --ef-excel-50:  #F1FAF4;
+  --ef-excel-700: #1E4E3E;
+  --ef-excel-600: #245C49; /* Forest Green */
+  --ef-excel-500: #2F735C;
+  --ef-excel-100: #D6ECE4;
+  --ef-excel-50:  #F0F7F4;
 
-  --ef-tally-amber: #D97706;
-  --ef-tally-amber-bg: #FFFBEB;
-  --ef-tally-amber-border: #FDE68A;
-
-  /* ------------------------------------------------------------------------
-     6. Complete Neutral Scale (Slate Neutrals)
-     ------------------------------------------------------------------------ */
-  --ef-neutral-50:  #F8FAFC;
-  --ef-neutral-100: #F1F5F9;
-  --ef-neutral-200: #E2E8F0;
-  --ef-neutral-300: #CBD5E1;
-  --ef-neutral-400: #94A3B8;
-  --ef-neutral-500: #64748B;
-  --ef-neutral-600: #475569;
-  --ef-neutral-700: #334155;
-  --ef-neutral-800: #1E293B;
-  --ef-neutral-900: #0F172A;
-  --ef-neutral-950: #0B132B;
+  --ef-tally-amber:        #B9964D; /* Antique Gold */
+  --ef-tally-amber-bg:     #FAF6EE;
+  --ef-tally-amber-border: #E5D5B2;
 
   /* ------------------------------------------------------------------------
-     7. Text Colors
+     6. Complete Neutral Scale (Espresso-Toned Warm Neutrals)
      ------------------------------------------------------------------------ */
-  --ef-text-primary:   #0F172A;
-  --ef-text-secondary: #334155;
-  --ef-text-muted:     #64748B;
-  --ef-text-light:     #94A3B8;
+  --ef-neutral-50:  #FAF7F2;
+  --ef-neutral-100: #F4EAD5; /* Core Cream */
+  --ef-neutral-200: #E8DCBE;
+  --ef-neutral-300: #D8C7A2;
+  --ef-neutral-400: #A89085;
+  --ef-neutral-500: #766058;
+  --ef-neutral-600: #593E35;
+  --ef-neutral-700: #442E27;
+  --ef-neutral-800: #382520;
+  --ef-neutral-900: #2C1D18; /* Core Espresso */
+  --ef-neutral-950: #201410;
+
+  /* ------------------------------------------------------------------------
+     7. Text Colors (Espresso Contrast)
+     ------------------------------------------------------------------------ */
+  --ef-text-primary:   #2C1D18; /* Core Espresso */
+  --ef-text-secondary: #4D3A34;
+  --ef-text-muted:     #766058;
+  --ef-text-light:     #A39088;
   --ef-text-white:     #FFFFFF;
 
   /* ------------------------------------------------------------------------
-     8. Borders & Focus Rings
+     8. Borders & Focus Rings (Forest Green Focus & Warm Cream Borders)
      ------------------------------------------------------------------------ */
-  --ef-border-subtle: #F1F5F9;
-  --ef-border:        #E2E8F0;
-  --ef-border-strong: #CBD5E1;
-  --ef-border-focus:  #0D9488;
-  --ef-ring-focus:    rgba(13, 148, 136, 0.25);
+  --ef-border-subtle: #EFE5D1;
+  --ef-border:        #E5D8BE;
+  --ef-border-strong: #D5C4A3;
+  --ef-border-focus:  #245C49; /* Forest Green Focus */
+  --ef-ring-focus:    rgba(36, 92, 73, 0.22);
 
   /* ------------------------------------------------------------------------
      9. Semantic Status Colors
      ------------------------------------------------------------------------ */
-  --ef-success:        #16A34A;
-  --ef-success-bg:     #F0FDF4;
-  --ef-success-border: #BBF7D0;
+  --ef-success:        #245C49; /* Forest Green */
+  --ef-success-bg:     #F0F7F4;
+  --ef-success-border: #D6ECE4;
 
-  --ef-warning:        #D97706;
-  --ef-warning-bg:     #FFFBEB;
-  --ef-warning-border: #FDE68A;
+  --ef-warning:        #B9964D; /* Antique Gold */
+  --ef-warning-bg:     #FAF6EE;
+  --ef-warning-border: #E5D5B2;
 
-  --ef-error:          #DC2626;
-  --ef-danger:         #DC2626;
-  --ef-error-bg:       #FEF2F2;
-  --ef-danger-bg:      #FEF2F2;
-  --ef-error-border:   #FECACA;
-  --ef-danger-border:  #FECACA;
+  --ef-error:          #C0392B;
+  --ef-danger:         #C0392B;
+  --ef-error-bg:       #FDF2F0;
+  --ef-danger-bg:      #FDF2F0;
+  --ef-error-border:   #F8D0C9;
+  --ef-danger-border:  #F8D0C9;
 
-  --ef-info:           #0284C7;
-  --ef-info-bg:        #F0F9FF;
-  --ef-info-border:    #BAE6FD;
+  --ef-info:           #245C49;
+  --ef-info-bg:        #F0F7F4;
+  --ef-info-border:    #D6ECE4;
 
-  --ef-disabled-bg:     #F1F5F9;
-  --ef-disabled-text:   #94A3B8;
-  --ef-disabled-border: #E2E8F0;
+  --ef-disabled-bg:     #F4EAD5; /* Cream */
+  --ef-disabled-text:   #A39088;
+  --ef-disabled-border: #E5D8BE;
 
   /* ------------------------------------------------------------------------
      10. Typography — Unified Professional System (Option 1: Inter)
@@ -152,13 +194,13 @@
   --ef-font-sans: var(--ef-font-family);
 
   /* ------------------------------------------------------------------------
-     11. Elevation & Layered Ambient Shadows
+     11. Elevation & Layered Ambient Shadows (Espresso Tinted)
      ------------------------------------------------------------------------ */
-  --ef-shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-  --ef-shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.06);
-  --ef-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
-  --ef-shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.07), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
-  --ef-shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  --ef-shadow-xs: 0 1px 2px 0 rgba(44, 29, 24, 0.05);
+  --ef-shadow-sm: 0 1px 3px 0 rgba(44, 29, 24, 0.08), 0 1px 2px -1px rgba(44, 29, 24, 0.06);
+  --ef-shadow-md: 0 4px 6px -1px rgba(44, 29, 24, 0.07), 0 2px 4px -2px rgba(44, 29, 24, 0.05);
+  --ef-shadow-lg: 0 10px 15px -3px rgba(44, 29, 24, 0.07), 0 4px 6px -4px rgba(44, 29, 24, 0.04);
+  --ef-shadow-xl: 0 20px 25px -5px rgba(44, 29, 24, 0.08), 0 8px 10px -6px rgba(44, 29, 24, 0.04);
 
   /* ------------------------------------------------------------------------
      12. Border Radii
@@ -261,7 +303,7 @@ img, svg {
 
 /* High-Visibility Accessible Focus States */
 :focus-visible {
-  outline: 2px solid var(--ef-accent-600);
+  outline: 2px solid var(--ef-primary-600);
   outline-offset: 2px;
 }
 
@@ -666,17 +708,17 @@ td,
   border-radius: var(--ef-radius-md);
 }
 
-/* Primary CTA Button (Authoritative Navy) */
+/* Primary CTA Button (Forest Green #245C49) */
 .btn-primary {
-  background-color: var(--ef-brand-900);
+  background-color: var(--ef-primary-600);
   color: var(--ef-text-white);
-  border-color: var(--ef-brand-950);
+  border-color: var(--ef-primary-700);
   box-shadow: var(--ef-shadow-sm);
 }
 
 .btn-primary:hover {
-  background-color: var(--ef-brand-800);
-  border-color: var(--ef-brand-900);
+  background-color: var(--ef-primary-700);
+  border-color: var(--ef-primary-800);
   box-shadow: var(--ef-shadow-md);
 }
 
@@ -693,16 +735,29 @@ td,
   border-color: var(--ef-text-muted);
 }
 
-/* Accent Button (Precision Teal) */
+/* Accent Button (Antique Gold #B9964D) */
 .btn-accent {
-  background-color: var(--ef-accent-600);
+  background-color: var(--ef-accent-500);
   color: var(--ef-text-white);
-  border-color: var(--ef-accent-700);
+  border-color: var(--ef-accent-600);
   box-shadow: var(--ef-shadow-sm);
 }
 
 .btn-accent:hover {
-  background-color: var(--ef-accent-700);
+  background-color: var(--ef-accent-600);
+  box-shadow: var(--ef-shadow-md);
+}
+
+/* Dark / Espresso Button (#2C1D18) */
+.btn-dark, .btn-espresso {
+  background-color: var(--ef-brand-900);
+  color: var(--ef-text-white);
+  border-color: var(--ef-brand-950);
+  box-shadow: var(--ef-shadow-sm);
+}
+
+.btn-dark:hover, .btn-espresso:hover {
+  background-color: var(--ef-brand-850);
   box-shadow: var(--ef-shadow-md);
 }
 
@@ -786,7 +841,7 @@ td,
 }
 
 .card-interactive:hover {
-  border-color: var(--ef-accent-500);
+  border-color: var(--ef-primary-600);
   box-shadow: var(--ef-shadow-sm);
   transform: translateY(-1px);
 }
@@ -847,7 +902,7 @@ td,
 }
 
 .form-control:focus {
-  border-color: var(--ef-accent-600);
+  border-color: var(--ef-border-focus);
   box-shadow: 0 0 0 3px var(--ef-ring-focus);
   outline: none;
 }
@@ -879,7 +934,7 @@ td,
 /* Custom Styled Checkboxes & Radios */
 input[type="checkbox"],
 input[type="radio"] {
-  accent-color: var(--ef-accent-600);
+  accent-color: var(--ef-primary-600);
   cursor: pointer;
 }
 
@@ -903,7 +958,7 @@ input[type="radio"] {
 
 .badge-primary {
   background-color: var(--ef-primary-50);
-  color: var(--ef-brand-800);
+  color: var(--ef-primary-700);
   border: 1px solid var(--ef-primary-100);
 }
 
@@ -995,14 +1050,14 @@ input[type="radio"] {
   height: 8px;
   border-radius: var(--ef-radius-full);
   background-color: var(--ef-success);
-  box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+  box-shadow: 0 0 0 0 rgba(36, 92, 73, 0.65);
   animation: efPulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
   display: inline-block;
 }
 
 @keyframes efPulse {
   to {
-    box-shadow: 0 0 0 6px rgba(22, 163, 74, 0);
+    box-shadow: 0 0 0 6px rgba(36, 92, 73, 0);
   }
 }
 
@@ -1070,7 +1125,7 @@ thead.sticky-header th {
 .statements-table tbody tr:hover td,
 .preview-table tbody tr:hover td,
 .data-table tbody tr:hover td {
-  background-color: rgba(241, 245, 249, 0.65);
+  background-color: rgba(244, 234, 213, 0.4);
 }
 
 /* Financial Cell Precision */
@@ -1159,17 +1214,17 @@ tr.row-corrected td {
 
 .step-node.active .step-num,
 .step-node.active .node-indicator {
-  background-color: var(--ef-brand-900);
+  background-color: var(--ef-primary-600);
   color: var(--ef-text-white);
-  border-color: var(--ef-brand-950);
-  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.15);
+  border-color: var(--ef-primary-700);
+  box-shadow: 0 0 0 3px rgba(36, 92, 73, 0.2);
 }
 
 .step-node.completed .step-num,
 .step-node.completed .node-indicator {
-  background-color: var(--ef-accent-600);
+  background-color: var(--ef-primary-600);
   color: var(--ef-text-white);
-  border-color: var(--ef-accent-700);
+  border-color: var(--ef-primary-700);
 }
 
 .step-node.error-node .step-num,
@@ -1189,7 +1244,7 @@ tr.row-corrected td {
 
 .step-node.active .step-label,
 .step-node.active .node-title {
-  color: var(--ef-brand-900);
+  color: var(--ef-primary-600);
   font-weight: 700;
 }
 
@@ -1204,7 +1259,7 @@ tr.row-corrected td {
 
 .step-connector.active,
 .step-connector.completed {
-  background-color: var(--ef-accent-600);
+  background-color: var(--ef-primary-600);
 }
 
 /* ==========================================================================
@@ -1268,7 +1323,7 @@ tr.row-corrected td {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(11, 19, 43, 0.6);
+  background: rgba(44, 29, 24, 0.65);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
@@ -1335,7 +1390,7 @@ tr.row-corrected td {
   width: 24px;
   height: 24px;
   border: 2.5px solid var(--ef-border-strong);
-  border-top-color: var(--ef-accent-600);
+  border-top-color: var(--ef-primary-600);
   border-radius: var(--ef-radius-full);
   animation: efSpin 700ms linear infinite;
   display: inline-block;
@@ -1410,7 +1465,7 @@ tr.row-corrected td {
   height: 64px;
   border-radius: var(--ef-radius-full);
   background-color: var(--ef-surface-subtle);
-  color: var(--ef-accent-600);
+  color: var(--ef-primary-600);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -77,12 +77,12 @@
   align-items: center;
   padding: 0.25rem 0.625rem;
   border-radius: 9999px;
-  background-color: var(--ef-excel-100, #e2f6e9);
-  color: var(--ef-excel-700, #0c6133);
+  background-color: var(--ef-excel-50, #F0F7F4);
+  color: var(--ef-excel-600, #245C49);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  border: 1px solid rgba(16, 124, 65, 0.2);
+  border: 1px solid var(--ef-excel-100, #D6ECE4);
 }
 
 .badge-file-active {
@@ -90,11 +90,11 @@
   align-items: center;
   padding: 0.25rem 0.625rem;
   border-radius: 9999px;
-  background-color: var(--ef-accent-100, #ccfbf1);
-  color: var(--ef-accent-700, #0f766e);
+  background-color: var(--ef-accent-50, #FAF6EE);
+  color: var(--ef-accent-700, #8E7132);
   font-size: 0.75rem;
   font-weight: 600;
-  border: 1px solid var(--ef-accent-border, rgba(13, 148, 136, 0.2));
+  border: 1px solid var(--ef-accent-border, #E5D5B2);
   font-family: var(--ef-font-mono);
 }
 
@@ -144,26 +144,26 @@
 }
 
 .btn-excel {
-  background-color: var(--ef-excel-600, #107c41);
+  background-color: var(--ef-excel-600, #245C49);
   color: #ffffff;
-  box-shadow: 0 1px 2px rgba(16, 124, 65, 0.15);
+  box-shadow: 0 1px 2px rgba(36, 92, 73, 0.2);
 }
 
 .btn-excel:hover:not(:disabled) {
-  background-color: var(--ef-excel-700, #0c6133);
-  box-shadow: 0 2px 4px rgba(16, 124, 65, 0.25);
+  background-color: var(--ef-excel-700, #1E4E3E);
+  box-shadow: 0 2px 4px rgba(36, 92, 73, 0.3);
   transform: translateY(-1px);
 }
 
 .btn-tally {
-  background-color: var(--ef-brand-900, #0f172a);
+  background-color: var(--ef-brand-900, #2C1D18);
   color: #ffffff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.15);
+  box-shadow: 0 1px 2px rgba(44, 29, 24, 0.15);
 }
 
 .btn-tally:hover:not(:disabled) {
-  background-color: var(--ef-brand-800, #1e293b);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+  background-color: var(--ef-brand-850, #382520);
+  box-shadow: 0 4px 12px rgba(44, 29, 24, 0.25);
   transform: translateY(-1px);
 }
 
@@ -301,33 +301,33 @@
 
 /* Stepper States */
 .step-node.active .step-badge {
-  background-color: var(--ef-brand-900, #0f172a);
+  background-color: var(--ef-primary-600, #245C49);
   color: #ffffff;
-  border-color: var(--ef-brand-900, #0f172a);
-  box-shadow: 0 0 0 3px var(--ef-accent-100, #ccfbf1);
+  border-color: var(--ef-primary-600, #245C49);
+  box-shadow: 0 0 0 3px rgba(36, 92, 73, 0.2);
 }
 
 .step-node.active .step-label {
-  color: var(--ef-brand-900, #0f172a);
+  color: var(--ef-primary-600, #245C49);
 }
 
 .step-node.active .step-sub {
-  color: var(--ef-accent-700, #0f766e);
+  color: var(--ef-primary-700, #1E4E3E);
   font-weight: 600;
 }
 
 .step-node.completed .step-badge {
-  background-color: var(--ef-excel-600, #107c41);
+  background-color: var(--ef-primary-600, #245C49);
   color: #ffffff;
-  border-color: var(--ef-excel-600, #107c41);
+  border-color: var(--ef-primary-600, #245C49);
 }
 
 .step-node.completed .step-label {
-  color: var(--ef-brand-900, #0f172a);
+  color: var(--ef-brand-900, #2C1D18);
 }
 
 .step-node.completed .step-sub {
-  color: var(--ef-excel-700, #0c6133);
+  color: var(--ef-primary-700, #1E4E3E);
 }
 
 .step-node.error .step-badge {
@@ -343,13 +343,13 @@
 .step-connector {
   flex: 1;
   height: 2px;
-  background-color: var(--ef-neutral-200, #e2e8f0);
+  background-color: var(--ef-neutral-200, #E5D8BE);
   margin: 0 1rem;
   transition: all 0.2s ease;
 }
 
 .step-connector.active {
-  background-color: var(--ef-excel-600, #107c41);
+  background-color: var(--ef-primary-600, #245C49);
 }
 
 /* ==========================================================================
@@ -558,7 +558,7 @@
 
 .upload-dropzone-box:hover,
 .upload-dropzone-box.has-file {
-  border-color: var(--ef-excel-600, #107c41);
+  border-color: var(--ef-primary-600, #245C49);
   background-color: #ffffff;
 }
 
@@ -574,8 +574,8 @@
 }
 
 .dropzone-icon {
-  color: var(--ef-excel-600, #107c41);
-  background-color: var(--ef-excel-100, #e2f6e9);
+  color: var(--ef-primary-600, #245C49);
+  background-color: var(--ef-primary-50, #F0F7F4);
   width: 72px;
   height: 72px;
   border-radius: 50%;
@@ -1064,13 +1064,13 @@
 }
 
 .tab-btn.active {
-  background-color: var(--ef-brand-900, #0f172a);
+  background-color: var(--ef-primary-600, #245C49);
   color: #ffffff;
-  border-color: var(--ef-brand-900, #0f172a);
+  border-color: var(--ef-primary-600, #245C49);
 }
 
-.tab-btn.success.active { background-color: var(--ef-credit, #16a34a); border-color: var(--ef-credit, #16a34a); }
-.tab-btn.warning.active { background-color: var(--ef-tally-amber, #d97706); border-color: var(--ef-tally-amber, #d97706); }
+.tab-btn.success.active { background-color: var(--ef-credit, #245C49); border-color: var(--ef-credit, #245C49); }
+.tab-btn.warning.active { background-color: var(--ef-tally-amber, #B9964D); border-color: var(--ef-tally-amber, #B9964D); }
 .tab-btn.danger.active { background-color: var(--ef-debit, #dc2626); border-color: var(--ef-debit, #dc2626); }
 
 .search-box {
@@ -1092,15 +1092,15 @@
   border: 1px solid var(--ef-neutral-300, #cbd5e1);
   border-radius: 0.375rem;
   background-color: #ffffff;
-  color: var(--ef-brand-900, #0f172a);
+  color: var(--ef-brand-900, #2C1D18);
   width: 260px;
   outline: none;
   transition: border-color 0.15s ease;
 }
 
 .search-box input:focus {
-  border-color: var(--ef-excel-600, #107c41);
-  box-shadow: 0 0 0 2px var(--ef-excel-100, #e2f6e9);
+  border-color: var(--ef-primary-600, #245C49);
+  box-shadow: 0 0 0 2px var(--ef-primary-100, #D6ECE4);
 }
 
 /* Table Responsive */
@@ -1134,7 +1134,7 @@
 }
 
 .preview-table tbody tr:hover {
-  background-color: var(--ef-neutral-50, #f8fafc);
+  background-color: rgba(244, 234, 213, 0.4);
 }
 
 .preview-table tr.row-invalid {
@@ -1163,7 +1163,7 @@
 }
 
 .text-credit {
-  color: var(--ef-credit, #16a34a);
+  color: var(--ef-credit, #245C49);
   font-weight: 700;
 }
 
@@ -1181,7 +1181,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 600;
-  color: var(--ef-brand-900, #0f172a);
+  color: var(--ef-brand-900, #2C1D18);
 }
 
 .empty-table-cell {
@@ -1218,7 +1218,7 @@
 .step6-details h3 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--ef-brand-900, #0f172a);
+  color: var(--ef-brand-900, #2C1D18);
   margin: 0 0 0.35rem 0;
   letter-spacing: -0.02em;
 }
@@ -1229,14 +1229,14 @@
   line-height: 1.4;
 }
 
-.text-ready { color: var(--ef-excel-700, #0c6133); font-weight: 600; }
-.text-success { color: #16a34a; font-weight: 700; }
-.text-warning { color: #d97706; font-weight: 600; }
-.text-info { color: #0284c7; font-weight: 600; }
+.text-ready { color: var(--ef-primary-700, #1E4E3E); font-weight: 600; }
+.text-success { color: var(--ef-primary-600, #245C49); font-weight: 700; }
+.text-warning { color: var(--ef-accent-700, #8E7132); font-weight: 600; }
+.text-info { color: var(--ef-primary-600, #245C49); font-weight: 600; }
 
 .guidance-card {
-  background-color: var(--ef-tally-amber-bg, #fffbeb);
-  border: 1px solid var(--ef-tally-amber-border, #fde68a);
+  background-color: var(--ef-accent-50, #FAF6EE);
+  border: 1px solid var(--ef-accent-border, #E5D5B2);
   border-radius: 0.75rem;
   padding: 1.25rem 1.5rem;
 }
@@ -1246,7 +1246,7 @@
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
-  color: var(--ef-tally-amber, #d97706);
+  color: var(--ef-accent-700, #8E7132);
 }
 
 .guidance-header h4 {
