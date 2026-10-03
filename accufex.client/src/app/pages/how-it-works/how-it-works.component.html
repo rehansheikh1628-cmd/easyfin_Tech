@@ -14,7 +14,7 @@
         <span class="badge badge-accent mb-2">Deterministic Architecture</span>
         <h1 class="page-title" id="howItWorksMainTitle">From financial data to structured output.</h1>
         <p class="page-subtitle">
-          Follow the step-by-step workflow from file ingestion to validated, usable accounting data. ACCUFEX maintains completely separate pipelines for statement parsing and Tally XML generation.
+          Step-by-step workflows from file ingestion to validated accounting data. ACCUFEX maintains distinct pipelines for statement parsing and Tally XML generation.
         </p>
       </div>
     </div>
@@ -40,7 +40,7 @@
           </div>
           <h2 class="wf-title">Bank Statement PDF &rarr; Excel</h2>
           <p class="wf-desc">
-            Deterministic digital PDF extraction with dynamic column interval calibration and running balance checksums.
+            Digital PDF extraction with column interval calibration and running balance checksums.
           </p>
           <span class="wf-select-action">
             <span>View 6-Step Workflow</span>
@@ -64,7 +64,7 @@
           </div>
           <h2 class="wf-title">Excel &rarr; Tally XML</h2>
           <p class="wf-desc">
-            Official Excel workbook validation, transaction preview, and canonical Tally XML voucher generation.
+            Excel template validation, transaction preview, and canonical Tally XML voucher export.
           </p>
           <span class="wf-select-action">
             <span>View 7-Step Workflow</span>
@@ -88,7 +88,7 @@
           </div>
           <h2 class="wf-title">Bills &amp; Invoices &rarr; Excel</h2>
           <p class="wf-desc">
-            Future workflow planned for structuring purchase bills, sales invoices, and vendor metadata into Excel.
+            Future workflow planned for structuring purchase bills, sales invoices, and vendor data.
           </p>
           <span class="wf-select-action">
             <span>View Roadmap Note</span>
@@ -130,21 +130,12 @@
             </div>
             <h3 class="step-heading">Upload Statement &amp; Assign Workspace</h3>
             <p class="step-description">
-              Select a supported digital bank statement PDF. Assign the file to an authorized Client and Financial Year within your workspace. The server streams the upload securely and calculates an invariant SHA-256 hash to detect duplicate uploads.
+              Upload a digital bank statement PDF and assign it to an authorized Client and Financial Year. Files are streamed securely and deduplicated via invariant SHA-256 hashing.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">Accepted File Type</span>
-                <span class="spec-value font-mono">Digital PDF (.pdf)</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Security Guard</span>
-                <span class="spec-value font-mono">SHA-256 Duplicate Check</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Workspace Isolation</span>
-                <span class="spec-value font-mono">Client &bull; Financial Year</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>File:</strong> Digital PDF (.pdf)</span>
+              <span class="spec-tag"><strong>Security:</strong> SHA-256 Deduplication</span>
+              <span class="spec-tag"><strong>Isolation:</strong> Client &bull; FY Sandboxed</span>
             </div>
           </div>
         </div>
@@ -159,21 +150,12 @@
             </div>
             <h3 class="step-heading">Extract Coordinates &amp; Bounding Boxes</h3>
             <p class="step-description">
-              ACCUFEX extracts characters, words, and bounding box geometry directly from the PDF's native font glyphs using PdfPig. Processing occurs entirely in-process on the application server with zero third-party cloud extraction dependencies.
+              PdfPig extracts character glyphs, words, and bounding box geometry directly in-process on the application server with zero third-party cloud dependencies.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">Extraction Engine</span>
-                <span class="spec-value font-mono">PdfPig v0.1.16</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Cloud Dependency</span>
-                <span class="spec-value font-mono">0 Cloud API Calls</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Geometry Extracted</span>
-                <span class="spec-value font-mono">X, Y, Width, Height, Glyphs</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>Engine:</strong> PdfPig v0.1.16</span>
+              <span class="spec-tag"><strong>Privacy:</strong> 0 Cloud API Calls</span>
+              <span class="spec-tag"><strong>Geometry:</strong> X, Y, Width, Height</span>
             </div>
           </div>
         </div>
@@ -188,21 +170,12 @@
             </div>
             <h3 class="step-heading">Detect Bank &amp; Calibrate Column Geometry</h3>
             <p class="step-description">
-              The bank detector evaluates IFSC patterns, bank branding, and table headers to score and select the appropriate calibrated parser (e.g. HDFC-v1, ICICI-v2). Column boundaries are dynamically calibrated from table header intervals. Multi-line descriptions and cross-page transactions (N &rarr; N+1) are joined into unified rows.
+              The detector scores IFSC codes, branch patterns, and table headers to select the calibrated parser. Column boundaries are dynamically aligned, joining multi-line narrations and cross-page transactions.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">Calibrated Institutions</span>
-                <span class="spec-value font-mono">8 Banks &bull; 9 Layout Profiles</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Narration Joining</span>
-                <span class="spec-value font-mono">Multi-line &bull; Cross-page</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Detection Method</span>
-                <span class="spec-value font-mono">Multi-signal deterministic score</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>Coverage:</strong> 8 Banks &bull; 9 Profiles</span>
+              <span class="spec-tag"><strong>Reconstruction:</strong> Multi-line &amp; Cross-page</span>
+              <span class="spec-tag"><strong>Method:</strong> Deterministic Scoring</span>
             </div>
           </div>
         </div>
@@ -217,21 +190,12 @@
             </div>
             <h3 class="step-heading">Verify Running Balances &amp; Arithmetic Integrity</h3>
             <p class="step-description">
-              Every extracted transaction is verified against mathematical balance continuity. The validation engine ensures that each row's previous balance plus credits minus debits exactly equals its new balance. The global equation <code>Opening Balance + &Sigma;Credits - &Sigma;Debits = Closing Balance</code> is verified against statement summary figures.
+              Every row is verified against running balance continuity (<code>Prev + Cr - Dr = Current Balance</code>) and reconciled against global summary figures (<code>Opening + &Sigma;Cr - &Sigma;Dr = Closing</code>).
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">Validation Rule 1</span>
-                <span class="spec-value font-mono">Prev + Cr - Dr = Current Balance</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Validation Rule 2</span>
-                <span class="spec-value font-mono">Opening + &Sigma;Cr - &Sigma;Dr = Closing</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Discrepancy Action</span>
-                <span class="spec-value font-mono">Flagged for Review</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>Check:</strong> Row Running Balances</span>
+              <span class="spec-tag"><strong>Reconciliation:</strong> Opening &rarr; Closing Checksum</span>
+              <span class="spec-tag"><strong>Action:</strong> Discrepancies Flagged</span>
             </div>
           </div>
         </div>
@@ -246,21 +210,12 @@
             </div>
             <h3 class="step-heading">Inspect Flags &amp; Apply Auditable Corrections</h3>
             <p class="step-description">
-              Transactions requiring inspection are displayed in the high-density in-browser review table. Users can search by narration, filter by debit/credit, and correct values if necessary. All modifications are recorded in an auditable sidecar store, preserving the pristine raw extraction.
+              Flagged transactions can be inspected and edited directly in the browser review table. Corrections are saved to an immutable sidecar store, preserving pristine extraction snapshots.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">Original Data</span>
-                <span class="spec-value font-mono">Pristine snapshot preserved</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Audit Persistence</span>
-                <span class="spec-value font-mono">Sidecar correction store</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Real-Time Recalculation</span>
-                <span class="spec-value font-mono">Immediate running balance update</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>Integrity:</strong> Pristine Snapshot Preserved</span>
+              <span class="spec-tag"><strong>Audit:</strong> Sidecar Change Log</span>
+              <span class="spec-tag"><strong>Live Math:</strong> Immediate Recalculation</span>
             </div>
           </div>
         </div>
@@ -275,21 +230,12 @@
             </div>
             <h3 class="step-heading">Export Formula-Ready ClosedXML Excel (.xlsx)</h3>
             <p class="step-description">
-              Download a cleanly formatted Microsoft Excel workbook generated via ClosedXML. Financial values are true numeric floating-point numbers, dates are native Excel serial dates, and references (UTR, NEFT, cheque numbers) are formatted cleanly. Includes locked header freeze panes and a summary sheet.
+              Download a cleanly formatted Microsoft Excel workbook with numeric decimal values, native Excel dates, locked header freeze panes, and preserved alphanumeric references.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">Format Generated</span>
-                <span class="spec-value font-mono">Microsoft Excel (.xlsx)</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Number Formatting</span>
-                <span class="spec-value font-mono">Numeric Currency (#,##0.00)</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Compatibility</span>
-                <span class="spec-value font-mono">Excel 2016+, M365, LibreOffice</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>Format:</strong> Microsoft Excel (.xlsx)</span>
+              <span class="spec-tag"><strong>Numbers:</strong> Decimals (<code>#,##0.00</code>)</span>
+              <span class="spec-tag"><strong>Compatibility:</strong> Excel 2016+, M365</span>
             </div>
           </div>
         </div>
@@ -341,21 +287,11 @@
             </div>
             <h3 class="step-heading">Download Official ACCUFEX Template (.xlsm)</h3>
             <p class="step-description">
-              Download the official, standardized ACCUFEX Excel template directly from the application. The workbook contains pre-configured columns matching the required schema for Tally voucher generation.
+              Download the official, standardized ACCUFEX template with pre-configured column headers matching canonical Tally XML voucher schemas.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">Template Format</span>
-                <span class="spec-value font-mono">Macro-Enabled Excel (.xlsm)</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Required Columns</span>
-                <span class="spec-value font-mono">Date, Particulars, Debit, Credit, Ledger</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Source of Truth</span>
-                <span class="spec-value font-mono">ACCUFEX Official Template</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>Template:</strong> Macro-Enabled Excel (.xlsm)</span>
+              <span class="spec-tag"><strong>Columns:</strong> Date, Particulars, Debit, Credit, Ledger</span>
             </div>
           </div>
         </div>
@@ -370,21 +306,11 @@
             </div>
             <h3 class="step-heading">Fill Transaction Data &amp; Ledger Names</h3>
             <p class="step-description">
-              Enter or paste transaction rows into the template. Specify the bank or cash ledger name, counter-ledger account, transaction amounts, and reference details. The template maintains clear separation between debit and credit columns.
+              Enter or paste transaction rows into the template. Specify bank/cash ledgers, counter-ledgers, and distinct debit and credit columns.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">Supported Sources</span>
-                <span class="spec-value font-mono">Any bank, cash, or ERP export</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Ledger Assignment</span>
-                <span class="spec-value font-mono">Direct counter-ledger mapping</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Data Integrity</span>
-                <span class="spec-value font-mono">Separate Debit &amp; Credit columns</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>Sources:</strong> Any bank, cash, or ERP export</span>
+              <span class="spec-tag"><strong>Mapping:</strong> Counter-ledger account assignment</span>
             </div>
           </div>
         </div>
@@ -399,21 +325,11 @@
             </div>
             <h3 class="step-heading">Upload Completed Workbook to ACCUFEX</h3>
             <p class="step-description">
-              Upload the completed .xlsm workbook to the secure /excel-to-tally endpoint. ACCUFEX reads the spreadsheet using ClosedXmlExcelReaderService with strict workbook validation.
+              Upload the .xlsm or .xlsx workbook. ClosedXmlExcelReaderService parses and reads spreadsheet contents strictly as passive tabular data.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">Accepted Extensions</span>
-                <span class="spec-value font-mono">.xlsm, .xlsx</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">File Reader</span>
-                <span class="spec-value font-mono">ClosedXmlExcelReaderService</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Validation Engine</span>
-                <span class="spec-value font-mono">ExcelToTallyValidationService</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>Formats:</strong> .xlsm, .xlsx</span>
+              <span class="spec-tag"><strong>Engine:</strong> ClosedXmlExcelReaderService</span>
             </div>
           </div>
         </div>
@@ -428,21 +344,12 @@
             </div>
             <h3 class="step-heading">Validate Column Headers, Dates &amp; Balances</h3>
             <p class="step-description">
-              The server-side validation service performs strict checks: confirms all required headers exist, validates date formats, verifies that positive amounts are present, checks that debit and credit amounts do not conflict on the same row, and confirms that ledger names are populated.
+              Server-side validation confirms required headers exist, validates dates, checks for positive non-zero amounts, and verifies debit/credit integrity.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">Header Validation</span>
-                <span class="spec-value font-mono">Exact required schema verification</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Amount Validation</span>
-                <span class="spec-value font-mono">Strict positive non-zero checks</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Error Reporting</span>
-                <span class="spec-value font-mono">Structured error list with row numbers</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>Headers:</strong> Schema Verification</span>
+              <span class="spec-tag"><strong>Amounts:</strong> Positive non-zero checks</span>
+              <span class="spec-tag"><strong>Reporting:</strong> Row-level diagnostic errors</span>
             </div>
           </div>
         </div>
@@ -457,21 +364,12 @@
             </div>
             <h3 class="step-heading">Preview Transactions &amp; Voucher Classifications</h3>
             <p class="step-description">
-              Inspect the validated transaction dataset in the web preview grid. Review total debit and credit amounts, transaction counts, and verify that voucher types match expected accounting directions.
+              Inspect the validated transaction dataset in the web preview grid. Review total debit and credit amounts, transaction counts, and voucher directions.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">Debit Direction</span>
-                <span class="spec-value font-mono">Payment Voucher</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Credit Direction</span>
-                <span class="spec-value font-mono">Receipt Voucher</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Summary Check</span>
-                <span class="spec-value font-mono">Total Debit &bull; Total Credit</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>Debits:</strong> Payment Vouchers</span>
+              <span class="spec-tag"><strong>Credits:</strong> Receipt Vouchers</span>
+              <span class="spec-tag"><strong>Totals:</strong> Debit &bull; Credit Balance Check</span>
             </div>
           </div>
         </div>
@@ -486,21 +384,12 @@
             </div>
             <h3 class="step-heading">Generate Canonical Tally XML Vouchers</h3>
             <p class="step-description">
-              TallyXmlGenerator constructs the standard Tally XML envelope (<code>&lt;ENVELOPE&gt;&lt;BODY&gt;&lt;IMPORTDATA&gt;...</code>). Every voucher is generated with correct ledger entries, GUID identifiers, date stamps in YYYYMMDD format, and balanced ledger postings.
+              TallyXmlGenerator constructs the standard Tally XML envelope with balanced ledger postings, GUID identifiers, and YYYYMMDD date stamps.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">XML Standard</span>
-                <span class="spec-value font-mono">Tally Canonical XML Schema</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Date Format</span>
-                <span class="spec-value font-mono">YYYYMMDD</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Voucher Types</span>
-                <span class="spec-value font-mono">Payment &bull; Receipt</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>Standard:</strong> Tally Canonical XML</span>
+              <span class="spec-tag"><strong>Dates:</strong> YYYYMMDD</span>
+              <span class="spec-tag"><strong>Vouchers:</strong> Payment &bull; Receipt</span>
             </div>
           </div>
         </div>
@@ -515,21 +404,12 @@
             </div>
             <h3 class="step-heading">Download XML &amp; Import into TallyPrime</h3>
             <p class="step-description">
-              Download the resulting .xml file. In TallyPrime or Tally.ERP 9, navigate to <strong>Import &rarr; Transactions</strong>, select the downloaded XML file, and import all vouchers directly into your company ledgers in one click.
+              Download the generated .xml file and import via TallyPrime or Tally.ERP 9 (Import &rarr; Transactions) directly into your company ledgers.
             </p>
-            <div class="step-specs-grid">
-              <div class="spec-cell">
-                <span class="spec-label">File Type</span>
-                <span class="spec-value font-mono">XML (.xml)</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Tally Target</span>
-                <span class="spec-value font-mono">TallyPrime &bull; Tally.ERP 9</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Import Method</span>
-                <span class="spec-value font-mono">Import &rarr; Transactions</span>
-              </div>
+            <div class="step-specs-compact">
+              <span class="spec-tag"><strong>File:</strong> XML (.xml)</span>
+              <span class="spec-tag"><strong>Target:</strong> TallyPrime &bull; Tally.ERP 9</span>
+              <span class="spec-tag"><strong>Import:</strong> Import &rarr; Transactions</span>
             </div>
           </div>
         </div>
@@ -557,47 +437,52 @@
         <div class="roadmap-content">
           <h3>Engineering Status: In Research</h3>
           <p>
-            Bills and invoices present fundamentally different layout challenges from bank statements: variable vendor invoice structures, multi-rate tax breakdowns, line-item quantity grids, and optical scans.
-          </p>
-          <p>
-            ACCUFEX's engineering principle is <strong>Accuracy &gt; Feature Count</strong>. We do not release or advertise features that rely on speculative or probabilistic guessing. The Bills &amp; Invoices workflow is currently undergoing architectural evaluation and is not yet available in production.
+            ACCUFEX follows an engineering principle of <strong>Accuracy &gt; Feature Count</strong>. The Bills &amp; Invoices workflow is currently undergoing architectural evaluation and is not yet available in production.
           </p>
           <div class="roadmap-notice">
-            <strong>Current production availability:</strong> Workflows 1 (Bank Statement PDF &rarr; Excel) and 2 (Excel &rarr; Tally XML) are fully active and validated.
+            <strong>Active production workflows:</strong> Workflow 1 (Bank Statement PDF &rarr; Excel) and Workflow 2 (Excel &rarr; Tally XML) are fully validated.
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 6. Architectural Deep-Dive: Why Validation Matters -->
-  <section class="validation-philosophy-section" aria-label="Validation Philosophy">
+  <!-- 6. Architectural Foundations Strip -->
+  <section class="validation-philosophy-section" aria-label="Validation and Security Foundations">
     <div class="container">
       <div class="philosophy-card card">
-        <div class="philosophy-header">
-          <span class="badge badge-primary mb-1">Core Philosophy</span>
-          <h2>The Validation Difference: Why ACCUFEX Verifies Every Rupee</h2>
+        <div class="philosophy-header text-center">
+          <span class="badge badge-primary mb-1">Institutional Foundations</span>
+          <h2>Engineered for Audit Compliance &amp; Data Security</h2>
+          <p class="section-desc mt-1">Disciplined technical boundaries ensuring precision and privacy.</p>
         </div>
         <div class="philosophy-grid">
           <div class="philosophy-point">
             <div class="point-num font-mono">01</div>
-            <h3>Text Extraction is Not Accounting</h3>
+            <h3>Mathematical Balance Verification</h3>
             <p>
-              Tools that simply extract text from PDFs often miss decimal commas, split descriptions across phantom rows, or swap debit and credit columns. ACCUFEX requires every transaction to reconcile arithmetically against running balances.
+              Every transaction reconciles arithmetically against running balances (<code>Prev + Cr - Dr = Balance</code>). Discrepancies are highlighted rather than silenced.
             </p>
           </div>
           <div class="philosophy-point">
             <div class="point-num font-mono">02</div>
-            <h3>Pristine Snapshots &amp; Sidecar Audits</h3>
+            <h3>Immutable Sidecar Auditing</h3>
             <p>
-              When corrections are made in the review grid, ACCUFEX does not mutate raw extraction records. Edits are persisted in an immutable sidecar audit trail, preserving full evidentiary provenance for Chartered Accountants.
+              Raw extracted transactions remain permanently immutable. Corrections are tracked in an evidentiary sidecar log for audit compliance.
             </p>
           </div>
           <div class="philosophy-point">
             <div class="point-num font-mono">03</div>
-            <h3>Zero Cloud Extraction Dependencies</h3>
+            <h3>Zero Cloud Extraction</h3>
             <p>
-              PdfPig extracts character geometry directly in-process on the application server. Financial statement documents are never transmitted to third-party AI vision APIs or unvetted external services.
+              PdfPig extracts character geometry in-process on the application server. Financial files are never sent to third-party AI vision APIs.
+            </p>
+          </div>
+          <div class="philosophy-point">
+            <div class="point-num font-mono">04</div>
+            <h3>Private Sandboxed Storage</h3>
+            <p>
+              Files and records are strictly isolated by Client and Financial Year outside public web roots with session-level authorization.
             </p>
           </div>
         </div>
@@ -605,44 +490,12 @@
     </div>
   </section>
 
-  <!-- 7. What Happens to Your Files Section -->
-  <section class="file-security-section" aria-label="File Security and Storage">
-    <div class="container">
-      <div class="security-info-card card">
-        <div class="sec-header">
-          <span class="badge badge-outline mb-1">Storage &amp; Privacy</span>
-          <h2>What Happens to Your Files in ACCUFEX</h2>
-        </div>
-        <div class="sec-grid">
-          <div class="sec-item">
-            <h4>Private Sandboxed Storage</h4>
-            <p>
-              Uploaded statement PDFs are stored in sandboxed private disk directories outside public web folders, protected against path-traversal vulnerabilities.
-            </p>
-          </div>
-          <div class="sec-item">
-            <h4>Strict Authorization Chains</h4>
-            <p>
-              Every access request verifies ownership from the authenticated session down to the file and transaction: <code>User &rarr; Client &rarr; FileRecord &rarr; Transaction</code>.
-            </p>
-          </div>
-          <div class="sec-item">
-            <h4>Workspace Isolation</h4>
-            <p>
-              Statement files and transaction datasets are strictly isolated by Client and Financial Year. Cross-account inspection is blocked at the database and API layers.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 8. Bottom Action CTA -->
+  <!-- 7. Bottom Action CTA -->
   <section class="hiw-cta-section" aria-label="Get Started">
     <div class="container">
       <div class="cta-banner card text-center">
         <span class="badge badge-accent mb-2">Ready to convert?</span>
-        <h2 class="cta-title">Start converting your statements with mathematical precision</h2>
+        <h2 class="cta-title">Start converting your statements with precision</h2>
         <p class="cta-subtitle">
           Choose between our Bank Statement PDF &rarr; Excel converter or the Excel &rarr; Tally XML voucher workflow.
         </p>

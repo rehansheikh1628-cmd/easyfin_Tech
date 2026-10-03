@@ -297,6 +297,29 @@
   margin: 0 0 1.25rem;
 }
 
+.step-specs-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.spec-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.65rem;
+  background-color: var(--ef-surface-subtle);
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-sm, 6px);
+  font-size: 0.75rem;
+  color: var(--ef-text-secondary);
+}
+
+.spec-tag strong {
+  color: var(--ef-brand-950);
+}
+
 .step-specs-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -305,26 +328,6 @@
   border: 1px solid var(--ef-border);
   border-radius: 8px;
   padding: 0.875rem 1rem;
-}
-
-.spec-cell {
-  display: flex;
-  flex-direction: column;
-}
-
-.spec-label {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--ef-text-muted);
-  letter-spacing: 0.05em;
-  margin-bottom: 0.2rem;
-}
-
-.spec-value {
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--ef-brand-950);
 }
 
 /* Advisory Box */
@@ -432,11 +435,22 @@
   margin: 0.35rem 0 0;
 }
 
-.philosophy-grid,
-.sec-grid {
+.philosophy-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .philosophy-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .philosophy-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .philosophy-point,

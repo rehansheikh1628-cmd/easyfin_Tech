@@ -14,7 +14,7 @@
         <span class="badge badge-accent mb-2">Platform Capabilities</span>
         <h1 class="page-title" id="featuresMainTitle">Built for the work behind the numbers.</h1>
         <p class="page-subtitle">
-          ACCUFEX turns raw bank statement PDFs and transaction spreadsheets into validated, structured accounting data with verifiable mathematical continuity.
+          Turn bank statement PDFs and spreadsheets into validated, formula-ready accounting data with mathematical continuity verification.
         </p>
 
         <!-- Quick Workflow Jump Anchors -->
@@ -53,10 +53,7 @@
           <div class="feature-narrative">
             <h2 class="feature-heading">Deterministic Bank Statement PDF &rarr; Excel Conversion</h2>
             <p class="feature-lead">
-              Turn supported digital bank statement PDFs into clean, normalized Excel spreadsheets without manual copy-pasting or line-wrapping errors.
-            </p>
-            <p class="feature-body">
-              Unlike generic scrapers that miss columns or split narrations across arbitrary rows, ACCUFEX reconstructs transactions using coordinate-based glyph geometry. Every row is aligned to calibrated column intervals and verified against running balances.
+              Turn supported digital bank statement PDFs into clean, normalized Excel spreadsheets with zero manual data entry.
             </p>
 
             <ul class="feature-checklist">
@@ -70,7 +67,7 @@
               </li>
               <li>
                 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>Deterministic Bank Detection:</strong> Multi-signal classifier matches IFSC, branch codes, and column headers to activate the calibrated parser.</span>
+                <span><strong>Deterministic Bank Detection:</strong> Multi-signal classifier matches IFSC, branch codes, and headers to activate the calibrated parser.</span>
               </li>
             </ul>
 
@@ -95,7 +92,7 @@
                 <span class="node-icon bg-navy">PDF</span>
                 <div class="node-info">
                   <span class="node-label">Digital Statement PDF</span>
-                  <span class="node-desc">Client uploads native digital PDF file</span>
+                  <span class="node-desc">Native digital PDF statement upload</span>
                 </div>
               </div>
               <div class="pipeline-arrow">&darr;</div>
@@ -111,7 +108,7 @@
                 <span class="node-icon bg-amber">VAL</span>
                 <div class="node-info">
                   <span class="node-label">Mathematical Verification</span>
-                  <span class="node-desc">Running balance check &amp; discrepancy detection</span>
+                  <span class="node-desc">Running balance verification &amp; discrepancy flags</span>
                 </div>
               </div>
               <div class="pipeline-arrow">&darr;</div>
@@ -119,7 +116,7 @@
                 <span class="node-icon bg-green">XLSX</span>
                 <div class="node-info">
                   <span class="node-label">ClosedXML Ledger Export</span>
-                  <span class="node-desc">Real decimal numbers &amp; formatted Excel dates</span>
+                  <span class="node-desc">True numeric floats &amp; serial Excel dates</span>
                 </div>
               </div>
             </div>
@@ -155,7 +152,7 @@
                 <span class="node-icon bg-green">XLSM</span>
                 <div class="node-info">
                   <span class="node-label">Official ACCUFEX Template</span>
-                  <span class="node-desc">Client enters/pastes transactions into standardized template</span>
+                  <span class="node-desc">Standardized template with configured schema</span>
                 </div>
               </div>
               <div class="pipeline-arrow">&darr;</div>
@@ -179,7 +176,7 @@
                 <span class="node-icon bg-amber">XML</span>
                 <div class="node-info">
                   <span class="node-label">Tally XML Generation</span>
-                  <span class="node-desc">Ready-to-import vouchers for TallyPrime / Tally.ERP 9</span>
+                  <span class="node-desc">Import-ready vouchers for TallyPrime / Tally.ERP 9</span>
                 </div>
               </div>
             </div>
@@ -187,31 +184,28 @@
             <!-- Direction Logic Note -->
             <div class="digital-notice-callout">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-              <span><strong>Factual Voucher Direction:</strong> ACCUFEX maps Debit transactions to Payment vouchers and Credit transactions to Receipt vouchers based strictly on the uploaded workbook data.</span>
+              <span><strong>Factual Voucher Direction:</strong> Maps Debit transactions to Payment vouchers and Credit transactions to Receipt vouchers directly from uploaded rows.</span>
             </div>
           </div>
 
           <div class="feature-narrative">
             <h2 class="feature-heading">Excel &rarr; Tally XML Accounting Voucher Generation</h2>
             <p class="feature-lead">
-              Transform structured transaction spreadsheets into ready-to-import Tally XML vouchers with zero manual data entry.
-            </p>
-            <p class="feature-body">
-              This workflow is completely separate from bank PDF parsing. It allows accountants to take transaction data from any source, paste it into the official ACCUFEX Excel template, validate column integrity, and generate canonical Tally XML vouchers.
+              Transform transaction spreadsheets into ready-to-import Tally XML vouchers with zero manual entry.
             </p>
 
             <ul class="feature-checklist">
               <li>
                 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>Official Validated Template:</strong> Built-in XLSM template with structured headers for Bank Name, Date, Narration, Ledger, and Amounts.</span>
+                <span><strong>Official Validated Template:</strong> Standardized XLSM template with structured headers for Bank, Date, Narration, Ledger, and Amounts.</span>
               </li>
               <li>
                 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>Pre-Import Validation:</strong> Flags missing required headers, malformed dates, or unbalanced entries before generating XML.</span>
+                <span><strong>Pre-Import Validation:</strong> Flags missing required headers, malformed dates, or conflicting entries before generating XML.</span>
               </li>
               <li>
                 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>TallyPrime &amp; ERP 9 Ready:</strong> Generates standard Tally XML vouchers conforming to canonical Indian accounting schema.</span>
+                <span><strong>TallyPrime &amp; ERP 9 Ready:</strong> Generates canonical Tally XML vouchers conforming to standard accounting schemas.</span>
               </li>
             </ul>
 
@@ -227,14 +221,14 @@
     </div>
   </section>
 
-  <!-- 4. Deep-Dive Capabilities Grid -->
+  <!-- 4. Technical Foundations Grid -->
   <section class="deep-dive-section" id="workflowValidation" aria-label="Platform Specifications">
     <div class="container">
       <div class="section-title-wrap text-center">
         <span class="badge badge-primary mb-2">Technical Foundations</span>
         <h2 class="section-title">Engineered for Accounting Accuracy</h2>
         <p class="section-subtitle">
-          ACCUFEX is built on deterministic software engineering rather than probabilistic guessing.
+          Deterministic software engineering that validates every calculation.
         </p>
       </div>
 
@@ -246,13 +240,13 @@
           </div>
           <h3>Mathematical Balance Reconciliation</h3>
           <p>
-            ACCUFEX does not assume extracted text is correct simply because characters were found. The engine verifies row-by-row running balance continuity:
+            Verifies row-by-row arithmetic continuity across every extracted transaction:
           </p>
           <div class="math-formula-box font-mono">
             Opening Balance + &Sigma;Credits - &Sigma;Debits = Closing Balance
           </div>
           <p class="cap-meta">
-            If any arithmetic discrepancy is identified, the row is highlighted in the review grid for inspection rather than silenced.
+            Discrepancies are highlighted in the review grid for inspection rather than silenced.
           </p>
         </div>
 
@@ -266,10 +260,9 @@
             Generated workbooks are built using ClosedXML directly into native OpenXML format (.xlsx).
           </p>
           <ul class="cap-checklist">
-            <li><strong>True Numeric Floats:</strong> Amounts are formatted as currency decimals (<code>#,##0.00</code>), never text strings.</li>
-            <li><strong>Native Date Objects:</strong> Excel serial dates allowing immediate sorting and chronological filtering.</li>
-            <li><strong>Preserved References:</strong> Alphanumeric UTR, NEFT, and cheque strings are kept intact.</li>
-            <li><strong>Freeze Panes &amp; Auto-filters:</strong> Header rows locked for rapid ledger inspection.</li>
+            <li><strong>True Numeric Floats:</strong> Formatted decimals (<code>#,##0.00</code>), never text strings.</li>
+            <li><strong>Native Date Objects:</strong> Excel serial dates for immediate chronological filtering.</li>
+            <li><strong>Preserved References:</strong> Alphanumeric UTR, NEFT, and cheque strings kept intact.</li>
           </ul>
         </div>
 
@@ -280,11 +273,11 @@
           </div>
           <h3>Auditable Review &amp; Sidecar Storage</h3>
           <p>
-            When a transaction requires adjustment, accountants can edit records directly in the web review table.
+            Inspect and edit transactions directly in the browser review table before export.
           </p>
           <ul class="cap-checklist">
-            <li><strong>Pristine Original Snapshot:</strong> Raw extracted transactions remain permanently immutable.</li>
-            <li><strong>Sidecar Audit Trail:</strong> Corrections are tracked in a dedicated audit log with original and updated values.</li>
+            <li><strong>Pristine Original Snapshot:</strong> Raw extracted transactions remain immutable.</li>
+            <li><strong>Sidecar Audit Trail:</strong> Corrections are tracked with original and updated values.</li>
             <li><strong>Live Re-validation:</strong> Edited balances immediately recalculate running checksums.</li>
           </ul>
         </div>
@@ -296,12 +289,12 @@
           </div>
           <h3>Multi-Client Workspace Repository</h3>
           <p>
-            Manage statements systematically across clients, financial years, and processing states in one accounting workspace.
+            Manage statements systematically across clients, financial years, and processing states.
           </p>
           <ul class="cap-checklist">
-            <li><strong>Multi-Dimensional Filtering:</strong> Live search by filename, client, financial year, or statement ID.</li>
-            <li><strong>KPI Status Metrics:</strong> Track Completed, In Processing, and Issue states in real time.</li>
-            <li><strong>Direct Action Access:</strong> Download original PDF, export ClosedXML Excel, or inspect ingestion metadata.</li>
+            <li><strong>Multi-Dimensional Search:</strong> Filter by filename, client, or financial year.</li>
+            <li><strong>Processing Metrics:</strong> Track Completed, Processing, and Flagged states.</li>
+            <li><strong>Direct File Access:</strong> Download original PDF or export ClosedXML Excel anytime.</li>
           </ul>
         </div>
 
@@ -316,9 +309,8 @@
           </p>
           <ul class="cap-checklist">
             <li><strong>HTTP-Only Cookies:</strong> Authenticated sessions protected against script injection.</li>
-            <li><strong>Server-Side Authorization:</strong> Every request verifies <code>User &rarr; Client &rarr; File &rarr; Transaction</code> ownership.</li>
-            <li><strong>Sandboxed Disk Storage:</strong> Statements stored outside public web roots with path-traversal guards.</li>
-            <li><strong>PBKDF2 Password Hashing:</strong> Cryptographic password hashing (10,000 iterations).</li>
+            <li><strong>Tenant Authorization:</strong> Strict ownership verification from session to file.</li>
+            <li><strong>Sandboxed Disk Storage:</strong> Statements stored outside public web roots.</li>
           </ul>
         </div>
 
@@ -332,7 +324,7 @@
             <span class="badge badge-accent">Coming Soon</span>
           </div>
           <p class="coming-soon-text">
-            A future workflow planned to structure purchase bills, sales invoices, and vendor metadata into normalized Excel workbooks.
+            A future workflow planned to structure purchase bills and invoices into normalized Excel workbooks.
           </p>
           <div class="coming-soon-notice">
             Currently in engineering research. ACCUFEX does not claim active invoice OCR or GST portal integrations until production calibration is complete.
@@ -347,9 +339,9 @@
     <div class="container">
       <div class="cta-banner card text-center">
         <span class="badge badge-accent mb-2">Get Started</span>
-        <h2 class="cta-title">Ready to experience precision statement conversion?</h2>
+        <h2 class="cta-title">Ready to automate your document workflows?</h2>
         <p class="cta-subtitle">
-          Upload your digital bank statement or Excel transaction workbook to experience automated extraction and validation.
+          Convert bank statements into clean spreadsheets or generate verified Tally Prime XML vouchers.
         </p>
         <div class="cta-actions">
           <a routerLink="/converter" class="btn btn-excel btn-lg" id="featuresBottomConverterBtn">

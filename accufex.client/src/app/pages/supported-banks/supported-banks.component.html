@@ -14,7 +14,7 @@
         <span class="badge badge-accent mb-2">Deterministic Parser Directory</span>
         <h1 class="page-title" id="supportedBanksTitle">Supported Banks &amp; Statement Formats</h1>
         <p class="page-subtitle">
-          Verify whether your bank statement layout is supported before starting your conversion. ACCUFEX uses coordinate-based geometric parsers tailored to specific institutional formats.
+          Verify whether your bank statement layout is supported before starting. Tailored coordinate-based parsers for calibrated Indian banking formats.
         </p>
       </div>
 
@@ -82,14 +82,14 @@
     <div class="container">
       <div class="boundary-card card">
         <div class="boundary-icon-box">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="16" x2="12" y2="12"></line>
             <line x1="12" y1="8" x2="12.01" y2="8"></line>
           </svg>
         </div>
         <div class="boundary-content">
-          <h2 class="boundary-title">Workflow Notice: Bank Statement PDF &rarr; Excel Only</h2>
+          <h2 class="boundary-title">Workflow Scope Notice</h2>
           <p class="boundary-text">
             This directory lists supported statement layouts for the <strong>Bank Statement PDF &rarr; Excel Converter</strong> workflow. The separate <strong>Excel &rarr; Tally XML</strong> workflow accepts any bank data as long as it is pasted into the official ACCUFEX Excel template.
           </p>
@@ -307,13 +307,10 @@
             </div>
           </div>
           <p class="advisory-text">
-            ACCUFEX is engineered around a deterministic coordinate-based digital parser. It extracts characters and bounding boxes directly from the PDF's native font glyphs.
+            ACCUFEX uses coordinate-based extraction from native font glyphs. Scanned statements, photocopies, passbook camera snapshots, and image-only PDFs require Optical Character Recognition (OCR) and are <strong>not currently included in the standard digital-PDF parser workflow</strong>.
           </p>
-          <div class="advisory-callout">
-            <strong>Important Notice:</strong> Scanned statements, photocopies, passbook camera snapshots, and image-only PDFs require Optical Character Recognition (OCR) and are <strong>not currently included in the standard digital-PDF parser workflow</strong>.
-          </div>
           <div class="quick-check-tip">
-            <span class="font-bold">Quick test:</span> Open your bank PDF in a viewer. If you can click and highlight transaction text with your mouse cursor, it is a digital PDF compatible with ACCUFEX.
+            <span class="font-bold">Quick test:</span> If you can select transaction text with your mouse cursor, it is a supported digital PDF.
           </div>
         </div>
 
@@ -333,14 +330,14 @@
             </div>
           </div>
           <p class="advisory-text">
-            Bank support depends strictly on statement layout. A single bank may generate different layouts across retail netbanking, corporate portals, passbook counters, or credit card divisions.
+            Support depends strictly on statement layout. Retail netbanking, corporate portals, and branch printouts may use different columns.
           </p>
           <ul class="variation-guidelines">
             <li>
-              <strong>Deterministic Scoring:</strong> Upon upload, ACCUFEX's bank detector scans IFSC codes, branch patterns, and column header configurations to match the correct parser profile.
+              <strong>Deterministic Scoring:</strong> Matches IFSC codes, branch patterns, and column header configurations to the parser profile.
             </li>
             <li>
-              <strong>Mathematical Validation:</strong> Every extracted row is reconciled against the running balance. If any column is misaligned, ACCUFEX flags it in the Review screen rather than guessing.
+              <strong>Mathematical Validation:</strong> Every extracted row is reconciled against the running balance to prevent silent errors.
             </li>
           </ul>
         </div>
@@ -355,7 +352,7 @@
         <span class="badge badge-accent mb-2">Ready to convert?</span>
         <h2 class="cta-title">Upload your bank statement and let ACCUFEX process it</h2>
         <p class="cta-subtitle">
-          Experience automated bank statement extraction, mathematical continuity validation, and one-click ClosedXML Excel ledger generation.
+          Automated statement extraction, running balance validation, and one-click ClosedXML Excel generation.
         </p>
         <div class="cta-actions">
           <a routerLink="/converter" class="btn btn-excel btn-lg" id="openConverterBtn">
