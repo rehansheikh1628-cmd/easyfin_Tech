@@ -7,11 +7,11 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: rgba(250, 247, 242, 0.96);
+  background-color: rgba(251, 249, 244, 0.96);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--ef-border);
-  box-shadow: 0 1px 3px 0 rgba(44, 29, 24, 0.04);
+  box-shadow: 0 1px 3px 0 rgba(48, 58, 54, 0.04);
   transition: all var(--ef-transition-fast);
   width: 100%;
 }
@@ -163,7 +163,7 @@
   background-color: var(--ef-surface);
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-lg);
-  box-shadow: 0 20px 35px -5px rgba(44, 29, 24, 0.12), 0 10px 15px -5px rgba(44, 29, 24, 0.06);
+  box-shadow: 0 20px 35px -5px rgba(48, 58, 54, 0.1), 0 10px 15px -5px rgba(48, 58, 54, 0.04);
   display: none;
   flex-direction: column;
   z-index: 1050;
@@ -478,8 +478,8 @@
   width: 1.875rem;
   height: 1.875rem;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #2C1D18 0%, #442E27 100%);
-  color: #B9964D;
+  background: linear-gradient(135deg, #2F6B57 0%, #265948 100%);
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -487,7 +487,7 @@
   font-size: 0.6875rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  border: 1px solid rgba(185, 150, 77, 0.4);
+  border: 1px solid #C4A15A;
   flex-shrink: 0;
 }
 
@@ -539,7 +539,7 @@
   background-color: var(--ef-surface);
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-lg);
-  box-shadow: 0 20px 30px -5px rgba(44, 29, 24, 0.12), 0 8px 10px -4px rgba(44, 29, 24, 0.06);
+  box-shadow: 0 20px 30px -5px rgba(48, 58, 54, 0.1), 0 8px 10px -4px rgba(48, 58, 54, 0.04);
   display: none;
   flex-direction: column;
   z-index: 1050;
@@ -586,8 +586,8 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #2C1D18 0%, #442E27 100%);
-  color: #B9964D;
+  background: linear-gradient(135deg, #2F6B57 0%, #265948 100%);
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -595,7 +595,7 @@
   font-size: 0.875rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  border: 1px solid rgba(185, 150, 77, 0.4);
+  border: 1px solid #C4A15A;
   flex-shrink: 0;
 }
 

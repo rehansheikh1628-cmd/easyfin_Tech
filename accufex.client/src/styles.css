@@ -1,46 +1,50 @@
 /* ==========================================================================
-   ACCUFEX — Core Institutional FinTech Design System & Tokens
+   ACCUFEX — Light Premium FinTech SaaS Design System & Tokens
    Tailored specifically for Chartered Accountants (CAs), accounting practices,
    corporate finance teams, and bookkeepers.
-   Strictly Zero Backend Changes • High Trust • Mathematical Precision
+   Strictly Zero Backend Changes • High Trust • Modern Financial Clarity
    ========================================================================== */
 
 :root {
   /* ========================================================================
-     ACCUFEX Institutional FinTech Design System & Tokens
-     Core 4-Color Reference Palette:
-     1. Forest Green: #245C49 (Primary Interactive, Active, Selected, Primary Accents)
-     2. Antique Gold: #B9964D (Secondary Accents, Highlights, Premium Indicators)
-     3. Cream:        #F4EAD5 (Soft Page/Section Backgrounds, Elevated Highlights)
-     4. Espresso:     #2C1D18 (Primary Dark Text, Headings, Footer, Dark Surfaces)
-     Strictly Zero Deep Emerald (#063B2E) • Mathematical Precision & Accessibility
+     ACCUFEX Light Premium SaaS Design System & Tokens
+     Core Reference Palette:
+     1. Primary Forest Green: #2F6B57 (Primary buttons, active nav, primary accents)
+     2. Soft Sage:            #DCE9E1 (Soft green panels, secondary backgrounds, selected surfaces)
+     3. Muted Gold:           #C4A15A (Small premium accents, highlights, decorative details)
+     4. Warm Ivory:           #FBF9F4 (Main page background and warm canvas)
+     5. Warm Charcoal:        #303A36 (Main text and headings)
+     6. Pale Green Surface:   #EEF5F1 (Cards/soft sections/secondary surfaces)
+     7. White:                #FFFFFF (Forms, cards, clean content surfaces)
+     8. Light Border:         #D9E4DE (Borders and separators)
+     Strictly Zero Deep Emerald (#063B2E) • Zero Heavy Espresso (#2C1D18)
      ======================================================================== */
 
   /* ------------------------------------------------------------------------
      Centralized Semantic Color Variables
      ------------------------------------------------------------------------ */
-  --color-primary:       #245C49;
-  --color-primary-hover: #1E4E3E;
-  --color-primary-active:#183F32;
-  --color-accent:        #B9964D;
-  --color-accent-hover:  #A3833E;
-  --color-accent-text:   #8E7132;
-  --color-background:    #FAF7F2;
-  --color-cream:         #F4EAD5;
+  --color-primary:       #2F6B57;
+  --color-primary-hover: #265948;
+  --color-primary-active:#1F4A3C;
+  --color-accent:        #C4A15A;
+  --color-accent-hover:  #B28F47;
+  --color-accent-text:   #8A6B2D;
+  --color-background:    #FBF9F4;
+  --color-cream:         #DCE9E1;
   --color-surface:       #FFFFFF;
-  --color-surface-cream: #F4EAD5;
-  --color-text:          #2C1D18;
-  --color-text-muted:    #766058;
-  --color-border:        #E5D8BE;
-  --color-dark:          #2C1D18;
+  --color-surface-cream: #EEF5F1;
+  --color-text:          #303A36;
+  --color-text-muted:    #4F5F57;
+  --color-border:        #D9E4DE;
+  --color-dark:          #303A36;
 
   /* ------------------------------------------------------------------------
-     1. Canvas & Surface Elevation (Warm Cream Tint & Clean White Surfaces)
+     1. Canvas & Surface Elevation (Warm Ivory Canvas & Clean White Surfaces)
      ------------------------------------------------------------------------ */
-  --ef-canvas:         #FAF7F2;
-  --ef-surface:        #FFFFFF;
-  --ef-surface-subtle: #F4EAD5; /* Core Cream #F4EAD5 */
-  --ef-surface-muted:  #ECE0C8;
+  --ef-canvas:         #FBF9F4; /* Warm Ivory Canvas */
+  --ef-surface:        #FFFFFF; /* Pure White Content Surfaces */
+  --ef-surface-subtle: #EEF5F1; /* Pale Green Surface */
+  --ef-surface-muted:  #DCE9E1; /* Soft Sage */
 
   /* Legacy surface mapping for component backwards-compatibility */
   --ef-bg-app:     var(--ef-canvas);
@@ -49,55 +53,55 @@
   --ef-bg-muted:   var(--ef-surface-muted);
 
   /* ------------------------------------------------------------------------
-     2. Brand Color Palette (Deep Institutional Espresso #2C1D18)
+     2. Brand Color Palette (Warm Charcoal & Sage Scale)
      ------------------------------------------------------------------------ */
-  --ef-brand-950: #201410;
-  --ef-brand-900: #2C1D18; /* Core Espresso */
-  --ef-brand-850: #382520;
-  --ef-brand-800: #442E27;
-  --ef-brand-700: #593E35;
-  --ef-brand-600: #705045;
-  --ef-brand-500: #8B675B;
-  --ef-brand-400: #A88579;
-  --ef-brand-300: #C8ABA0;
-  --ef-brand-200: #E5D8BE;
-  --ef-brand-100: #F4EAD5; /* Core Cream */
-  --ef-brand-50:  #FAF7F2;
+  --ef-brand-950: #202724;
+  --ef-brand-900: #303A36; /* Warm Charcoal */
+  --ef-brand-850: #3A4742;
+  --ef-brand-800: #45544E;
+  --ef-brand-700: #4F5F57; /* Secondary Body Text */
+  --ef-brand-600: #61746B;
+  --ef-brand-500: #778B81;
+  --ef-brand-400: #9DB0A6;
+  --ef-brand-300: #BACDC3;
+  --ef-brand-200: #D9E4DE; /* Light Border */
+  --ef-brand-100: #EEF5F1; /* Pale Green Surface */
+  --ef-brand-50:  #FBF9F4; /* Warm Ivory Canvas */
 
-  /* Primary Interactive Scale (Forest Green #245C49) */
-  --ef-primary:        #245C49;
-  --ef-primary-hover:  #1E4E3E;
-  --ef-primary-active: #183F32;
-  --ef-primary-950:    #201410; /* Espresso for dark gradients */
-  --ef-primary-900:    #2C1D18;
-  --ef-primary-850:    #382520;
-  --ef-primary-800:    #442E27;
-  --ef-primary-700:    #1E4E3E;
-  --ef-primary-600:    #245C49; /* Core Forest Green */
-  --ef-primary-500:    #2F735C;
-  --ef-primary-400:    #429277;
-  --ef-primary-300:    #74B49F;
-  --ef-primary-200:    #A8D4C5;
-  --ef-primary-100:    #D6ECE4;
-  --ef-primary-50:     #F0F7F4;
+  /* Primary Interactive Scale (Forest Green #2F6B57) */
+  --ef-primary:        #2F6B57;
+  --ef-primary-hover:  #265948;
+  --ef-primary-active: #1F4A3C;
+  --ef-primary-950:    #303A36;
+  --ef-primary-900:    #303A36;
+  --ef-primary-850:    #3A4742;
+  --ef-primary-800:    #45544E;
+  --ef-primary-700:    #265948;
+  --ef-primary-600:    #2F6B57; /* Core Forest Green */
+  --ef-primary-500:    #3E836C;
+  --ef-primary-400:    #5D9F88;
+  --ef-primary-300:    #8EBEAB;
+  --ef-primary-200:    #B8D9CC;
+  --ef-primary-100:    #DCE9E1; /* Soft Sage */
+  --ef-primary-50:     #EEF5F1; /* Pale Green Surface */
 
   /* ------------------------------------------------------------------------
-     3. Financial Precision & Secondary Accent (Antique Gold #B9964D)
+     3. Financial Precision & Secondary Accent (Muted Gold #C4A15A)
      ------------------------------------------------------------------------ */
-  --ef-accent:        #B9964D;
-  --ef-accent-hover:  #A3833E;
-  --ef-accent-text:   #8E7132;
-  --ef-accent-900:    #57441B;
-  --ef-accent-800:    #755C27;
-  --ef-accent-700:    #8E7132; /* Accessible text on light backgrounds */
-  --ef-accent-600:    #A3833E;
-  --ef-accent-500:    #B9964D; /* Core Antique Gold */
-  --ef-accent-400:    #C9A862;
-  --ef-accent-300:    #DBC085;
-  --ef-accent-200:    #EAD9B4;
-  --ef-accent-100:    #F4EBD8;
-  --ef-accent-50:     #FAF6EE;
-  --ef-accent-border: #E5D5B2;
+  --ef-accent:        #C4A15A;
+  --ef-accent-hover:  #B28F47;
+  --ef-accent-text:   #8A6B2D;
+  --ef-accent-900:    #5A451B;
+  --ef-accent-800:    #745924;
+  --ef-accent-700:    #8A6B2D; /* Accessible text on light backgrounds */
+  --ef-accent-600:    #A9853E;
+  --ef-accent-500:    #C4A15A; /* Core Muted Gold */
+  --ef-accent-400:    #D3B572;
+  --ef-accent-300:    #E2C98D;
+  --ef-accent-200:    #EEDEB8;
+  --ef-accent-100:    #F8F3E7;
+  --ef-accent-50:     #FDFBF7;
+  --ef-accent-border: #D9E4DE;
 
   /* ------------------------------------------------------------------------
      4. Financial Ledger Colors (Debit & Credit Distinction)
@@ -106,66 +110,66 @@
   --ef-debit-bg:     rgba(192, 57, 43, 0.08);
   --ef-debit-border: rgba(192, 57, 43, 0.22);
 
-  --ef-credit:        #245C49; /* Harmonized with Forest Green */
-  --ef-credit-bg:     rgba(36, 92, 73, 0.08);
-  --ef-credit-border: rgba(36, 92, 73, 0.22);
+  --ef-credit:        #2F6B57; /* Harmonized with Forest Green */
+  --ef-credit-bg:     rgba(47, 107, 87, 0.08);
+  --ef-credit-border: rgba(47, 107, 87, 0.22);
 
   /* ------------------------------------------------------------------------
      5. Ecosystem Integration Colors (Excel & Tally)
      ------------------------------------------------------------------------ */
-  --ef-excel-700: #1E4E3E;
-  --ef-excel-600: #245C49; /* Forest Green */
-  --ef-excel-500: #2F735C;
-  --ef-excel-100: #D6ECE4;
-  --ef-excel-50:  #F0F7F4;
+  --ef-excel-700: #265948;
+  --ef-excel-600: #2F6B57; /* Forest Green */
+  --ef-excel-500: #3E836C;
+  --ef-excel-100: #DCE9E1;
+  --ef-excel-50:  #EEF5F1;
 
-  --ef-tally-amber:        #B9964D; /* Antique Gold */
-  --ef-tally-amber-bg:     #FAF6EE;
-  --ef-tally-amber-border: #E5D5B2;
-
-  /* ------------------------------------------------------------------------
-     6. Complete Neutral Scale (Espresso-Toned Warm Neutrals)
-     ------------------------------------------------------------------------ */
-  --ef-neutral-50:  #FAF7F2;
-  --ef-neutral-100: #F4EAD5; /* Core Cream */
-  --ef-neutral-200: #E8DCBE;
-  --ef-neutral-300: #D8C7A2;
-  --ef-neutral-400: #A89085;
-  --ef-neutral-500: #766058;
-  --ef-neutral-600: #593E35;
-  --ef-neutral-700: #442E27;
-  --ef-neutral-800: #382520;
-  --ef-neutral-900: #2C1D18; /* Core Espresso */
-  --ef-neutral-950: #201410;
+  --ef-tally-amber:        #C4A15A; /* Muted Gold */
+  --ef-tally-amber-bg:     #FDFBF7;
+  --ef-tally-amber-border: #EEDEB8;
 
   /* ------------------------------------------------------------------------
-     7. Text Colors (Espresso Contrast)
+     6. Complete Neutral Scale (Clean Sage & Warm Charcoal Neutrals)
      ------------------------------------------------------------------------ */
-  --ef-text-primary:   #2C1D18; /* Core Espresso */
-  --ef-text-secondary: #4D3A34;
-  --ef-text-muted:     #766058;
-  --ef-text-light:     #A39088;
+  --ef-neutral-50:  #FBF9F4; /* Warm Ivory Canvas */
+  --ef-neutral-100: #EEF5F1; /* Pale Green Surface */
+  --ef-neutral-200: #DCE9E1; /* Soft Sage */
+  --ef-neutral-300: #D9E4DE; /* Light Border */
+  --ef-neutral-400: #9DB0A6;
+  --ef-neutral-500: #6E8077;
+  --ef-neutral-600: #4F5F57; /* Secondary Body Text */
+  --ef-neutral-700: #45544E;
+  --ef-neutral-800: #3A4742;
+  --ef-neutral-900: #303A36; /* Warm Charcoal */
+  --ef-neutral-950: #202724;
+
+  /* ------------------------------------------------------------------------
+     7. Text Colors (Warm Charcoal & Secondary Body Text)
+     ------------------------------------------------------------------------ */
+  --ef-text-primary:   #303A36; /* Warm Charcoal */
+  --ef-text-secondary: #4F5F57; /* Secondary Body Text */
+  --ef-text-muted:     #6E8077;
+  --ef-text-light:     #9DB0A6;
   --ef-text-white:     #FFFFFF;
 
   /* ------------------------------------------------------------------------
-     8. Borders & Focus Rings (Forest Green Focus & Warm Cream Borders)
+     8. Borders & Focus Rings (Forest Green Focus & Light Borders)
      ------------------------------------------------------------------------ */
-  --ef-border-subtle: #EFE5D1;
-  --ef-border:        #E5D8BE;
-  --ef-border-strong: #D5C4A3;
-  --ef-border-focus:  #245C49; /* Forest Green Focus */
-  --ef-ring-focus:    rgba(36, 92, 73, 0.22);
+  --ef-border-subtle: #E7EFEA;
+  --ef-border:        #D9E4DE; /* Light Border */
+  --ef-border-strong: #C5D5CC;
+  --ef-border-focus:  #2F6B57; /* Forest Green Focus */
+  --ef-ring-focus:    rgba(47, 107, 87, 0.22);
 
   /* ------------------------------------------------------------------------
      9. Semantic Status Colors
      ------------------------------------------------------------------------ */
-  --ef-success:        #245C49; /* Forest Green */
-  --ef-success-bg:     #F0F7F4;
-  --ef-success-border: #D6ECE4;
+  --ef-success:        #2F6B57; /* Forest Green */
+  --ef-success-bg:     #EEF5F1;
+  --ef-success-border: #DCE9E1;
 
-  --ef-warning:        #B9964D; /* Antique Gold */
-  --ef-warning-bg:     #FAF6EE;
-  --ef-warning-border: #E5D5B2;
+  --ef-warning:        #C4A15A; /* Muted Gold */
+  --ef-warning-bg:     #FDFBF7;
+  --ef-warning-border: #EEDEB8;
 
   --ef-error:          #C0392B;
   --ef-danger:         #C0392B;
@@ -174,16 +178,16 @@
   --ef-error-border:   #F8D0C9;
   --ef-danger-border:  #F8D0C9;
 
-  --ef-info:           #245C49;
-  --ef-info-bg:        #F0F7F4;
-  --ef-info-border:    #D6ECE4;
+  --ef-info:           #2F6B57;
+  --ef-info-bg:        #EEF5F1;
+  --ef-info-border:    #DCE9E1;
 
-  --ef-disabled-bg:     #F4EAD5; /* Cream */
-  --ef-disabled-text:   #A39088;
-  --ef-disabled-border: #E5D8BE;
+  --ef-disabled-bg:     #EEF5F1;
+  --ef-disabled-text:   #9DB0A6;
+  --ef-disabled-border: #D9E4DE;
 
   /* ------------------------------------------------------------------------
-     10. Typography — Unified Professional System (Option 1: Inter)
+     10. Typography — Unified Professional System (Inter)
      ------------------------------------------------------------------------ */
   --ef-font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --ef-font-heading: var(--ef-font-family);
@@ -194,13 +198,13 @@
   --ef-font-sans: var(--ef-font-family);
 
   /* ------------------------------------------------------------------------
-     11. Elevation & Layered Ambient Shadows (Espresso Tinted)
+     11. Elevation & Layered Ambient Shadows (Warm Charcoal Modern Tint)
      ------------------------------------------------------------------------ */
-  --ef-shadow-xs: 0 1px 2px 0 rgba(44, 29, 24, 0.05);
-  --ef-shadow-sm: 0 1px 3px 0 rgba(44, 29, 24, 0.08), 0 1px 2px -1px rgba(44, 29, 24, 0.06);
-  --ef-shadow-md: 0 4px 6px -1px rgba(44, 29, 24, 0.07), 0 2px 4px -2px rgba(44, 29, 24, 0.05);
-  --ef-shadow-lg: 0 10px 15px -3px rgba(44, 29, 24, 0.07), 0 4px 6px -4px rgba(44, 29, 24, 0.04);
-  --ef-shadow-xl: 0 20px 25px -5px rgba(44, 29, 24, 0.08), 0 8px 10px -6px rgba(44, 29, 24, 0.04);
+  --ef-shadow-xs: 0 1px 2px 0 rgba(48, 58, 54, 0.04);
+  --ef-shadow-sm: 0 1px 3px 0 rgba(48, 58, 54, 0.06), 0 1px 2px -1px rgba(48, 58, 54, 0.04);
+  --ef-shadow-md: 0 4px 6px -1px rgba(48, 58, 54, 0.06), 0 2px 4px -2px rgba(48, 58, 54, 0.04);
+  --ef-shadow-lg: 0 10px 15px -3px rgba(48, 58, 54, 0.06), 0 4px 6px -4px rgba(48, 58, 54, 0.03);
+  --ef-shadow-xl: 0 20px 25px -5px rgba(48, 58, 54, 0.07), 0 8px 10px -6px rgba(48, 58, 54, 0.03);
 
   /* ------------------------------------------------------------------------
      12. Border Radii
@@ -708,7 +712,7 @@ td,
   border-radius: var(--ef-radius-md);
 }
 
-/* Primary CTA Button (Forest Green #245C49) */
+/* Primary CTA Button (Forest Green #2F6B57) */
 .btn-primary {
   background-color: var(--ef-primary-600);
   color: var(--ef-text-white);
@@ -735,7 +739,7 @@ td,
   border-color: var(--ef-text-muted);
 }
 
-/* Accent Button (Antique Gold #B9964D) */
+/* Accent Button (Muted Gold #C4A15A) */
 .btn-accent {
   background-color: var(--ef-accent-500);
   color: var(--ef-text-white);
@@ -748,7 +752,7 @@ td,
   box-shadow: var(--ef-shadow-md);
 }
 
-/* Dark / Espresso Button (#2C1D18) */
+/* Dark / Warm Charcoal Button (#303A36) */
 .btn-dark, .btn-espresso {
   background-color: var(--ef-brand-900);
   color: var(--ef-text-white);
@@ -1050,14 +1054,14 @@ input[type="radio"] {
   height: 8px;
   border-radius: var(--ef-radius-full);
   background-color: var(--ef-success);
-  box-shadow: 0 0 0 0 rgba(36, 92, 73, 0.65);
+  box-shadow: 0 0 0 0 rgba(47, 107, 87, 0.65);
   animation: efPulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
   display: inline-block;
 }
 
 @keyframes efPulse {
   to {
-    box-shadow: 0 0 0 6px rgba(36, 92, 73, 0);
+    box-shadow: 0 0 0 6px rgba(47, 107, 87, 0);
   }
 }
 
@@ -1125,7 +1129,7 @@ thead.sticky-header th {
 .statements-table tbody tr:hover td,
 .preview-table tbody tr:hover td,
 .data-table tbody tr:hover td {
-  background-color: rgba(244, 234, 213, 0.4);
+  background-color: rgba(238, 245, 241, 0.6);
 }
 
 /* Financial Cell Precision */
@@ -1165,7 +1169,7 @@ tr.row-warning td {
 }
 
 tr.row-corrected td {
-  background-color: rgba(36, 92, 73, 0.08);
+  background-color: rgba(47, 107, 87, 0.08);
 }
 
 /* ==========================================================================
@@ -1217,7 +1221,7 @@ tr.row-corrected td {
   background-color: var(--ef-primary-600);
   color: var(--ef-text-white);
   border-color: var(--ef-primary-700);
-  box-shadow: 0 0 0 3px rgba(36, 92, 73, 0.2);
+  box-shadow: 0 0 0 3px rgba(47, 107, 87, 0.2);
 }
 
 .step-node.completed .step-num,
@@ -1323,7 +1327,7 @@ tr.row-corrected td {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(44, 29, 24, 0.65);
+  background: rgba(48, 58, 54, 0.6);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;

@@ -14,16 +14,16 @@
 }
 
 /* ==========================================================================
-   SECTION 1: Workspace Header
+   SECTION 1: Workspace Header (Light Sage Premium)
    ========================================================================== */
 
 .workspace-header {
-  background: linear-gradient(135deg, #2C1D18 0%, #382520 60%, #442E27 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #EEF5F1 0%, #E5EFE9 50%, #DCE9E1 100%);
+  color: #303A36;
   border-radius: var(--ef-radius-2xl);
   padding: 2.75rem 2.5rem;
-  border: 1px solid rgba(185, 150, 77, 0.2);
-  box-shadow: 0 20px 45px -12px rgba(44, 29, 24, 0.45);
+  border: 1px solid #D9E4DE;
+  box-shadow: 0 16px 36px -12px rgba(47, 107, 87, 0.12);
 }
 
 .header-badge-row {
@@ -39,48 +39,50 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.3rem 0.75rem;
-  background-color: rgba(36, 92, 73, 0.25);
-  border: 1px solid rgba(36, 92, 73, 0.5);
-  color: #D6ECE4;
+  background-color: #FFFFFF;
+  border: 1px solid #D9E4DE;
+  color: #2F6B57;
   border-radius: var(--ef-radius-full);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  box-shadow: var(--ef-shadow-xs);
 }
 
 .operational-badge.badge-warning {
-  background-color: rgba(185, 150, 77, 0.2);
-  border-color: rgba(185, 150, 77, 0.45);
-  color: #EAD9B4;
+  background-color: #FFFFFF;
+  border-color: #EEDEB8;
+  color: #8A6B2D;
 }
 
 .pulse-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: var(--ef-accent-400);
-  box-shadow: 0 0 0 0 rgba(185, 150, 77, 0.7);
+  background-color: var(--ef-accent-500);
+  box-shadow: 0 0 0 0 rgba(196, 161, 90, 0.7);
   animation: pulse-ring 2.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }
 
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(185, 150, 77, 0.6); }
-  70% { box-shadow: 0 0 0 6px rgba(185, 150, 77, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(185, 150, 77, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(196, 161, 90, 0.6); }
+  70% { box-shadow: 0 0 0 6px rgba(196, 161, 90, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(196, 161, 90, 0); }
 }
 
 .workspace-tenant-pill {
-  background-color: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: var(--ef-brand-300, #C8ABA0);
+  background-color: #FFFFFF;
+  border: 1px solid #D9E4DE;
+  color: #4F5F57;
   padding: 0.25rem 0.625rem;
   border-radius: var(--ef-radius-full);
+  box-shadow: var(--ef-shadow-xs);
 }
 
 .header-greeting {
   font-size: 2.125rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #303A36;
   margin-bottom: 0.4rem;
   letter-spacing: -0.03em;
   line-height: 1.2;
@@ -88,7 +90,7 @@
 
 .header-subtitle {
   font-size: 0.9375rem;
-  color: var(--ef-brand-300, #C8ABA0);
+  color: #4F5F57;
   line-height: 1.6;
   margin-bottom: 1.75rem;
   max-width: 600px;
@@ -140,12 +142,12 @@
   flex-direction: column;
   justify-content: space-between;
   transition: all var(--ef-transition-normal);
-  box-shadow: 0 10px 30px -10px rgba(44, 29, 24, 0.06);
+  box-shadow: 0 10px 30px -10px rgba(48, 58, 54, 0.06);
 }
 
 .workflow-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 15px 35px -10px rgba(44, 29, 24, 0.12);
+  box-shadow: 0 15px 35px -10px rgba(48, 58, 54, 0.1);
 }
 
 .card-workflow-excel {
@@ -624,7 +626,7 @@
 }
 
 .statements-table tr:hover td {
-  background-color: rgba(244, 234, 213, 0.4);
+  background-color: rgba(238, 245, 241, 0.6);
 }
 
 .statement-file-cell {
@@ -848,7 +850,7 @@
 .spinner {
   width: 28px;
   height: 28px;
-  border: 3px solid rgba(36, 92, 73, 0.15);
+  border: 3px solid rgba(47, 107, 87, 0.15);
   border-top-color: var(--ef-primary-600);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;

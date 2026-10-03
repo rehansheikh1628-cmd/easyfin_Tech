@@ -1,6 +1,6 @@
 /* ==========================================================================
    ACCUFEX Features Page Styles
-   Institutional FinTech Design System — Forest Green / Antique Gold / Cream / Espresso
+   Institutional FinTech Design System — Forest Green / Muted Gold / Warm Ivory / Sage
    ========================================================================== */
 
 .features-page {
@@ -89,7 +89,7 @@
   font-weight: 600;
   color: var(--ef-text-secondary);
   text-decoration: none;
-  box-shadow: 0 1px 3px rgba(44, 29, 24, 0.04);
+  box-shadow: 0 1px 3px rgba(48, 58, 54, 0.04);
   transition: all 0.15s ease;
 }
 
@@ -121,7 +121,7 @@
   border: 1px solid var(--ef-border);
   border-radius: 16px;
   padding: 2.5rem;
-  box-shadow: 0 4px 16px rgba(44, 29, 24, 0.04);
+  box-shadow: 0 4px 16px rgba(48, 58, 54, 0.04);
 }
 
 .feature-badge-row {
@@ -243,7 +243,7 @@
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  box-shadow: 0 1px 3px rgba(44, 29, 24, 0.03);
+  box-shadow: 0 1px 3px rgba(48, 58, 54, 0.03);
 }
 
 .node-icon {
@@ -343,13 +343,13 @@
   padding: 1.75rem;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 4px rgba(44, 29, 24, 0.04);
+  box-shadow: 0 2px 4px rgba(48, 58, 54, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .capability-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(44, 29, 24, 0.08);
+  box-shadow: 0 8px 24px rgba(48, 58, 54, 0.08);
 }
 
 .cap-icon {
@@ -466,25 +466,25 @@
 }
 
 .cta-banner {
-  background: linear-gradient(135deg, #2C1D18 0%, #201410 100%);
-  border: 1px solid rgba(185, 150, 77, 0.3);
+  background: linear-gradient(135deg, #EEF5F1 0%, #E5EFE9 50%, #DCE9E1 100%);
+  border: 1px solid #D9E4DE;
   border-radius: 16px;
   padding: 3.5rem 2rem;
-  color: #ffffff;
-  box-shadow: 0 12px 36px rgba(44, 29, 24, 0.25);
+  color: #303A36;
+  box-shadow: 0 12px 36px rgba(47, 107, 87, 0.12);
 }
 
 .cta-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #303A36;
   letter-spacing: -0.02em;
   margin: 0.5rem 0 0.875rem;
 }
 
 .cta-subtitle {
   font-size: 1.0625rem;
-  color: #D8C7A2;
+  color: #4F5F57;
   max-width: 640px;
   margin: 0 auto 2rem;
   line-height: 1.6;
@@ -509,13 +509,13 @@
   align-items: center;
   gap: 0.625rem;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(36, 92, 73, 0.3);
+  box-shadow: 0 4px 12px rgba(47, 107, 87, 0.25);
   transition: all 0.2s ease;
 }
 
 .btn-excel:hover {
   background: var(--ef-primary-700);
-  box-shadow: 0 6px 16px rgba(36, 92, 73, 0.4);
+  box-shadow: 0 6px 16px rgba(47, 107, 87, 0.35);
   transform: translateY(-1px);
   color: #ffffff;
 }

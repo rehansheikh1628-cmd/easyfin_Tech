@@ -270,7 +270,7 @@
 }
 
 .workspace-table tbody tr:hover td {
-  background-color: rgba(244, 234, 213, 0.4);
+  background-color: rgba(238, 245, 241, 0.6);
 }
 
 .statement-file-cell {
@@ -557,7 +557,7 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(44, 29, 24, 0.65);
+  background-color: rgba(48, 58, 54, 0.6);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
