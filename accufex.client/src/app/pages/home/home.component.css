@@ -83,8 +83,8 @@
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(44, 29, 24, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(44, 29, 24, 0.035) 1px, transparent 1px);
   background-size: 40px 40px;
   mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 70%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 70%, transparent 100%);
@@ -260,7 +260,7 @@
   background-color: #fff;
   border: 1px solid var(--ef-border-strong);
   border-radius: var(--ef-radius-xl);
-  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(44, 29, 24, 0.08);
 }
 
 .trust-stat-item {
@@ -371,7 +371,7 @@
 }
 
 .product-card-future {
-  background-color: #fafbfc;
+  background-color: var(--ef-surface-subtle);
   border-style: dashed;
   opacity: 0.85;
 }
@@ -468,7 +468,7 @@
   background-color: #fff;
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-xl);
-  box-shadow: 0 15px 35px -10px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 15px 35px -10px rgba(44, 29, 24, 0.08);
   overflow: hidden;
 }
 
@@ -547,7 +547,7 @@
 }
 
 .financial-table tr:hover td {
-  background-color: rgba(248, 250, 252, 0.8);
+  background-color: rgba(244, 234, 213, 0.4);
 }
 
 .amount-debit {
@@ -624,7 +624,7 @@
   background-color: var(--ef-bg-surface);
   border: 1px solid var(--ef-border-strong);
   border-radius: var(--ef-radius-xl);
-  box-shadow: 0 15px 35px -10px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 15px 35px -10px rgba(44, 29, 24, 0.1);
 }
 
 .panel-header {
@@ -674,15 +674,15 @@
 }
 
 .count-valid {
-  background-color: #f0fdf4;
-  border-color: #bbf7d0;
-  color: #15803d;
+  background-color: var(--ef-success-bg);
+  border-color: var(--ef-success-border);
+  color: var(--ef-primary-700);
 }
 
 .count-warn {
-  background-color: #fffbeb;
-  border-color: #fde68a;
-  color: #b45309;
+  background-color: var(--ef-warning-bg);
+  border-color: var(--ef-warning-border);
+  color: var(--ef-accent-700);
 }
 
 .count-invalid {
@@ -794,7 +794,7 @@
   background-color: #ffffff;
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-lg);
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 2px 8px rgba(44, 29, 24, 0.04);
   user-select: none;
   flex-shrink: 0;
   transition: border-color var(--ef-transition-fast), box-shadow var(--ef-transition-fast);
@@ -802,7 +802,7 @@
 
 .bank-text-card:hover {
   border-color: var(--ef-border-strong);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+  box-shadow: 0 6px 16px rgba(44, 29, 24, 0.07);
 }
 
 .bank-card-name {
@@ -1044,7 +1044,7 @@
 
 .cta-desc {
   font-size: 1.125rem;
-  color: #cbd5e1;
+  color: var(--ef-brand-300, #C8ABA0);
   margin-bottom: 2.5rem;
   line-height: 1.65;
 }

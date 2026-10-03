@@ -270,7 +270,7 @@
 }
 
 .workspace-table tbody tr:hover td {
-  background-color: rgba(248, 250, 252, 0.75);
+  background-color: rgba(244, 234, 213, 0.4);
 }
 
 .statement-file-cell {
@@ -287,7 +287,7 @@
   height: 34px;
   background-color: rgba(220, 38, 38, 0.08);
   border: 1px solid rgba(220, 38, 38, 0.22);
-  color: var(--ef-debit, #DC2626);
+  color: var(--ef-debit);
   font-weight: 700;
   font-size: 0.6875rem;
   border-radius: var(--ef-radius-sm);

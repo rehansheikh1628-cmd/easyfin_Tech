@@ -1,19 +1,20 @@
 /* ==========================================================================
-   ACCUFEX Institutional Supported Banks Directory Styles (Phase 13)
+   ACCUFEX Institutional Supported Banks Directory Styles
+   Institutional FinTech Design System — Forest Green / Antique Gold / Cream / Espresso
    ========================================================================== */
 
 .supported-banks-page {
-  background-color: var(--ef-canvas, #f8fafc);
+  background-color: var(--ef-canvas);
   min-height: 100vh;
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
   font-family: inherit;
 }
 
 /* 1. Page Header */
 .banks-header {
   padding: 3rem 0 2.5rem;
-  background: linear-gradient(180deg, #ffffff 0%, var(--ef-canvas, #f8fafc) 100%);
-  border-bottom: 1px solid var(--ef-border, #e2e8f0);
+  background: linear-gradient(180deg, #ffffff 0%, var(--ef-canvas) 100%);
+  border-bottom: 1px solid var(--ef-border);
 }
 
 .header-breadcrumbs {
@@ -21,28 +22,28 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8125rem;
-  color: var(--ef-text-muted, #64748b);
+  color: var(--ef-text-muted);
   margin-bottom: 1.5rem;
 }
 
 .breadcrumb-link {
-  color: var(--ef-accent-600, #0d9488);
+  color: var(--ef-primary-600);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.15s ease;
 }
 
 .breadcrumb-link:hover {
-  color: var(--ef-accent-700, #0f766e);
+  color: var(--ef-primary-700);
   text-decoration: underline;
 }
 
 .breadcrumb-sep {
-  color: var(--ef-border, #cbd5e1);
+  color: var(--ef-border-strong);
 }
 
 .breadcrumb-current {
-  color: var(--ef-text-secondary, #475569);
+  color: var(--ef-text-secondary);
   font-weight: 600;
 }
 
@@ -55,7 +56,7 @@
   font-family: var(--ef-font-heading);
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
   letter-spacing: -0.03em;
   line-height: 1.2;
   margin: 0.75rem 0 1rem;
@@ -63,7 +64,7 @@
 
 .page-subtitle {
   font-size: 1.125rem;
-  color: var(--ef-text-secondary, #475569);
+  color: var(--ef-text-secondary);
   line-height: 1.6;
   margin: 0;
 }
@@ -74,12 +75,12 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 1.25rem;
   background: #ffffff;
-  border: 1px solid var(--ef-border, #e2e8f0);
+  border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-lg, 12px);
   padding: 1.25rem 1.5rem;
   max-width: 1120px;
   margin: 0 auto;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 6px 16px -4px rgba(15, 23, 42, 0.02);
+  box-shadow: 0 1px 3px rgba(44, 29, 24, 0.04), 0 6px 16px -4px rgba(44, 29, 24, 0.02);
 }
 
 .feature-strip-item {
@@ -100,27 +101,27 @@
 }
 
 .feature-strip-icon.icon-excel {
-  background-color: var(--ef-excel-50, #f0fdf4);
-  color: var(--ef-excel-600, #16a34a);
-  border: 1px solid var(--ef-excel-100, #dcfce7);
+  background-color: var(--ef-excel-50);
+  color: var(--ef-excel-600);
+  border: 1px solid var(--ef-excel-100);
 }
 
 .feature-strip-icon.icon-profiles {
-  background-color: var(--ef-accent-50, #f0fdfa);
-  color: var(--ef-accent-700, #0f766e);
-  border: 1px solid var(--ef-accent-100, #ccfbf1);
+  background-color: var(--ef-accent-50);
+  color: var(--ef-accent-700);
+  border: 1px solid var(--ef-accent-100);
 }
 
 .feature-strip-icon.icon-validated {
-  background-color: #f8fafc;
-  color: var(--ef-brand-700, #1e3a8a);
-  border: 1px solid #e2e8f0;
+  background-color: var(--ef-primary-50);
+  color: var(--ef-primary-700);
+  border: 1px solid var(--ef-primary-100);
 }
 
 .feature-strip-icon.icon-tally {
-  background-color: var(--ef-tally-amber-bg, #fffbeb);
-  color: var(--ef-tally-amber, #d97706);
-  border: 1px solid var(--ef-tally-amber-border, #fde68a);
+  background-color: var(--ef-tally-amber-bg);
+  color: var(--ef-tally-amber);
+  border: 1px solid var(--ef-tally-amber-border);
 }
 
 .feature-strip-text {
@@ -134,14 +135,14 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
   line-height: 1.3;
   margin-bottom: 0.25rem;
 }
 
 .feature-strip-desc {
   font-size: 0.8125rem;
-  color: var(--ef-text-secondary, #475569);
+  color: var(--ef-text-secondary);
   line-height: 1.45;
   margin: 0;
 }
@@ -152,8 +153,8 @@
 }
 
 .boundary-card {
-  background: var(--ef-surface-subtle, #F4EAD5);
-  border: 1px solid var(--ef-accent-border, #E5D5B2);
+  background: var(--ef-surface-subtle);
+  border: 1px solid var(--ef-accent-border);
   border-radius: 10px;
   padding: 1rem 1.5rem;
   display: flex;
@@ -162,7 +163,7 @@
 }
 
 .boundary-icon-box {
-  color: var(--ef-accent-700, #8E7132);
+  color: var(--ef-accent-700);
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
@@ -170,13 +171,13 @@
 .boundary-title {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: var(--ef-brand-900, #2C1D18);
+  color: var(--ef-brand-900);
   margin: 0 0 0.25rem;
 }
 
 .boundary-text {
   font-size: 0.875rem;
-  color: var(--ef-text-secondary, #4D3A34);
+  color: var(--ef-text-secondary);
   line-height: 1.5;
   margin: 0;
 }
@@ -188,7 +189,7 @@
 
 .filter-toolbar {
   background: #ffffff;
-  border: 1px solid var(--ef-border, #e2e8f0);
+  border: 1px solid var(--ef-border);
   border-radius: 12px;
   padding: 1.25rem 1.5rem;
   display: flex;
@@ -196,7 +197,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.25rem;
-  box-shadow: 0 2px 4px rgba(11, 19, 43, 0.04);
+  box-shadow: 0 2px 4px rgba(44, 29, 24, 0.04);
 }
 
 .search-input-wrap {
@@ -210,7 +211,7 @@
   left: 0.875rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--ef-text-muted, #94a3b8);
+  color: var(--ef-text-muted);
   pointer-events: none;
 }
 
@@ -221,15 +222,15 @@
   height: 2.625rem;
   font-size: 0.9375rem;
   border-radius: 8px;
-  border: 1px solid var(--ef-border, #cbd5e1);
+  border: 1px solid var(--ef-border);
   background-color: #ffffff;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .search-field:focus {
   outline: none;
-  border-color: var(--ef-accent-600, #0d9488);
-  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+  border-color: var(--ef-primary-600);
+  box-shadow: 0 0 0 3px rgba(36, 92, 73, 0.15);
 }
 
 .clear-search-btn {
@@ -241,13 +242,13 @@
   border: none;
   font-size: 1.25rem;
   line-height: 1;
-  color: var(--ef-text-muted, #94a3b8);
+  color: var(--ef-text-muted);
   cursor: pointer;
   padding: 0.25rem;
 }
 
 .clear-search-btn:hover {
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
 }
 
 /* Category Pills */
@@ -263,9 +264,9 @@
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: 20px;
-  border: 1px solid var(--ef-border, #cbd5e1);
+  border: 1px solid var(--ef-border);
   background: #ffffff;
-  color: var(--ef-text-secondary, #475569);
+  color: var(--ef-text-secondary);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -274,13 +275,13 @@
 }
 
 .category-pill:hover {
-  background: #f1f5f9;
-  color: var(--ef-brand-950, #0b132b);
+  background: var(--ef-surface-subtle);
+  color: var(--ef-brand-950);
 }
 
 .category-pill.active {
-  background: var(--ef-primary-600, #245C49);
-  border-color: var(--ef-primary-600, #245C49);
+  background: var(--ef-primary-600);
+  border-color: var(--ef-primary-600);
   color: #ffffff;
 }
 
@@ -300,17 +301,17 @@
 
 .results-count {
   font-size: 0.8125rem;
-  color: var(--ef-text-muted, #64748b);
+  color: var(--ef-text-muted);
 }
 
 .results-count strong {
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
 }
 
 .reset-filters-link {
   background: none;
   border: none;
-  color: var(--ef-accent-600, #0d9488);
+  color: var(--ef-primary-600);
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
@@ -319,7 +320,7 @@
 }
 
 .reset-filters-link:hover {
-  color: var(--ef-accent-700, #0f766e);
+  color: var(--ef-primary-700);
 }
 
 /* 4. Banks Directory Grid */
@@ -335,19 +336,19 @@
 
 .bank-profile-card {
   background: #ffffff;
-  border: 1px solid var(--ef-border, #e2e8f0);
+  border: 1px solid var(--ef-border);
   border-radius: 12px;
   padding: 1.75rem;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 6px rgba(11, 19, 43, 0.04);
+  box-shadow: 0 2px 6px rgba(44, 29, 24, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .bank-profile-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(11, 19, 43, 0.08);
-  border-color: #cbd5e1;
+  box-shadow: 0 8px 24px rgba(44, 29, 24, 0.08);
+  border-color: var(--ef-border-strong);
 }
 
 .bank-header-row {
@@ -388,7 +389,7 @@
 .bank-name {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -402,8 +403,8 @@
   letter-spacing: 0.05em;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  background: #f1f5f9;
-  color: var(--ef-text-secondary, #475569);
+  background: var(--ef-surface-subtle);
+  color: var(--ef-text-secondary);
   white-space: nowrap;
 }
 
@@ -425,24 +426,24 @@
 }
 
 .status-supported {
-  background: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
+  background: var(--ef-primary-50);
+  color: var(--ef-primary-700);
+  border: 1px solid var(--ef-primary-100);
 }
 
 .status-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #10b981;
+  background-color: var(--ef-primary-600);
 }
 
 .pdf-type-badge {
   font-size: 0.6875rem;
   font-weight: 600;
-  background: #f8fafc;
-  border: 1px solid var(--ef-border, #e2e8f0);
-  color: var(--ef-text-secondary, #475569);
+  background: var(--ef-surface-subtle);
+  border: 1px solid var(--ef-border);
+  color: var(--ef-text-secondary);
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
 }
@@ -450,17 +451,17 @@
 .parser-code-badge {
   font-size: 0.6875rem;
   font-weight: 700;
-  background: #f1f5f9;
-  color: var(--ef-accent-700, #0f766e);
+  background: var(--ef-surface-subtle);
+  color: var(--ef-accent-700);
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--ef-border);
 }
 
 /* Statement Scope */
 .statement-scope-box {
-  background: #f8fafc;
-  border: 1px solid var(--ef-border, #e2e8f0);
+  background: var(--ef-surface-subtle);
+  border: 1px solid var(--ef-border);
   border-radius: 6px;
   padding: 0.625rem 0.875rem;
   font-size: 0.8125rem;
@@ -471,18 +472,18 @@
 }
 
 .scope-label {
-  color: var(--ef-text-muted, #64748b);
+  color: var(--ef-text-muted);
   font-weight: 600;
   flex-shrink: 0;
 }
 
 .scope-value {
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
 }
 
 .bank-description {
   font-size: 0.875rem;
-  color: var(--ef-text-secondary, #475569);
+  color: var(--ef-text-secondary);
   line-height: 1.5;
   margin: 0 0 1rem;
 }
@@ -497,7 +498,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--ef-text-muted, #64748b);
+  color: var(--ef-text-muted);
   margin: 0 0 0.5rem;
 }
 
@@ -515,18 +516,18 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8125rem;
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
 }
 
 .feature-check {
-  color: var(--ef-success, #16a34a);
+  color: var(--ef-primary-600);
   flex-shrink: 0;
 }
 
 /* Validated Formats */
 .validated-formats-box {
-  background: #f8fafc;
-  border: 1px solid var(--ef-border, #e2e8f0);
+  background: var(--ef-surface-subtle);
+  border: 1px solid var(--ef-border);
   border-radius: 8px;
   padding: 0.875rem 1rem;
   margin-bottom: 1rem;
@@ -540,7 +541,7 @@
 
 .format-entry {
   padding-bottom: 0.5rem;
-  border-bottom: 1px dashed var(--ef-border, #e2e8f0);
+  border-bottom: 1px dashed var(--ef-border);
 }
 
 .format-entry:last-child {
@@ -558,41 +559,41 @@
 .format-code {
   font-size: 0.6875rem;
   font-weight: 700;
-  background: #e2e8f0;
-  color: var(--ef-brand-950, #0b132b);
+  background: var(--ef-neutral-200);
+  color: var(--ef-brand-950);
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
 }
 
 .format-name {
   font-size: 0.8125rem;
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
 }
 
 .format-details {
   font-size: 0.75rem;
-  color: var(--ef-text-secondary, #475569);
+  color: var(--ef-text-secondary);
   line-height: 1.4;
   margin: 0;
 }
 
 /* Limitations / Unvalidated Notice */
 .limitations-notice {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
+  background: var(--ef-warning-bg);
+  border: 1px solid var(--ef-warning-border);
   border-radius: 6px;
   padding: 0.625rem 0.75rem;
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
   font-size: 0.75rem;
-  color: #92400e;
+  color: var(--ef-accent-700);
   line-height: 1.45;
   margin-top: auto;
 }
 
 .limitations-icon {
-  color: #d97706;
+  color: var(--ef-accent-500);
   flex-shrink: 0;
   margin-top: 0.1rem;
 }
@@ -606,7 +607,7 @@
   text-align: center;
   padding: 3.5rem 2rem;
   background: #ffffff;
-  border: 1px solid var(--ef-border, #e2e8f0);
+  border: 1px solid var(--ef-border);
   border-radius: 12px;
   max-width: 600px;
   margin: 0 auto;
@@ -616,8 +617,8 @@
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  background: #f1f5f9;
-  color: var(--ef-text-muted, #94a3b8);
+  background: var(--ef-surface-subtle);
+  color: var(--ef-text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -627,13 +628,13 @@
 .search-empty-state h3 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
   margin: 0 0 0.5rem;
 }
 
 .search-empty-state p {
   font-size: 0.9375rem;
-  color: var(--ef-text-secondary, #475569);
+  color: var(--ef-text-secondary);
   line-height: 1.6;
   margin: 0 0 1.5rem;
 }
@@ -651,10 +652,10 @@
 
 .advisory-card {
   background: #ffffff;
-  border: 1px solid var(--ef-border, #e2e8f0);
+  border: 1px solid var(--ef-border);
   border-radius: 12px;
   padding: 1.75rem;
-  box-shadow: 0 2px 6px rgba(11, 19, 43, 0.04);
+  box-shadow: 0 2px 6px rgba(44, 29, 24, 0.04);
 }
 
 .advisory-header {
@@ -675,21 +676,21 @@
 }
 
 .advisory-icon.bg-amber {
-  background: #fffbeb;
-  color: #d97706;
-  border: 1px solid #fde68a;
+  background: var(--ef-warning-bg);
+  color: var(--ef-accent-700);
+  border: 1px solid var(--ef-warning-border);
 }
 
 .advisory-icon.bg-teal {
-  background: #f0fdfa;
-  color: var(--ef-accent-600, #0d9488);
-  border: 1px solid #99f6e4;
+  background: var(--ef-primary-50);
+  color: var(--ef-primary-700);
+  border: 1px solid var(--ef-primary-100);
 }
 
 .advisory-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
   margin: 0 0 0.25rem;
 }
 
@@ -702,27 +703,27 @@
 
 .advisory-text {
   font-size: 0.875rem;
-  color: var(--ef-text-secondary, #475569);
+  color: var(--ef-text-secondary);
   line-height: 1.6;
   margin: 0 0 1rem;
 }
 
 .advisory-callout {
-  background: #fffbeb;
-  border-left: 3px solid #d97706;
+  background: var(--ef-warning-bg);
+  border-left: 3px solid var(--ef-accent-500);
   padding: 0.75rem 1rem;
   border-radius: 0 6px 6px 0;
   font-size: 0.8125rem;
-  color: #92400e;
+  color: var(--ef-accent-700);
   line-height: 1.5;
   margin-bottom: 0.875rem;
 }
 
 .quick-check-tip {
   font-size: 0.8125rem;
-  color: var(--ef-brand-950, #0b132b);
-  background: #f8fafc;
-  border: 1px solid var(--ef-border, #e2e8f0);
+  color: var(--ef-brand-950);
+  background: var(--ef-surface-subtle);
+  border: 1px solid var(--ef-border);
   padding: 0.625rem 0.875rem;
   border-radius: 6px;
   line-height: 1.45;
@@ -739,7 +740,7 @@
 
 .variation-guidelines li {
   font-size: 0.8125rem;
-  color: var(--ef-text-secondary, #475569);
+  color: var(--ef-text-secondary);
   line-height: 1.5;
   padding-left: 1.25rem;
   position: relative;
@@ -747,7 +748,7 @@
 
 .variation-guidelines li::before {
   content: "•";
-  color: var(--ef-accent-600, #0d9488);
+  color: var(--ef-primary-600);
   font-size: 1.25rem;
   position: absolute;
   left: 0;
@@ -755,7 +756,7 @@
 }
 
 .variation-guidelines strong {
-  color: var(--ef-brand-950, #0b132b);
+  color: var(--ef-brand-950);
 }
 
 /* 7. Converter CTA Section */
@@ -795,21 +796,21 @@
 
 /* Shared UI Utilities */
 .text-teal {
-  color: var(--ef-primary-600, #245C49) !important;
+  color: var(--ef-primary-600) !important;
 }
 
 .text-success {
-  color: var(--ef-primary-600, #245C49) !important;
+  color: var(--ef-primary-600) !important;
 }
 
 .text-warning {
-  color: var(--ef-accent-700, #8E7132) !important;
+  color: var(--ef-accent-700) !important;
 }
 
 .btn-excel {
-  background: var(--ef-primary-600, #245C49);
+  background: var(--ef-primary-600);
   color: #ffffff;
-  border: 1px solid var(--ef-primary-700, #1E4E3E);
+  border: 1px solid var(--ef-primary-700);
   padding: 0.875rem 1.75rem;
   font-size: 1rem;
   font-weight: 700;
@@ -823,7 +824,7 @@
 }
 
 .btn-excel:hover {
-  background: var(--ef-primary-700, #1E4E3E);
+  background: var(--ef-primary-700);
   box-shadow: 0 6px 16px rgba(36, 92, 73, 0.4);
   transform: translateY(-1px);
   color: #ffffff;

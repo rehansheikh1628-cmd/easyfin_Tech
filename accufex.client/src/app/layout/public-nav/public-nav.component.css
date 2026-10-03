@@ -163,7 +163,7 @@
   background-color: var(--ef-surface);
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-lg);
-  box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.12), 0 10px 15px -5px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 20px 35px -5px rgba(44, 29, 24, 0.12), 0 10px 15px -5px rgba(44, 29, 24, 0.06);
   display: none;
   flex-direction: column;
   z-index: 1050;
@@ -213,7 +213,7 @@
 
 .mega-col-header {
   padding: 0.25rem 0.5rem 0.5rem 0.5rem;
-  border-bottom: 1px solid var(--ef-border-subtle, rgba(226, 232, 240, 0.8));
+  border-bottom: 1px solid var(--ef-border-subtle);
   margin-bottom: 0.25rem;
 }
 
@@ -539,7 +539,7 @@
   background-color: var(--ef-surface);
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-lg);
-  box-shadow: 0 20px 30px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -4px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 20px 30px -5px rgba(44, 29, 24, 0.12), 0 8px 10px -4px rgba(44, 29, 24, 0.06);
   display: none;
   flex-direction: column;
   z-index: 1050;
@@ -840,8 +840,8 @@
 }
 
 .mobile-nav-link.active {
-  color: var(--ef-accent-700);
-  background-color: var(--ef-accent-50);
+  color: var(--ef-primary-600);
+  background-color: var(--ef-primary-50);
   font-weight: 700;
 }
 

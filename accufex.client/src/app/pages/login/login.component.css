@@ -120,7 +120,7 @@
 
 .narrative-subtitle {
   font-size: 1rem;
-  color: #cbd5e1;
+  color: var(--ef-brand-300, #C8ABA0);
   line-height: 1.65;
   margin-bottom: 2.25rem;
 }
@@ -153,7 +153,7 @@
 
 .feature-bullet-desc {
   font-size: 0.8125rem;
-  color: #94a3b8;
+  color: var(--ef-brand-300, #C8ABA0);
   line-height: 1.45;
   margin: 0;
 }
@@ -167,7 +167,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--ef-radius-lg);
   font-size: 0.75rem;
-  color: #cbd5e1;
+  color: var(--ef-brand-300, #C8ABA0);
   margin-top: auto;
 }
 
@@ -193,7 +193,7 @@
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-2xl);
   padding: 3rem 2.5rem;
-  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 20px 45px -10px rgba(44, 29, 24, 0.1);
 }
 
 .auth-form-header {
@@ -227,15 +227,15 @@
 }
 
 .alert-danger {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
+  background-color: var(--ef-danger-bg);
+  border: 1px solid var(--ef-danger-border);
+  color: var(--ef-error);
 }
 
 .alert-info {
-  background-color: #f0fdfa;
-  border: 1px solid #ccfbf1;
-  color: #0f766e;
+  background-color: var(--ef-info-bg);
+  border: 1px solid var(--ef-info-border);
+  color: var(--ef-primary-700);
 }
 
 .alert-icon {
