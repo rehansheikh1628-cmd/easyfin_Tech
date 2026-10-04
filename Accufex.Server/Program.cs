@@ -110,6 +110,8 @@ builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankStatementParse
 builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankStatementParser, Accufex.Server.Parsing.Parsers.SBIStatementParser>();
 builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankStatementParser, Accufex.Server.Parsing.Parsers.BOIStatementParser>();
 builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankStatementParser, Accufex.Server.Parsing.Parsers.KotakStatementParser>();
+builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankStatementParser, Accufex.Server.Parsing.Parsers.PNBStatementParser>();
+builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankStatementParser, Accufex.Server.Parsing.Parsers.BOBStatementParser>();
 builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankParserRegistry, Accufex.Server.Parsing.BankParserRegistry>();
 builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankParsingService, Accufex.Server.Parsing.BankParsingService>();
 builder.Services.AddScoped<Accufex.Server.Validation.Services.ITransactionCorrectionStore, Accufex.Server.Validation.Services.TransactionCorrectionStore>();

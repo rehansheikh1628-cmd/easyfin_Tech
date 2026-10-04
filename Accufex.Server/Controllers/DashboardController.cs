@@ -98,6 +98,8 @@ public class DashboardController : ControllerBase
                 6 => "State Bank of India",
                 7 => "Bank of India",
                 8 => "Kotak Mahindra Bank",
+                9 => "Punjab National Bank",
+                10 => "Bank of Baroda",
                 _ => f.ProcessingStatus == 2 ? "Detected" : "Pending"
             };
 

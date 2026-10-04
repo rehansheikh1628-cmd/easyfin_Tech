@@ -247,6 +247,58 @@ export class SupportedBanksComponent {
       ],
       unvalidatedNotes: 'Handwritten passbooks, physical counter receipts, or dot-matrix branch copies are not supported.',
       accentColor: '#1E3A8A'
+    },
+    {
+      id: 'pnb',
+      bankName: 'Punjab National Bank',
+      shortCode: 'PNB',
+      category: 'Public Sector',
+      status: 'Supported',
+      parserVersion: 'PNB-v1',
+      pdfType: 'Digital PDF',
+      statementType: 'PNB ONE & Finacle Internet Banking Statement',
+      description: 'Deterministic parser for Punjab National Bank statements, supporting PNB e-Statements, Finacle tabular statements, multi-line narration joining, cheque number extraction, and running balance continuity verification.',
+      keyFeatures: [
+        'Deterministic PNB statement & layout detection',
+        'Multi-column interval calibration (Tran Date, Withdrawal, Deposit, Balance, Alpha, CHQ. NO., Narration, Additional Info)',
+        'Signed Cr./Dr. balance parsing and continuity verification',
+        'Cross-page continuation and header/footer exclusion'
+      ],
+      supportedFormats: [
+        {
+          formatId: 'PNB-v1',
+          name: 'PNB ONE / Finacle Digital Statement',
+          layoutDetails: 'Multi-column layout with Tran Date, Withdrawal, Deposit, Balance, Alpha, CHQ. NO., Narration, and Additional Info'
+        }
+      ],
+      unvalidatedNotes: 'Scanned image copies, branch passbook photos, or dot-matrix counter receipts are not supported.',
+      accentColor: '#A21D3C'
+    },
+    {
+      id: 'bob',
+      bankName: 'Bank of Baroda',
+      shortCode: 'BOB',
+      category: 'Public Sector',
+      status: 'Supported',
+      parserVersion: 'BOB-v1',
+      pdfType: 'Digital PDF',
+      statementType: 'Baroda Connect & bob World Statement',
+      description: 'Deterministic parser for Bank of Baroda statements, supporting Baroda Connect NetBanking tabular statements, bob World e-Statements, multi-line narration reconstruction, instrument/cheque number extraction, and running balance continuity verification.',
+      keyFeatures: [
+        'Deterministic BOB statement & layout detection',
+        'Multi-column interval calibration (S.No, Date, Value Date, Description, Cheque No, Withdrawal, Deposit, Balance)',
+        'Signed Cr./Dr. balance parsing and continuity verification',
+        'Cross-page continuation and header/footer exclusion'
+      ],
+      supportedFormats: [
+        {
+          formatId: 'BOB-v1',
+          name: 'Baroda Connect / bob World Digital Statement',
+          layoutDetails: 'Multi-column layout with Date, Description/Particulars, Cheque No, Withdrawal (Dr), Deposit (Cr), and Balance'
+        }
+      ],
+      unvalidatedNotes: 'Scanned image copies, branch passbook photos, or dot-matrix counter receipts are not supported.',
+      accentColor: '#F26522'
     }
   ];
 

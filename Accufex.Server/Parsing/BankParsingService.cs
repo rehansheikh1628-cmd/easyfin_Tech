@@ -105,7 +105,7 @@ public class BankParsingService : IBankParsingService
             if (!detection.IsSupported || detection.DetectedBank == BankType.Unknown)
             {
                 _logger.LogWarning("Statement {FileId} rejected: bank is unsupported or unrecognized.", fileRecordId);
-                return (false, "The statement bank format was not recognized as a supported bank format (Supported: HDFC Bank, YES BANK, Axis Bank, Central Bank of India, ICICI Bank, State Bank of India, Bank of India, Kotak Mahindra Bank).", null);
+                return (false, "The statement bank format was not recognized as a supported bank format (Supported: HDFC Bank, YES BANK, Axis Bank, Central Bank of India, ICICI Bank, State Bank of India, Bank of India, Kotak Mahindra Bank, Punjab National Bank, Bank of Baroda).", null);
             }
 
             // 4. Resolve Bank Parser
@@ -339,6 +339,8 @@ public class BankParsingService : IBankParsingService
             6 => "State Bank of India",
             7 => "Bank of India",
             8 => "Kotak Mahindra Bank",
+            9 => "Punjab National Bank",
+            10 => "Bank of Baroda",
             _ => "Unknown"
         };
         var sidecar = _correctionStore != null ? await _correctionStore.GetAuditSidecarAsync(fileRecordId, cancellationToken) : null;
@@ -352,6 +354,8 @@ public class BankParsingService : IBankParsingService
             6 => "SBI-v1",
             7 => "BOI-v1",
             8 => "KOTAK-v1",
+            9 => "PNB-v1",
+            10 => "BOB-v1",
             _ => "v1"
         });
 

@@ -677,6 +677,8 @@ public class StatementsController : ControllerBase
             6 => "State Bank of India",
             7 => "Bank of India",
             8 => "Kotak Mahindra Bank",
+            9 => "Punjab National Bank",
+            10 => "Bank of Baroda",
             _ => "Unknown Bank"
         });
         var parserVersion = sidecar?.ParserVersion ?? (bankCode switch
@@ -689,6 +691,8 @@ public class StatementsController : ControllerBase
             6 => "SBI-v1",
             7 => "BOI-v1",
             8 => "KOTAK-v1",
+            9 => "PNB-v1",
+            10 => "BOB-v1",
             _ => "v1"
         });
 
@@ -1176,8 +1180,8 @@ public class StatementsController : ControllerBase
             .FirstOrDefaultAsync(r => r.SourceFileId == id, cancellationToken);
 
         var bankCode = importResult?.DetectedBank ?? (transactions.FirstOrDefault()?.BankCode ?? 1);
-        var bankName = sidecar?.BankName ?? (bankCode switch { 1 => "HDFC Bank", 2 => "YES BANK", 3 => "Axis Bank", 4 => "Central Bank of India", 5 => "ICICI Bank", 6 => "State Bank of India", 7 => "Bank of India", 8 => "Kotak Mahindra Bank", _ => "Unknown Bank" });
-        var parserVersion = sidecar?.ParserVersion ?? (bankCode switch { 1 => "HDFC-v1", 2 => "YES-v1", 3 => "AXIS-v1", 4 => "CENTRAL-v1", 5 => "ICICI-v1", 6 => "SBI-v1", 7 => "BOI-v1", 8 => "KOTAK-v1", _ => "v1" });
+        var bankName = sidecar?.BankName ?? (bankCode switch { 1 => "HDFC Bank", 2 => "YES BANK", 3 => "Axis Bank", 4 => "Central Bank of India", 5 => "ICICI Bank", 6 => "State Bank of India", 7 => "Bank of India", 8 => "Kotak Mahindra Bank", 9 => "Punjab National Bank", 10 => "Bank of Baroda", _ => "Unknown Bank" });
+        var parserVersion = sidecar?.ParserVersion ?? (bankCode switch { 1 => "HDFC-v1", 2 => "YES-v1", 3 => "AXIS-v1", 4 => "CENTRAL-v1", 5 => "ICICI-v1", 6 => "SBI-v1", 7 => "BOI-v1", 8 => "KOTAK-v1", 9 => "PNB-v1", 10 => "BOB-v1", _ => "v1" });
 
         var enriched = _validationService.ValidateAndEnrichStatement(transactions, sidecar);
         var summary = _validationService.ComputeSummary(id, bankCode, bankName, parserVersion, enriched);
@@ -1268,6 +1272,8 @@ public class StatementsController : ControllerBase
             6 => "State Bank of India",
             7 => "Bank of India",
             8 => "Kotak Mahindra Bank",
+            9 => "Punjab National Bank",
+            10 => "Bank of Baroda",
             _ => "Unknown Bank"
         });
         var parserVersion = sidecar?.ParserVersion ?? (bankCode switch
@@ -1280,6 +1286,8 @@ public class StatementsController : ControllerBase
             6 => "SBI-v1",
             7 => "BOI-v1",
             8 => "KOTAK-v1",
+            9 => "PNB-v1",
+            10 => "BOB-v1",
             _ => "v1"
         });
 

@@ -236,6 +236,8 @@ public class TransactionValidationService : ITransactionValidationService
             6 => "State Bank of India",
             7 => "Bank of India",
             8 => "Kotak Mahindra Bank",
+            9 => "Punjab National Bank",
+            10 => "Bank of Baroda",
             _ => "Unknown Bank"
         };
 
@@ -250,6 +252,8 @@ public class TransactionValidationService : ITransactionValidationService
                 6 => "SBI-v1",
                 7 => "BOI-v1",
                 8 => "KOTAK-v1",
+                9 => "PNB-v1",
+                10 => "BOB-v1",
                 _ => "v1"
             });
 

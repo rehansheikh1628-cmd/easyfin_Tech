@@ -14,5 +14,7 @@ public enum BankType
     ICICI = 5,
     SBI = 6,
     BOI = 7,
-    Kotak = 8
+    Kotak = 8,
+    PNB = 9,
+    BOB = 10
 }

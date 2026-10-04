@@ -839,7 +839,191 @@ public class BankDetector : IBankDetector
             kotakSignals.Add($"Identified Kotak Customer Name: {kotakCustomerName}");
         }
 
-        // 9. Disambiguation and Decision Thresholds
+        // 9. Check Punjab National Bank (PNB) Brand & Structural Signals
+        var pnbSignals = new List<string>();
+        bool hasPnbBrand = combinedText.Contains("PUNJAB NATIONAL BANK", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("punjab national bank", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("पंजाब नैशनल बैंक", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("pnbindia.in", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("PNB ONE", StringComparison.OrdinalIgnoreCase) ||
+                           Regex.IsMatch(combinedText, @"\b(?:PUNJAB\s+NATIONAL\s+BANK|PNB)\b", RegexOptions.IgnoreCase);
+        bool hasPnbIfsc = Regex.IsMatch(combinedText, @"\bPUNB0[A-Z0-9]{6}\b", RegexOptions.IgnoreCase);
+        bool hasPnbSlogan = combinedText.Contains("the name you can BANK upon", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("भरोसे का प्रतीक", StringComparison.OrdinalIgnoreCase);
+        bool hasPnbHeader = combinedText.Contains("Statement of Account No", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("Statement for Period", StringComparison.OrdinalIgnoreCase);
+
+        bool hasPnbTranDateCol = combinedText.Contains("Tran Date", StringComparison.OrdinalIgnoreCase) ||
+                                 combinedText.Contains("Txn Date", StringComparison.OrdinalIgnoreCase);
+        bool hasPnbWithdrawalCol = combinedText.Contains("Withdrawal", StringComparison.OrdinalIgnoreCase) ||
+                                   combinedText.Contains("Withdrawal Amt", StringComparison.OrdinalIgnoreCase);
+        bool hasPnbDepositCol = combinedText.Contains("Deposit", StringComparison.OrdinalIgnoreCase) ||
+                                combinedText.Contains("Deposit Amt", StringComparison.OrdinalIgnoreCase);
+        bool hasPnbBalanceCol = combinedText.Contains("Balance", StringComparison.OrdinalIgnoreCase);
+        bool hasPnbAlphaCol = combinedText.Contains("Alpha", StringComparison.OrdinalIgnoreCase);
+        bool hasPnbChqCol = combinedText.Contains("CHQ. NO.", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("CHQ NO.", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("Cheque No", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("Chq No", StringComparison.OrdinalIgnoreCase);
+        bool hasPnbNarrationCol = combinedText.Contains("Narration", StringComparison.OrdinalIgnoreCase) ||
+                                  combinedText.Contains("Particulars", StringComparison.OrdinalIgnoreCase);
+        bool hasPnbAdditionalInfoCol = combinedText.Contains("Additional Info", StringComparison.OrdinalIgnoreCase);
+
+        int matchedPnbColumns = 0;
+        if (hasPnbTranDateCol) matchedPnbColumns++;
+        if (hasPnbWithdrawalCol) matchedPnbColumns++;
+        if (hasPnbDepositCol) matchedPnbColumns++;
+        if (hasPnbBalanceCol) matchedPnbColumns++;
+        if (hasPnbAlphaCol) matchedPnbColumns++;
+        if (hasPnbChqCol) matchedPnbColumns++;
+        if (hasPnbNarrationCol) matchedPnbColumns++;
+        if (hasPnbAdditionalInfoCol) matchedPnbColumns++;
+
+        if (hasPnbBrand) pnbSignals.Add("Detected 'Punjab National Bank' branding text.");
+        if (hasPnbIfsc) pnbSignals.Add("Detected PNB IFSC code pattern (PUNB0...).");
+        if (hasPnbSlogan) pnbSignals.Add("Detected PNB brand motto signature.");
+        if (hasPnbHeader) pnbSignals.Add("Detected PNB statement header title.");
+        if (matchedPnbColumns >= 4) pnbSignals.Add($"Detected {matchedPnbColumns}/8 PNB standard table column headers.");
+
+        // PNB Account Number Extraction (e.g. "Statement of Account No: 9967002100001746" or "Account No: ...")
+        string? pnbAccountNumber = null;
+        var pnbAccMatch = Regex.Match(combinedText, @"(?:Statement\s+of\s+Account\s*No\.?|Account\s*(?:No|Number))\s*[:.]?\s*(\d{13,18})", RegexOptions.IgnoreCase);
+        if (pnbAccMatch.Success)
+        {
+            pnbAccountNumber = pnbAccMatch.Groups[1].Value.Trim();
+            pnbSignals.Add($"Identified PNB Account Number: {pnbAccountNumber}");
+        }
+
+        // PNB Statement Period Extraction (e.g. "Statement for Period : 01-04-2024 to 31-03-2025")
+        DateTime? pnbPeriodStart = null;
+        DateTime? pnbPeriodEnd = null;
+        var pnbPeriodMatch = Regex.Match(combinedText, @"(?:Statement\s+for\s+Period|Period|From)\s*[:.]?\s*(\d{2}[/-]\d{2}[/-]\d{4})\s*(?:to|To|-)\s*(\d{2}[/-]\d{2}[/-]\d{4})", RegexOptions.IgnoreCase);
+        if (pnbPeriodMatch.Success)
+        {
+            var s1 = pnbPeriodMatch.Groups[1].Value.Replace('/', '-');
+            var s2 = pnbPeriodMatch.Groups[2].Value.Replace('/', '-');
+            if (DateTime.TryParseExact(s1, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var pp1)) pnbPeriodStart = pp1;
+            if (DateTime.TryParseExact(s2, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var pp2)) pnbPeriodEnd = pp2;
+            if (pnbPeriodStart.HasValue && pnbPeriodEnd.HasValue)
+            {
+                pnbSignals.Add($"Identified PNB Statement Period: {pnbPeriodStart:dd-MM-yyyy} to {pnbPeriodEnd:dd-MM-yyyy}");
+            }
+        }
+
+        // PNB Customer Name Extraction (e.g. "Customer Name: HINDUSTAN CARGO MOVERS AND NAYEEM UDDIN KHAN")
+        string? pnbCustomerName = null;
+        var pnbNameMatch = Regex.Match(combinedText, @"Customer\s+Name\s*[:.]?\s*([A-Za-z0-9\s.&'-]{3,60})(?:\r?\n|\t|CKYC|Customer\s+Address|Branch\s+Address|Branch\s+Contact|$)", RegexOptions.IgnoreCase);
+        if (pnbNameMatch.Success)
+        {
+            pnbCustomerName = pnbNameMatch.Groups[1].Value.Trim().TrimEnd('.', ' ');
+            pnbSignals.Add($"Identified PNB Customer Name: {pnbCustomerName}");
+        }
+
+        // 10. Check Bank of Baroda (BOB) Brand & Structural Signals
+        var bobSignals = new List<string>();
+        bool hasBobBrand = combinedText.Contains("BANK OF BARODA", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("bank of baroda", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("बैंक ऑफ़ बड़ौदा", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("बैंक ऑफ बड़ौदा", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("बैंक ऑफ बड़ौदा", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("bankofbaroda.in", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("bankofbaroda.com", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("bob World", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("BOB World", StringComparison.OrdinalIgnoreCase) ||
+                           combinedText.Contains("Baroda Connect", StringComparison.OrdinalIgnoreCase) ||
+                           Regex.IsMatch(combinedText, @"\b(?:BANK\s+OF\s+BARODA|BOB)\b", RegexOptions.IgnoreCase);
+        bool hasBobIfsc = Regex.IsMatch(combinedText, @"\bBARB0[A-Z0-9]{6}\b", RegexOptions.IgnoreCase);
+        bool hasBobSlogan = combinedText.Contains("India's International Bank", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("Indias International Bank", StringComparison.OrdinalIgnoreCase);
+        bool hasBobHeader = combinedText.Contains("Account Statement", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("Statement of Account", StringComparison.OrdinalIgnoreCase);
+
+        bool hasBobDateCol = combinedText.Contains("Date", StringComparison.OrdinalIgnoreCase) ||
+                             combinedText.Contains("Txn Date", StringComparison.OrdinalIgnoreCase) ||
+                             combinedText.Contains("Tran Date", StringComparison.OrdinalIgnoreCase);
+        bool hasBobValueDateCol = combinedText.Contains("Value Date", StringComparison.OrdinalIgnoreCase);
+        bool hasBobSnoCol = combinedText.Contains("S.No", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("S No", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("Sl.No", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("Sl No", StringComparison.OrdinalIgnoreCase);
+        bool hasBobParticularsCol = combinedText.Contains("Particulars", StringComparison.OrdinalIgnoreCase) ||
+                                    combinedText.Contains("Description", StringComparison.OrdinalIgnoreCase) ||
+                                    combinedText.Contains("Narration", StringComparison.OrdinalIgnoreCase);
+        bool hasBobChqCol = combinedText.Contains("CHQ. NO.", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("CHQ NO.", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("Cheque No", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("Chq No", StringComparison.OrdinalIgnoreCase) ||
+                            combinedText.Contains("Chq/Ref No", StringComparison.OrdinalIgnoreCase);
+        bool hasBobWithdrawalCol = combinedText.Contains("Withdrawal(Dr)", StringComparison.OrdinalIgnoreCase) ||
+                                   combinedText.Contains("Withdrawal (Dr)", StringComparison.OrdinalIgnoreCase) ||
+                                   combinedText.Contains("Withdrawals", StringComparison.OrdinalIgnoreCase) ||
+                                   combinedText.Contains("Withdrawal", StringComparison.OrdinalIgnoreCase) ||
+                                   combinedText.Contains("Debit(Dr)", StringComparison.OrdinalIgnoreCase) ||
+                                   combinedText.Contains("Debit (Dr)", StringComparison.OrdinalIgnoreCase) ||
+                                   combinedText.Contains("Debit", StringComparison.OrdinalIgnoreCase);
+        bool hasBobDepositCol = combinedText.Contains("Deposit(Cr)", StringComparison.OrdinalIgnoreCase) ||
+                                combinedText.Contains("Deposit (Cr)", StringComparison.OrdinalIgnoreCase) ||
+                                combinedText.Contains("Deposits", StringComparison.OrdinalIgnoreCase) ||
+                                combinedText.Contains("Deposit", StringComparison.OrdinalIgnoreCase) ||
+                                combinedText.Contains("Credit(Cr)", StringComparison.OrdinalIgnoreCase) ||
+                                combinedText.Contains("Credit (Cr)", StringComparison.OrdinalIgnoreCase) ||
+                                combinedText.Contains("Credit", StringComparison.OrdinalIgnoreCase);
+        bool hasBobBalanceCol = combinedText.Contains("Balance(Cr/Dr)", StringComparison.OrdinalIgnoreCase) ||
+                                combinedText.Contains("Balance (Cr/Dr)", StringComparison.OrdinalIgnoreCase) ||
+                                combinedText.Contains("Balance (INR)", StringComparison.OrdinalIgnoreCase) ||
+                                combinedText.Contains("Balance", StringComparison.OrdinalIgnoreCase);
+
+        int matchedBobColumns = 0;
+        if (hasBobDateCol) matchedBobColumns++;
+        if (hasBobValueDateCol) matchedBobColumns++;
+        if (hasBobSnoCol) matchedBobColumns++;
+        if (hasBobParticularsCol) matchedBobColumns++;
+        if (hasBobChqCol) matchedBobColumns++;
+        if (hasBobWithdrawalCol) matchedBobColumns++;
+        if (hasBobDepositCol) matchedBobColumns++;
+        if (hasBobBalanceCol) matchedBobColumns++;
+
+        if (hasBobBrand) bobSignals.Add("Detected 'Bank of Baroda' branding text.");
+        if (hasBobIfsc) bobSignals.Add("Detected Bank of Baroda IFSC code pattern (BARB0...).");
+        if (hasBobSlogan) bobSignals.Add("Detected BOB brand slogan signature ('India\\'s International Bank').");
+        if (hasBobHeader) bobSignals.Add("Detected BOB statement header title.");
+        if (matchedBobColumns >= 4) bobSignals.Add($"Detected {matchedBobColumns}/8 Bank of Baroda standard table column headers.");
+
+        // BOB Account Number Extraction (typically 14 digits)
+        string? bobAccountNumber = null;
+        var bobAccMatch = Regex.Match(combinedText, @"(?:Account\s*(?:No|Number)|A/c\s*(?:No|Number))\s*[:.]?\s*(\d{14,16})", RegexOptions.IgnoreCase);
+        if (bobAccMatch.Success)
+        {
+            bobAccountNumber = bobAccMatch.Groups[1].Value.Trim();
+            bobSignals.Add($"Identified Bank of Baroda Account Number: {bobAccountNumber}");
+        }
+
+        // BOB Statement Period Extraction
+        DateTime? bobPeriodStart = null;
+        DateTime? bobPeriodEnd = null;
+        var bobPeriodMatch = Regex.Match(combinedText, @"(?:Statement\s+Period|Period|From)\s*[:.]?\s*(\d{2}[/-]\d{2}[/-]\d{4})\s*(?:to|To|-)\s*(\d{2}[/-]\d{2}[/-]\d{4})", RegexOptions.IgnoreCase);
+        if (bobPeriodMatch.Success)
+        {
+            var s1 = bobPeriodMatch.Groups[1].Value.Replace('/', '-');
+            var s2 = bobPeriodMatch.Groups[2].Value.Replace('/', '-');
+            if (DateTime.TryParseExact(s1, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var bp1)) bobPeriodStart = bp1;
+            if (DateTime.TryParseExact(s2, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var bp2)) bobPeriodEnd = bp2;
+            if (bobPeriodStart.HasValue && bobPeriodEnd.HasValue)
+            {
+                bobSignals.Add($"Identified BOB Statement Period: {bobPeriodStart:dd-MM-yyyy} to {bobPeriodEnd:dd-MM-yyyy}");
+            }
+        }
+
+        // BOB Customer Name Extraction
+        string? bobCustomerName = null;
+        var bobNameMatch = Regex.Match(combinedText, @"(?:Customer\s+Name|Account\s+Name|Name)\s*[:.]?\s*([A-Za-z0-9\s.&'-]{3,60}?)(?:\r?\n|\t|Branch|Customer\s+ID|Cust\s+ID|Address|Account\s+No|$)", RegexOptions.IgnoreCase);
+        if (bobNameMatch.Success)
+        {
+            bobCustomerName = bobNameMatch.Groups[1].Value.Trim().TrimEnd('.', ' ');
+            bobSignals.Add($"Identified Bank of Baroda Customer Name: {bobCustomerName}");
+        }
+
+        // 11. Disambiguation and Decision Thresholds
         // Genuine HDFC statements require HDFC IFSC, HDFC corporate header, or HDFC brand combined with HDFC-specific table column headers (Narration or Closing Balance)
         bool hasHdfcSpecificStructure = hasHdfcIfsc || hasHdfcHeader || (hasHdfcBrand && (hasNarrCol || hasClosingBalanceCol));
         bool isHdfcCandidate = hasHdfcSpecificStructure && matchedHdfcColumns >= 5;
@@ -872,6 +1056,14 @@ public class BankDetector : IBankDetector
         bool hasKotakSpecificStructure = hasKotakIfsc || hasKotakHeader || hasKotakCrn || (hasKotakBrand && (hasKotakRefCol || (hasKotakWithdrawalCol && hasKotakDepositCol)));
         bool isKotakCandidate = hasKotakSpecificStructure && (matchedKotakColumns >= 4 || hasKotakIfsc);
 
+        // Genuine Punjab National Bank (PNB) statements require PNB IFSC, PNB slogan, or PNB brand combined with PNB table columns or layout markers
+        bool hasPnbSpecificStructure = hasPnbIfsc || hasPnbSlogan || (hasPnbBrand && (hasPnbWithdrawalCol || hasPnbDepositCol || hasPnbAlphaCol || hasPnbChqCol || hasPnbHeader));
+        bool isPnbCandidate = hasPnbSpecificStructure && (matchedPnbColumns >= 4 || hasPnbIfsc || (hasPnbBrand && matchedPnbColumns >= 3));
+
+        // Genuine Bank of Baroda (BOB) statements require BOB IFSC, BOB slogan, or BOB brand combined with BOB table columns or layout markers
+        bool hasBobSpecificStructure = hasBobIfsc || hasBobSlogan || (hasBobBrand && (hasBobWithdrawalCol || hasBobDepositCol || hasBobSnoCol || hasBobChqCol || hasBobHeader));
+        bool isBobCandidate = hasBobSpecificStructure && (matchedBobColumns >= 4 || hasBobIfsc || (hasBobBrand && matchedBobColumns >= 3));
+
         int hdfcScore = (hasHdfcIfsc ? 40 : 0) + (hasHdfcHeader ? 40 : 0) + (hasNarrCol ? 20 : 0) + (hasClosingBalanceCol ? 15 : 0) + (hasHdfcBrand ? 15 : 0) + matchedHdfcColumns * 5;
         int yesScore = (hasYesIfsc ? 40 : 0) + (hasYesHeader ? 40 : 0) + (hasYesDescCol ? 20 : 0) + (hasYesBalanceCol ? 20 : 0) + (hasYesBrand ? 15 : 0) + (hasYesStatementLabel ? 20 : 0) + matchedYesColumns * 5;
         int axisScore = (hasAxisIfsc ? 40 : 0) + (hasAxisHeader ? 40 : 0) + (hasAxisParticularsCol ? 20 : 0) + (hasAxisDrCrCol ? 20 : 0) + (hasAxisBrand ? 15 : 0) + (hasAxisStatementLabel ? 20 : 0) + matchedAxisColumns * 5;
@@ -880,8 +1072,64 @@ public class BankDetector : IBankDetector
         int sbiScore = (hasSbiIfsc ? 40 : 0) + (hasSbiDomain ? 30 : 0) + (hasSbiBrand ? 30 : 0) + (hasSbiBroughtForward ? 25 : 0) + (hasSbiStatementSummary ? 20 : 0) + (hasSbiNotice ? 15 : 0) + matchedSbiColumns * 5;
         int boiScore = (hasBoiIfsc ? 40 : 0) + (hasBoiDomain ? 30 : 0) + (hasBoiBrand ? 30 : 0) + (hasBoiSlogan ? 25 : 0) + (hasBoiOpeningBalance ? 20 : 0) + (hasBoiHelpline ? 15 : 0) + matchedBoiColumns * 5;
         int kotakScore = (hasKotakIfsc ? 40 : 0) + (hasKotakHeader ? 40 : 0) + (hasKotakBrand ? 30 : 0) + (hasKotakCrn ? 25 : 0) + (hasKotakRefCol ? 20 : 0) + matchedKotakColumns * 5;
+        int pnbScore = (hasPnbIfsc ? 40 : 0) + (hasPnbSlogan ? 30 : 0) + (hasPnbBrand ? 30 : 0) + (hasPnbHeader ? 25 : 0) + (hasPnbAlphaCol ? 15 : 0) + matchedPnbColumns * 5;
+        int bobScore = (hasBobIfsc ? 40 : 0) + (hasBobSlogan ? 30 : 0) + (hasBobBrand ? 30 : 0) + (hasBobHeader ? 25 : 0) + (hasBobSnoCol ? 15 : 0) + matchedBobColumns * 5;
 
-        if (isKotakCandidate && kotakScore > hdfcScore && kotakScore > yesScore && kotakScore > axisScore && kotakScore > centralScore && kotakScore > iciciScore && kotakScore > sbiScore && kotakScore > boiScore)
+        if (isBobCandidate && bobScore > hdfcScore && bobScore > yesScore && bobScore > axisScore && bobScore > centralScore && bobScore > iciciScore && bobScore > sbiScore && bobScore > boiScore && bobScore > kotakScore && bobScore > pnbScore)
+        {
+            double confidence = 0.90;
+            if (hasBobBrand && (hasBobIfsc || hasBobSlogan)) confidence += 0.05;
+            if (matchedBobColumns >= 5) confidence += 0.03;
+            if (!string.IsNullOrEmpty(bobAccountNumber)) confidence += 0.02;
+
+            confidence = Math.Min(1.0, confidence);
+
+            _logger.LogInformation("Successfully detected Bank of Baroda statement with format BOB-v1 and confidence {Confidence:P0}. Account: {Account}",
+                confidence, bobAccountNumber ?? "N/A");
+
+            return new BankDetectionResult
+            {
+                DetectedBank = BankType.BOB,
+                BankName = "Bank of Baroda",
+                Confidence = confidence,
+                IsSupported = true,
+                DetectedFormat = "BOB-v1",
+                AccountNumber = bobAccountNumber ?? accountNumber,
+                CustomerName = bobCustomerName ?? customerName,
+                StatementFrom = bobPeriodStart ?? periodStart,
+                StatementTo = bobPeriodEnd ?? periodEnd,
+                DetectionSignals = bobSignals
+            };
+        }
+
+        if (isPnbCandidate && pnbScore > hdfcScore && pnbScore > yesScore && pnbScore > axisScore && pnbScore > centralScore && pnbScore > iciciScore && pnbScore > sbiScore && pnbScore > boiScore && pnbScore > kotakScore && pnbScore > bobScore)
+        {
+            double confidence = 0.90;
+            if (hasPnbBrand && (hasPnbIfsc || hasPnbSlogan)) confidence += 0.05;
+            if (matchedPnbColumns >= 5) confidence += 0.03;
+            if (!string.IsNullOrEmpty(pnbAccountNumber)) confidence += 0.02;
+
+            confidence = Math.Min(1.0, confidence);
+
+            _logger.LogInformation("Successfully detected Punjab National Bank statement with format PNB-v1 and confidence {Confidence:P0}. Account: {Account}",
+                confidence, pnbAccountNumber ?? "N/A");
+
+            return new BankDetectionResult
+            {
+                DetectedBank = BankType.PNB,
+                BankName = "Punjab National Bank",
+                Confidence = confidence,
+                IsSupported = true,
+                DetectedFormat = "PNB-v1",
+                AccountNumber = pnbAccountNumber ?? accountNumber,
+                CustomerName = pnbCustomerName ?? customerName,
+                StatementFrom = pnbPeriodStart ?? periodStart,
+                StatementTo = pnbPeriodEnd ?? periodEnd,
+                DetectionSignals = pnbSignals
+            };
+        }
+
+        if (isKotakCandidate && kotakScore > hdfcScore && kotakScore > yesScore && kotakScore > axisScore && kotakScore > centralScore && kotakScore > iciciScore && kotakScore > sbiScore && kotakScore > boiScore && kotakScore > pnbScore && kotakScore > bobScore)
         {
             double confidence = 0.90;
             if (hasKotakBrand && (hasKotakIfsc || hasKotakHeader || hasKotakCrn)) confidence += 0.05;
@@ -908,7 +1156,7 @@ public class BankDetector : IBankDetector
             };
         }
 
-        if (isBoiCandidate && boiScore > hdfcScore && boiScore > yesScore && boiScore > axisScore && boiScore > centralScore && boiScore > iciciScore && boiScore > sbiScore && boiScore > kotakScore)
+        if (isBoiCandidate && boiScore > hdfcScore && boiScore > yesScore && boiScore > axisScore && boiScore > centralScore && boiScore > iciciScore && boiScore > sbiScore && boiScore > kotakScore && boiScore > pnbScore && boiScore > bobScore)
         {
             double confidence = 0.90;
             if (hasBoiBrand && (hasBoiIfsc || hasBoiDomain || hasBoiSlogan)) confidence += 0.05;
@@ -935,7 +1183,7 @@ public class BankDetector : IBankDetector
             };
         }
 
-        if (isSbiCandidate && sbiScore > hdfcScore && sbiScore > yesScore && sbiScore > axisScore && sbiScore > centralScore && sbiScore > iciciScore && sbiScore > boiScore && sbiScore > kotakScore)
+        if (isSbiCandidate && sbiScore > hdfcScore && sbiScore > yesScore && sbiScore > axisScore && sbiScore > centralScore && sbiScore > iciciScore && sbiScore > boiScore && sbiScore > kotakScore && sbiScore > pnbScore && sbiScore > bobScore)
         {
             double confidence = 0.90;
             if (hasSbiBrand && (hasSbiIfsc || hasSbiDomain)) confidence += 0.05;
@@ -962,7 +1210,7 @@ public class BankDetector : IBankDetector
             };
         }
 
-        if (isIciciCandidate && iciciScore > hdfcScore && iciciScore > yesScore && iciciScore > axisScore && iciciScore > centralScore && iciciScore > sbiScore && iciciScore > boiScore && iciciScore > kotakScore)
+        if (isIciciCandidate && iciciScore > hdfcScore && iciciScore > yesScore && iciciScore > axisScore && iciciScore > centralScore && iciciScore > sbiScore && iciciScore > boiScore && iciciScore > kotakScore && iciciScore > pnbScore && iciciScore > bobScore)
         {
             double confidence = 0.90;
             if (hasIciciBrand && (hasIciciIfsc || hasIciciHeader || hasIciciDomain || isIciciV2)) confidence += 0.05;
@@ -989,7 +1237,7 @@ public class BankDetector : IBankDetector
             };
         }
 
-        if (isCentralCandidate && centralScore > hdfcScore && centralScore > yesScore && centralScore > axisScore && centralScore > iciciScore && centralScore > sbiScore && centralScore > boiScore && centralScore > kotakScore)
+        if (isCentralCandidate && centralScore > hdfcScore && centralScore > yesScore && centralScore > axisScore && centralScore > iciciScore && centralScore > sbiScore && centralScore > boiScore && centralScore > kotakScore && centralScore > pnbScore && centralScore > bobScore)
         {
             double confidence = 0.90;
             if (hasCentralBrand && (hasCentralIfsc || hasCentralDomain)) confidence += 0.05;
@@ -1015,7 +1263,7 @@ public class BankDetector : IBankDetector
             };
         }
 
-        if (isAxisCandidate && axisScore > hdfcScore && axisScore > yesScore && axisScore > iciciScore && axisScore > sbiScore && axisScore > boiScore && axisScore > kotakScore)
+        if (isAxisCandidate && axisScore > hdfcScore && axisScore > yesScore && axisScore > iciciScore && axisScore > sbiScore && axisScore > boiScore && axisScore > kotakScore && axisScore > pnbScore && axisScore > bobScore)
         {
             double confidence = 0.90;
             if (hasAxisBrand && (hasAxisIfsc || hasAxisHeader)) confidence += 0.05;
@@ -1041,7 +1289,7 @@ public class BankDetector : IBankDetector
             };
         }
 
-        if (isYesCandidate && (!isHdfcCandidate || yesScore > hdfcScore) && (!isIciciCandidate || yesScore > iciciScore) && (!isSbiCandidate || yesScore > sbiScore) && (!isBoiCandidate || yesScore > boiScore) && (!isKotakCandidate || yesScore > kotakScore))
+        if (isYesCandidate && (!isHdfcCandidate || yesScore > hdfcScore) && (!isIciciCandidate || yesScore > iciciScore) && (!isSbiCandidate || yesScore > sbiScore) && (!isBoiCandidate || yesScore > boiScore) && (!isKotakCandidate || yesScore > kotakScore) && (!isPnbCandidate || yesScore > pnbScore) && (!isBobCandidate || yesScore > bobScore))
         {
             double confidence = 0.90;
             if (hasYesBrand && (hasYesIfsc || hasYesHeader)) confidence += 0.05;
@@ -1067,7 +1315,7 @@ public class BankDetector : IBankDetector
             };
         }
 
-        if (isHdfcCandidate && (!isYesCandidate || hdfcScore >= yesScore) && (!isIciciCandidate || hdfcScore >= iciciScore) && (!isSbiCandidate || hdfcScore >= sbiScore) && (!isBoiCandidate || hdfcScore >= boiScore) && (!isKotakCandidate || hdfcScore >= kotakScore))
+        if (isHdfcCandidate && (!isYesCandidate || hdfcScore >= yesScore) && (!isIciciCandidate || hdfcScore >= iciciScore) && (!isSbiCandidate || hdfcScore >= sbiScore) && (!isBoiCandidate || hdfcScore >= boiScore) && (!isKotakCandidate || hdfcScore >= kotakScore) && (!isPnbCandidate || hdfcScore >= pnbScore) && (!isBobCandidate || hdfcScore >= bobScore))
         {
             double confidence = 0.90;
             if (hasHdfcBrand && (hasHdfcIfsc || hasHdfcHeader)) confidence += 0.05;
@@ -1094,8 +1342,8 @@ public class BankDetector : IBankDetector
         }
 
         // Document does not exhibit deterministic bank signals -> Reject cleanly without creating fake transactions
-        _logger.LogWarning("Document not recognized as supported bank. HDFC matched: {HdfcCols}, YES BANK matched: {YesCols}, Axis matched: {AxisCols}, Central Bank matched: {CentralCols}, SBI matched: {SbiCols}, BOI matched: {BoiCols}, Kotak matched: {KotakCols}",
-            matchedHdfcColumns, matchedYesColumns, matchedAxisColumns, matchedCentralColumns, matchedSbiColumns, matchedBoiColumns, matchedKotakColumns);
+        _logger.LogWarning("Document not recognized as supported bank. HDFC matched: {HdfcCols}, YES BANK matched: {YesCols}, Axis matched: {AxisCols}, Central Bank matched: {CentralCols}, SBI matched: {SbiCols}, BOI matched: {BoiCols}, Kotak matched: {KotakCols}, PNB matched: {PnbCols}, BOB matched: {BobCols}",
+            matchedHdfcColumns, matchedYesColumns, matchedAxisColumns, matchedCentralColumns, matchedSbiColumns, matchedBoiColumns, matchedKotakColumns, matchedPnbColumns, matchedBobColumns);
 
         signals.Add("Insufficient evidence to classify document as a supported bank format.");
 
@@ -1105,10 +1353,10 @@ public class BankDetector : IBankDetector
             BankName = "Unknown",
             Confidence = 0.0,
             IsSupported = false,
-            AccountNumber = accountNumber ?? yesAccountNumber ?? axisAccountNumber ?? centralAccountNumber ?? sbiAccountNumber ?? boiAccountNumber ?? kotakAccountNumber,
-            CustomerName = customerName ?? axisCustomerName ?? centralCustomerName ?? sbiCustomerName ?? boiCustomerName ?? kotakCustomerName,
-            StatementFrom = periodStart ?? yesPeriodStart ?? axisPeriodStart ?? centralPeriodStart ?? sbiPeriodStart ?? boiPeriodStart ?? kotakPeriodStart,
-            StatementTo = periodEnd ?? yesPeriodEnd ?? axisPeriodEnd ?? centralPeriodEnd ?? sbiPeriodEnd ?? boiPeriodEnd ?? kotakPeriodEnd,
+            AccountNumber = accountNumber ?? yesAccountNumber ?? axisAccountNumber ?? centralAccountNumber ?? sbiAccountNumber ?? boiAccountNumber ?? kotakAccountNumber ?? pnbAccountNumber ?? bobAccountNumber,
+            CustomerName = customerName ?? axisCustomerName ?? centralCustomerName ?? sbiCustomerName ?? boiCustomerName ?? kotakCustomerName ?? pnbCustomerName ?? bobCustomerName,
+            StatementFrom = periodStart ?? yesPeriodStart ?? axisPeriodStart ?? centralPeriodStart ?? sbiPeriodStart ?? boiPeriodStart ?? kotakPeriodStart ?? pnbPeriodStart ?? bobPeriodStart,
+            StatementTo = periodEnd ?? yesPeriodEnd ?? axisPeriodEnd ?? centralPeriodEnd ?? sbiPeriodEnd ?? boiPeriodEnd ?? kotakPeriodEnd ?? pnbPeriodEnd ?? bobPeriodEnd,
             DetectionSignals = signals
         };
     }

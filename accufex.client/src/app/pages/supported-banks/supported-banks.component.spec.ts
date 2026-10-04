@@ -42,13 +42,13 @@ describe('SupportedBanksComponent (Phase 13 UI Redesign)', () => {
     expect(component).toBeTruthy();
     expect(component.searchQuery).toBe('');
     expect(component.selectedCategory).toBe('ALL');
-    expect(component.totalBanksCount).toBe(8);
-    expect(component.totalFormatsCount).toBe(9);
+    expect(component.totalBanksCount).toBe(10);
+    expect(component.totalFormatsCount).toBe(11);
   });
 
-  it('2. should contain all 8 authoritative bank institutions from backend source code', () => {
+  it('2. should contain all 10 authoritative bank institutions from backend source code', () => {
     const bankIds = component.supportedBanks.map(b => b.id);
-    expect(bankIds).toEqual(['hdfc', 'icici', 'axis', 'kotak', 'yes', 'sbi', 'boi', 'central']);
+    expect(bankIds).toEqual(['hdfc', 'icici', 'axis', 'kotak', 'yes', 'sbi', 'boi', 'central', 'pnb', 'bob']);
 
     const bankNames = component.supportedBanks.map(b => b.bankName);
     expect(bankNames).toContain('HDFC Bank');
@@ -59,6 +59,8 @@ describe('SupportedBanksComponent (Phase 13 UI Redesign)', () => {
     expect(bankNames).toContain('State Bank of India');
     expect(bankNames).toContain('Bank of India');
     expect(bankNames).toContain('Central Bank of India');
+    expect(bankNames).toContain('Punjab National Bank');
+    expect(bankNames).toContain('Bank of Baroda');
   });
 
   it('3. should verify ICICI Bank has exactly 2 validated format profiles (v1 and v2)', () => {
@@ -77,12 +79,12 @@ describe('SupportedBanksComponent (Phase 13 UI Redesign)', () => {
 
     // Public Sector
     component.setCategory('Public Sector');
-    expect(component.filteredBanks.length).toBe(3);
+    expect(component.filteredBanks.length).toBe(5);
     expect(component.filteredBanks.every(b => b.category === 'Public Sector')).toBe(true);
 
     // All
     component.setCategory('ALL');
-    expect(component.filteredBanks.length).toBe(8);
+    expect(component.filteredBanks.length).toBe(10);
   });
 
   it('5. should search banks by bank name', () => {
@@ -93,6 +95,14 @@ describe('SupportedBanksComponent (Phase 13 UI Redesign)', () => {
     component.searchQuery = 'State Bank';
     expect(component.filteredBanks.length).toBe(1);
     expect(component.filteredBanks[0].id).toBe('sbi');
+
+    component.searchQuery = 'Punjab National';
+    expect(component.filteredBanks.length).toBe(1);
+    expect(component.filteredBanks[0].id).toBe('pnb');
+
+    component.searchQuery = 'Bank of Baroda';
+    expect(component.filteredBanks.length).toBe(1);
+    expect(component.filteredBanks[0].id).toBe('bob');
   });
 
   it('6. should search banks by parser version code', () => {
@@ -103,6 +113,14 @@ describe('SupportedBanksComponent (Phase 13 UI Redesign)', () => {
     component.searchQuery = 'ICICI-v2';
     expect(component.filteredBanks.length).toBe(1);
     expect(component.filteredBanks[0].id).toBe('icici');
+
+    component.searchQuery = 'PNB-v1';
+    expect(component.filteredBanks.length).toBe(1);
+    expect(component.filteredBanks[0].id).toBe('pnb');
+
+    component.searchQuery = 'BOB-v1';
+    expect(component.filteredBanks.length).toBe(1);
+    expect(component.filteredBanks[0].id).toBe('bob');
   });
 
   it('7. should search banks by short code', () => {
@@ -113,6 +131,14 @@ describe('SupportedBanksComponent (Phase 13 UI Redesign)', () => {
     component.searchQuery = 'BOI';
     expect(component.filteredBanks.length).toBe(1);
     expect(component.filteredBanks[0].id).toBe('boi');
+
+    component.searchQuery = 'PNB';
+    expect(component.filteredBanks.length).toBe(1);
+    expect(component.filteredBanks[0].id).toBe('pnb');
+
+    component.searchQuery = 'BOB';
+    expect(component.filteredBanks.length).toBe(1);
+    expect(component.filteredBanks[0].id).toBe('bob');
   });
 
   it('8. should search banks by layout keyword (e.g. Overdraft)', () => {
@@ -133,7 +159,7 @@ describe('SupportedBanksComponent (Phase 13 UI Redesign)', () => {
     component.clearSearch();
     expect(component.searchQuery).toBe('');
     expect(component.selectedCategory).toBe('ALL');
-    expect(component.filteredBanks.length).toBe(8);
+    expect(component.filteredBanks.length).toBe(10);
   });
 
   it('11. should render the new 4-item horizontal feature strip in DOM and ensure old metrics strip is absent', () => {
@@ -152,13 +178,13 @@ describe('SupportedBanksComponent (Phase 13 UI Redesign)', () => {
     // Verify old statistics cards are absent
     const metricsStrip = fixture.debugElement.query(By.css('.summary-metrics-strip'));
     expect(metricsStrip).toBeNull();
-    expect(component.totalBanksCount).toBe(8);
-    expect(component.totalFormatsCount).toBe(9);
+    expect(component.totalBanksCount).toBe(10);
+    expect(component.totalFormatsCount).toBe(11);
   });
 
-  it('12. should render all 8 bank cards in the DOM by default', () => {
+  it('12. should render all 10 bank cards in the DOM by default', () => {
     const cards = fixture.debugElement.queryAll(By.css('.bank-profile-card'));
-    expect(cards.length).toBe(8);
+    expect(cards.length).toBe(10);
   });
 
   it('13. should render OCR guidance callout and digital PDF warning', () => {
@@ -190,7 +216,7 @@ describe('SupportedBanksComponent (Phase 13 UI Redesign)', () => {
     fixture.detectChanges();
 
     expect(component.searchQuery).toBe('');
-    expect(component.filteredBanks.length).toBe(8);
+    expect(component.filteredBanks.length).toBe(10);
   });
 
   it('16. should provide direct CTA link to /converter', () => {
