@@ -491,6 +491,7 @@
                 <span *ngIf="jobStatus.status === 'Queued'" class="badge badge-secondary">Queued in Pool</span>
                 <span *ngIf="jobStatus.status === 'Processing'" class="badge badge-accent">Processing ({{ jobStatus.progressPercent }}%)</span>
                 <span *ngIf="jobStatus.status === 'Completed'" class="badge badge-success">Completed</span>
+                <span *ngIf="jobStatus.status === 'ReviewRequired'" class="badge badge-warning">Review Required</span>
                 <span *ngIf="jobStatus.status === 'RequiresPassword'" class="badge badge-warning">Password Required</span>
                 <span *ngIf="jobStatus.status === 'Failed'" class="badge badge-danger">Failed</span>
                 <span *ngIf="jobStatus.status === 'Cancelled'" class="badge badge-muted">Cancelled</span>
@@ -557,6 +558,15 @@
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
                 <span>Unlock PDF Statement</span>
+              </button>
+
+              <button *ngIf="jobStatus.status === 'ReviewRequired'"
+                      class="btn btn-warning btn-sm"
+                      (click)="loadUniversalReview(jobStatus.jobId); setStep(3)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                <span>Review Statement Candidates &rarr;</span>
               </button>
 
               <button *ngIf="jobStatus.status === 'Completed'"
@@ -829,7 +839,223 @@
       </div>
     </div>
 
-    <!-- 5.1 VALIDATION SUMMARY SECTION -->
+    <!-- ========================================================================= -->
+    <!-- 5.0 UNIVERSAL STATEMENT ENGINE REVIEW WORKBENCH (PHASE 3) -->
+    <!-- ========================================================================= -->
+    <div *ngIf="isUniversalReview && universalReview" class="universal-workbench-container">
+      <!-- Universal Header Card -->
+      <div class="card universal-review-card mb-3">
+        <div class="universal-card-header">
+          <div class="universal-header-left">
+            <div class="universal-subtitle-row">
+              <span class="badge badge-accent">Universal Statement Engine</span>
+              <span class="dot-sep">&bull;</span>
+              <span class="text-xs text-muted">Unknown Bank Format Candidate Review</span>
+            </div>
+            <h2 id="step3-title" class="universal-title">
+              {{ universalReview.detectedBank ? universalReview.detectedBank : 'Unknown Bank Statement' }}
+            </h2>
+            <p class="universal-desc">
+              Deterministic candidate extraction detected {{ universalReview.totalTransactions }} transactions. Review and verify financial integrity before converting to canonical Excel ledger.
+            </p>
+          </div>
+
+          <div class="universal-header-badges">
+            <div class="review-status-box">
+              <span class="status-lbl">Status</span>
+              <span class="badge" [class.badge-warning]="universalReview.isApprovalRequired" [class.badge-success]="!universalReview.isApprovalRequired">
+                {{ universalReview.isApprovalRequired ? 'Review Required' : 'Ready for Approval' }}
+              </span>
+            </div>
+            <div class="review-status-box">
+              <span class="status-lbl">Confidence</span>
+              <span class="badge" 
+                    [class.badge-success]="universalReview.confidence.level === 'High'"
+                    [class.badge-warning]="universalReview.confidence.level === 'Medium'"
+                    [class.badge-danger]="universalReview.confidence.level === 'Low'">
+                {{ universalReview.confidence.level }} ({{ universalReview.confidence.overallScore | number:'1.0-0' }}%)
+              </span>
+            </div>
+            <div class="review-status-box">
+              <span class="status-lbl">Financial Validation</span>
+              <span class="badge" [class.badge-success]="universalReview.financialValidation.isFullyReconciled" [class.badge-danger]="!universalReview.financialValidation.isFullyReconciled">
+                {{ universalReview.financialValidation.reconciledRowsCount }} / {{ universalReview.financialValidation.totalRowsChecked }} reconciled
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric KPI Pills -->
+        <div class="universal-kpi-row">
+          <div class="universal-kpi-box">
+            <span class="kpi-lbl">Candidate Rows</span>
+            <span class="kpi-val mono">{{ universalReview.totalTransactions }}</span>
+          </div>
+          <div class="universal-kpi-box">
+            <span class="kpi-lbl">Reconciled Rows</span>
+            <span class="kpi-val mono text-success">{{ universalReview.financialValidation.reconciledRowsCount }}</span>
+          </div>
+          <div class="universal-kpi-box">
+            <span class="kpi-lbl">Attention Needed</span>
+            <span class="kpi-val mono" [class.text-danger]="universalReview.attentionCount > 0" [class.text-success]="universalReview.attentionCount === 0">
+              {{ universalReview.attentionCount }}
+            </span>
+          </div>
+          <div class="universal-kpi-box">
+            <span class="kpi-lbl">Structure Layout</span>
+            <span class="kpi-val text-xs mono">Deterministic Grid</span>
+          </div>
+        </div>
+
+        <!-- Warnings Banner -->
+        <div *ngIf="universalReview.warnings && universalReview.warnings.length > 0" class="extraction-alert alert-warning mt-3" role="alert">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <div class="alert-content">
+            <strong>Statement Review Warnings ({{ universalReview.warnings.length }}):</strong>
+            <ul class="warning-list">
+              <li *ngFor="let w of universalReview.warnings">{{ w }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Approval Error Banner -->
+        <div *ngIf="approvalError" class="extraction-alert alert-danger mt-3" role="alert">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+          <div class="alert-content">
+            <strong>Conversion Blocked:</strong> {{ approvalError }}
+          </div>
+        </div>
+
+        <!-- Detected Columns Bar -->
+        <div class="detected-columns-bar mt-3" *ngIf="universalReview.columns && universalReview.columns.length > 0">
+          <span class="col-bar-title text-xs font-bold text-muted uppercase">Detected Columns ({{ universalReview.columns.length }}):</span>
+          <div class="col-pill-list">
+            <span *ngFor="let col of universalReview.columns" class="col-pill mono text-xs">
+              <strong>{{ col.headerText || ('Col #' + col.columnIndex) }}</strong> ({{ col.columnType }})
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Candidate Transactions Card -->
+      <div class="card review-card mb-3">
+        <div class="review-toolbar">
+          <div class="toolbar-left">
+            <h3 class="font-bold text-sm">Extracted Candidate Transactions ({{ universalReview.transactions.length }})</h3>
+            <span class="text-xs text-muted">Click "Edit" on any row to correct date, narration, debit/credit, or balance</span>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-primary btn-sm"
+                    (click)="approveAndConvert()"
+                    [disabled]="isApprovingReview || !universalReview.isConversionAllowed">
+              <svg *ngIf="!isApprovingReview" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span *ngIf="!isApprovingReview">Approve &amp; Convert to Excel &rarr;</span>
+              <span *ngIf="isApprovingReview">Validating &amp; Converting...</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Candidate Transactions Table -->
+        <div class="table-responsive">
+          <table class="financial-table" aria-label="Universal Candidate Transactions">
+            <thead>
+              <tr>
+                <th style="width: 70px;">Row #</th>
+                <th style="width: 110px;">Date</th>
+                <th>Description / Narration</th>
+                <th style="width: 130px;">Reference</th>
+                <th class="text-right" style="width: 120px;">Debit (-)</th>
+                <th class="text-right" style="width: 120px;">Credit (+)</th>
+                <th class="text-right" style="width: 120px;">Balance</th>
+                <th class="text-center" style="width: 130px;">Attention / Flags</th>
+                <th class="text-center" style="width: 80px;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of universalReview.transactions"
+                  [class.row-attention]="universalReview.rowsRequiringAttention.includes(c.rowNumber)"
+                  [class.row-corrected]="c.isUserEdited">
+                <td class="mono font-bold text-center">
+                  <span class="row-num-tag mono">#{{ c.rowNumber }}</span>
+                </td>
+                <td class="mono font-bold">{{ formatDate(c.date) }}</td>
+                <td class="narration-cell">
+                  <div class="narration-main">{{ c.description }}</div>
+                  <div *ngIf="c.isUserEdited" class="text-xs text-accent mt-1 flex-inline-center">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                    <span>User Edited</span>
+                  </div>
+                  <div *ngIf="c.validationWarnings && c.validationWarnings.length > 0" class="text-xs text-warning mt-1">
+                    {{ c.validationWarnings.join('; ') }}
+                  </div>
+                </td>
+                <td class="mono text-muted text-xs">{{ c.reference || '-' }}</td>
+                <td class="text-right mono text-danger font-bold">
+                  {{ c.debit ? ('₹ ' + (c.debit | number:'1.2-2')) : '-' }}
+                </td>
+                <td class="text-right mono text-success font-bold">
+                  {{ c.credit ? ('₹ ' + (c.credit | number:'1.2-2')) : '-' }}
+                </td>
+                <td class="text-right mono font-bold">
+                  {{ c.balance !== null && c.balance !== undefined ? ('₹ ' + (c.balance | number:'1.2-2')) : '-' }}
+                </td>
+                <td class="text-center">
+                  <span *ngIf="universalReview.rowsRequiringAttention.includes(c.rowNumber)" class="badge badge-warning" title="Requires attention">Attention</span>
+                  <span *ngIf="!universalReview.rowsRequiringAttention.includes(c.rowNumber) && !c.isBalanceMismatch" class="badge badge-success">Reconciled</span>
+                  <span *ngIf="!universalReview.rowsRequiringAttention.includes(c.rowNumber) && c.isBalanceMismatch" class="badge badge-secondary">Candidate</span>
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-outline btn-xs" (click)="openEditCandidate(c)" aria-label="Edit candidate transaction">Edit</button>
+                </td>
+              </tr>
+              <tr *ngIf="universalReview.transactions.length === 0">
+                <td colspan="9" class="text-center py-5 text-muted">
+                  No candidate transactions detected in this statement.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Universal Review Action Footer -->
+        <div class="modal-footer" style="padding: 1.25rem 1.5rem; justify-content: space-between;">
+          <div class="text-xs text-muted">
+            <span *ngIf="universalReview.isConversionAllowed" class="text-success font-bold">
+              ✓ Ready for conversion. Clicking "Approve &amp; Convert" will convert candidate records and generate an Excel workbook.
+            </span>
+            <span *ngIf="!universalReview.isConversionAllowed" class="text-danger font-bold">
+              ⚠ Cannot convert: Please correct rows requiring attention before approving.
+            </span>
+          </div>
+          <div class="flex-inline-center" style="gap: 0.75rem;">
+            <button class="btn btn-secondary btn-sm" (click)="setStep(1)">Upload Different File</button>
+            <button class="btn btn-primary btn-sm"
+                    (click)="approveAndConvert()"
+                    [disabled]="isApprovingReview || !universalReview.isConversionAllowed">
+              <span *ngIf="!isApprovingReview">Approve &amp; Convert Statement</span>
+              <span *ngIf="isApprovingReview">Converting...</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 5.1 STANDARD SUPPORTED BANK VALIDATION SUMMARY & REVIEW LEDGER (WHEN NOT UNIVERSAL REVIEW) -->
+    <!-- ========================================================================= -->
+    <ng-container *ngIf="!isUniversalReview">
     <div *ngIf="uploadResult?.fileId" class="section-badge-header">
       <span class="stage-tag">Stage 03: Validation Engine</span>
       <h2 id="step3-title" class="section-title">Double-Entry Checksums &amp; Continuity Status</h2>
@@ -1104,6 +1330,7 @@
         </button>
       </div>
     </div>
+    </ng-container>
 
     <!-- ========================================================================= -->
     <!-- 5.3 TRANSACTION CORRECTION MODAL -->
@@ -1199,6 +1426,105 @@
           <button class="btn btn-primary" (click)="submitCorrection()" [disabled]="isSavingCorrection">
             <span *ngIf="!isSavingCorrection">Save Correction &amp; Revalidate</span>
             <span *ngIf="isSavingCorrection">Saving...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 5.4 UNIVERSAL CANDIDATE EDIT MODAL (PHASE 3) -->
+    <!-- ========================================================================= -->
+    <div *ngIf="isEditingCandidate && editingCandidate"
+         class="modal-backdrop"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="candidateModalTitle">
+      <div class="modal-dialog card">
+        <div class="modal-header">
+          <div>
+            <h3 id="candidateModalTitle" class="font-bold">Edit Candidate Transaction</h3>
+            <p class="text-xs text-muted mono">Row #{{ editingCandidate.rowNumber }} &bull; Source Page {{ editingCandidate.pageNumber }}</p>
+          </div>
+          <button class="btn btn-outline btn-xs" (click)="closeEditCandidate()" aria-label="Close candidate edit modal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Pristine Baseline Display -->
+          <div class="original-baseline-panel mb-3" *ngIf="editingCandidate.originalValues">
+            <h4 class="text-xs font-bold text-muted uppercase">Extracted Baseline (Original PDF Extraction)</h4>
+            <div class="baseline-grid text-xs mono">
+              <div><span>Date:</span> {{ formatDate(editingCandidate.originalValues['date']) }}</div>
+              <div><span>Debit:</span> {{ editingCandidate.originalValues['debit'] || '-' }}</div>
+              <div><span>Credit:</span> {{ editingCandidate.originalValues['credit'] || '-' }}</div>
+              <div><span>Balance:</span> {{ editingCandidate.originalValues['balance'] || '-' }}</div>
+              <div class="full-width"><span>Narration:</span> {{ editingCandidate.originalValues['description'] }}</div>
+            </div>
+          </div>
+
+          <!-- Edit Error Banner -->
+          <div *ngIf="candidateEditError" class="alert alert-danger mb-3 text-xs flex-inline-center" role="alert">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+            <span>{{ candidateEditError }}</span>
+          </div>
+
+          <!-- Candidate Edit Form -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="candDate">Transaction Date *</label>
+              <input id="candDate" type="date" class="form-control mono" [(ngModel)]="candidateEditForm.date">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="candValDate">Value Date</label>
+              <input id="candValDate" type="date" class="form-control mono" [(ngModel)]="candidateEditForm.valueDate">
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="candDesc">Particulars / Narration *</label>
+              <input id="candDesc" type="text" class="form-control" [(ngModel)]="candidateEditForm.description" placeholder="Clean transaction narration">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="candRef">Reference / Cheque</label>
+              <input id="candRef" type="text" class="form-control mono" [(ngModel)]="candidateEditForm.reference" placeholder="Ref or cheque number">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="candBal">Balance (INR)</label>
+              <input id="candBal" type="number" step="0.01" class="form-control mono" [(ngModel)]="candidateEditForm.balance" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="candDebit">Debit Amount (Outflow)</label>
+              <input id="candDebit" type="number" step="0.01" class="form-control mono" [(ngModel)]="candidateEditForm.debit" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="candCredit">Credit Amount (Inflow)</label>
+              <input id="candCredit" type="number" step="0.01" class="form-control mono" [(ngModel)]="candidateEditForm.credit" placeholder="0.00">
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="candReason">Correction Reason / Audit Note</label>
+              <input id="candReason" type="text" class="form-control" [(ngModel)]="candidateEditForm.reason" placeholder="Audit note explaining the correction">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeEditCandidate()" [disabled]="isSavingCandidate">Cancel</button>
+          <button class="btn btn-primary" (click)="saveCandidateEdit()" [disabled]="isSavingCandidate">
+            <span *ngIf="!isSavingCandidate">Save Candidate &amp; Revalidate</span>
+            <span *ngIf="isSavingCandidate">Saving...</span>
           </button>
         </div>
       </div>

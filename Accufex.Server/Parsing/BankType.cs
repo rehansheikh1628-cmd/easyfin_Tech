@@ -16,5 +16,6 @@ public enum BankType
     BOI = 7,
     Kotak = 8,
     PNB = 9,
-    BOB = 10
+    BOB = 10,
+    Universal = 99
 }

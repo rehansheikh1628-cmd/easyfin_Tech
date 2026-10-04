@@ -170,13 +170,7 @@ public class StatementProcessingBackgroundWorker : BackgroundService
 
             if (!detection.IsSupported)
             {
-                _logger.LogWarning("Job {JobId}: Bank format not recognized.", job.JobId);
-                fileRecord.ProcessingStatus = 3; // Failed
-                fileRecord.ProcessingError = "The statement bank format was not recognized as a supported bank format.";
-                fileRecord.UpdatedAt = DateTime.UtcNow;
-                await dbContext.SaveChangesAsync(ct);
-                _queue.UpdateStage(job.JobId, "Failed", 0);
-                return;
+                _logger.LogInformation("Job {JobId}: Bank format not recognized as a dedicated supported bank. Forwarding to Universal Statement Engine fallback.", job.JobId);
             }
 
             // Step C: Bank Transaction Parsing & Validation Persistence
@@ -187,6 +181,19 @@ public class StatementProcessingBackgroundWorker : BackgroundService
                 ct);
 
             if (ct.IsCancellationRequested) return;
+
+            // Check if the statement was marked as ReviewRequired (6)
+            var currentStatus = await dbContext.FileRecords.AsNoTracking()
+                .Where(f => f.Id == job.FileRecordId)
+                .Select(f => f.ProcessingStatus)
+                .FirstOrDefaultAsync(ct);
+
+            if (currentStatus == 6 || fileRecord.ProcessingStatus == 6)
+            {
+                _logger.LogInformation("Job {JobId}: Statement format requires user review before conversion.", job.JobId);
+                _queue.UpdateStage(job.JobId, "ReviewRequired", 90);
+                return;
+            }
 
             if (!parseSuccess)
             {

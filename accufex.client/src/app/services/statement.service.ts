@@ -296,6 +296,22 @@ export class StatementService {
     return this.http.post<StatementJobStatusDto>(`${this.baseUrl}/${fileId}/unlock`, { password });
   }
 
+  getUniversalReview(fileId: string): Observable<UniversalReviewDto> {
+    return this.http.get<UniversalReviewDto>(`${this.baseUrl}/${fileId}/universal-review`);
+  }
+
+  correctUniversalTransaction(fileId: string, candidateId: string, request: CorrectUniversalTransactionRequest): Observable<UniversalReviewDto> {
+    return this.http.put<UniversalReviewDto>(`${this.baseUrl}/${fileId}/universal-review/transactions/${candidateId}`, request);
+  }
+
+  updateUniversalColumns(fileId: string, request: UpdateUniversalColumnsRequest): Observable<UniversalReviewDto> {
+    return this.http.post<UniversalReviewDto>(`${this.baseUrl}/${fileId}/universal-review/columns`, request);
+  }
+
+  approveUniversalReview(fileId: string): Observable<ApproveUniversalReviewResponse> {
+    return this.http.post<ApproveUniversalReviewResponse>(`${this.baseUrl}/${fileId}/universal-review/approve`, {});
+  }
+
   formatBytes(bytes: number): string {
     if (bytes === 0) return '0 B';
     if (bytes < 1024) return `${bytes} B`;
@@ -423,3 +439,97 @@ export interface StatementTransactionsResponse {
   transactions: TransactionReviewDto[];
   summary?: StatementValidationSummaryDto;
 }
+
+export interface UniversalCandidateTransactionDto {
+  id: string;
+  rowNumber: number;
+  pageNumber: number;
+  date: string | null;
+  valueDate?: string | null;
+  description: string;
+  reference?: string | null;
+  debit?: number | null;
+  credit?: number | null;
+  amount: number;
+  balance?: number | null;
+  direction: 'Debit' | 'Credit' | 'Unknown' | string;
+  isDateAmbiguous: boolean;
+  isDirectionAmbiguous: boolean;
+  isBalanceMismatch: boolean;
+  validationWarnings: string[];
+  validationErrors: string[];
+  isUserEdited: boolean;
+  originalValues?: Record<string, string | null>;
+}
+
+export interface DetectedColumnLayoutDto {
+  columnIndex: number;
+  columnType: string;
+  headerText: string;
+  leftX: number;
+  rightX: number;
+  confidence: number;
+  sampleDataPattern?: string | null;
+}
+
+export interface UniversalReviewDto {
+  fileId: string;
+  fileName: string;
+  status: string;
+  detectedBank?: string | null;
+  confidence: {
+    headerConfidence: number;
+    columnConfidence: number;
+    dataContinuityConfidence: number;
+    overallScore: number;
+    level: 'Low' | 'Medium' | 'High' | string;
+    reviewReasons: string[];
+  };
+  financialValidation: {
+    totalRowsChecked: number;
+    reconciledRowsCount: number;
+    failedRowsCount: number;
+    missingBalanceCount: number;
+    missingAmountCount: number;
+    totalDebits: number;
+    totalCredits: number;
+    openingBalance?: number | null;
+    closingBalance?: number | null;
+    isFullyReconciled: boolean;
+    reconciliationRate: number;
+    discrepancies: string[];
+  };
+  columns: DetectedColumnLayoutDto[];
+  transactions: UniversalCandidateTransactionDto[];
+  warnings: string[];
+  rowsRequiringAttention: number[];
+  isApprovalRequired: boolean;
+  isConversionAllowed: boolean;
+  totalTransactions: number;
+  attentionCount: number;
+  updatedAt: string;
+}
+
+export interface CorrectUniversalTransactionRequest {
+  transactionDate?: string | null;
+  valueDate?: string | null;
+  description: string;
+  reference?: string | null;
+  debit?: number | null;
+  credit?: number | null;
+  balance?: number | null;
+  reason?: string | null;
+}
+
+export interface UpdateUniversalColumnsRequest {
+  columns: any[];
+}
+
+export interface ApproveUniversalReviewResponse {
+  success: boolean;
+  message: string;
+  fileId: string;
+  convertedCount: number;
+  learnedFingerprintHash?: string | null;
+}
+

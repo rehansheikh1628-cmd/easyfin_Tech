@@ -10,7 +10,12 @@ import {
   TransactionReviewDto, 
   StatementValidationSummaryDto, 
   CorrectTransactionRequest, 
-  StatementTransactionsResponse 
+  StatementTransactionsResponse,
+  UniversalReviewDto,
+  UniversalCandidateTransactionDto,
+  CorrectUniversalTransactionRequest,
+  UpdateUniversalColumnsRequest,
+  ApproveUniversalReviewResponse
 } from '../../services/statement.service';
 
 export type UploadState = 'IDLE' | 'FILE_SELECTED' | 'VALIDATING' | 'UPLOADING' | 'UPLOADED' | 'ERROR';
@@ -100,6 +105,33 @@ export class ConverterComponent implements OnInit, OnDestroy {
   isExportingExcel = false;
   exportError: string | null = null;
 
+  // Universal Review State (Phase 3)
+  isUniversalReview = false;
+  universalReview: UniversalReviewDto | null = null;
+  isLoadingUniversalReview = false;
+  universalReviewError: string | null = null;
+  isApprovingReview = false;
+  approvalError: string | null = null;
+
+  isEditingCandidate = false;
+  editingCandidate: UniversalCandidateTransactionDto | null = null;
+  candidateEditForm = {
+    date: '',
+    valueDate: '',
+    description: '',
+    reference: '',
+    debit: null as number | null,
+    credit: null as number | null,
+    balance: null as number | null,
+    reason: ''
+  };
+  candidateEditError: string | null = null;
+  isSavingCandidate = false;
+
+  isEditingColumns = false;
+  editingColumns: any[] = [];
+  isSavingColumns = false;
+
 
   constructor(
     public statementService: StatementService,
@@ -172,8 +204,20 @@ export class ConverterComponent implements OnInit, OnDestroy {
           if (status.status === 'Completed') {
             this.stopJobTracking();
             try { sessionStorage.removeItem(this.ACTIVE_JOB_KEY); } catch {}
+            this.isUniversalReview = false;
             this.parseState = 'PARSED';
             this.loadReviewTransactions(1);
+            this.currentStep = 3;
+            this.cdr.markForCheck();
+            return;
+          }
+
+          if (status.status === 'ReviewRequired') {
+            this.stopJobTracking();
+            try { sessionStorage.removeItem(this.ACTIVE_JOB_KEY); } catch {}
+            this.isUniversalReview = true;
+            this.parseState = 'PARSED';
+            this.loadUniversalReview(jobId);
             this.currentStep = 3;
             this.cdr.markForCheck();
             return;
@@ -633,8 +677,13 @@ export class ConverterComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         this.parseResult = res;
         this.parseState = 'PARSED';
-        // Automatically load real parsed transactions and move to Step 3
-        this.loadReviewTransactions(1);
+        if (res?.bankCode === 99 || (res?.parserVersion && res.parserVersion.includes('Universal'))) {
+          this.isUniversalReview = true;
+          this.loadUniversalReview(this.uploadResult!.fileId);
+        } else {
+          this.isUniversalReview = false;
+          this.loadReviewTransactions(1);
+        }
         this.currentStep = 3;
         this.cdr.markForCheck();
       },
@@ -1045,7 +1094,7 @@ export class ConverterComponent implements OnInit, OnDestroy {
         this.setStep(2);
       }
     } else if (stepNumber === 3 || stepNumber === 4) {
-      if (this.parseState === 'PARSED' || this.reviewTransactions.length > 0 || this.jobStatus?.status === 'Completed') {
+      if (this.parseState === 'PARSED' || this.reviewTransactions.length > 0 || this.isUniversalReview || this.jobStatus?.status === 'Completed' || this.jobStatus?.status === 'ReviewRequired') {
         this.setStep(3);
       }
     } else if (stepNumber === 5) {
@@ -1074,5 +1123,137 @@ export class ConverterComponent implements OnInit, OnDestroy {
 
   get isExportBlocked(): boolean {
     return !!(this.validationSummary && this.validationSummary.invalidCount > 0);
+  }
+
+  // =========================================================================
+  // UNIVERSAL REVIEW WORKBENCH METHODS (Phase 3)
+  // =========================================================================
+  loadUniversalReview(fileId: string): void {
+    this.isLoadingUniversalReview = true;
+    this.universalReviewError = null;
+    this.cdr.markForCheck();
+
+    this.statementService.getUniversalReview(fileId).subscribe({
+      next: (review: UniversalReviewDto) => {
+        this.universalReview = review;
+        this.isUniversalReview = true;
+        this.isLoadingUniversalReview = false;
+        this.currentStep = 3;
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        this.isLoadingUniversalReview = false;
+        this.universalReviewError = err?.error?.detail || err?.error?.title || 'Failed to load universal review session.';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  openEditCandidate(candidate: UniversalCandidateTransactionDto): void {
+    this.editingCandidate = candidate;
+    this.candidateEditForm = {
+      date: candidate.date ? candidate.date.substring(0, 10) : '',
+      valueDate: candidate.valueDate ? candidate.valueDate.substring(0, 10) : '',
+      description: candidate.description,
+      reference: candidate.reference || '',
+      debit: candidate.debit || null,
+      credit: candidate.credit || null,
+      balance: candidate.balance || null,
+      reason: ''
+    };
+    this.candidateEditError = null;
+    this.isEditingCandidate = true;
+    this.cdr.markForCheck();
+  }
+
+  closeEditCandidate(): void {
+    this.isEditingCandidate = false;
+    this.editingCandidate = null;
+    this.candidateEditError = null;
+    this.cdr.markForCheck();
+  }
+
+  saveCandidateEdit(): void {
+    if (!this.editingCandidate || !this.uploadResult?.fileId) return;
+
+    if (!this.candidateEditForm.description || !this.candidateEditForm.description.trim()) {
+      this.candidateEditError = 'Description cannot be empty.';
+      return;
+    }
+
+    if (!this.candidateEditForm.date) {
+      this.candidateEditError = 'A valid transaction date is required.';
+      return;
+    }
+
+    const debit = this.candidateEditForm.debit;
+    const credit = this.candidateEditForm.credit;
+
+    if (debit && debit > 0 && credit && credit > 0) {
+      this.candidateEditError = 'Both Debit and Credit cannot be entered simultaneously.';
+      return;
+    }
+
+    if ((!debit || debit <= 0) && (!credit || credit <= 0)) {
+      this.candidateEditError = 'Either Debit or Credit must be greater than zero.';
+      return;
+    }
+
+    this.isSavingCandidate = true;
+    this.candidateEditError = null;
+    this.cdr.markForCheck();
+
+    const request: CorrectUniversalTransactionRequest = {
+      transactionDate: this.candidateEditForm.date,
+      valueDate: this.candidateEditForm.valueDate || this.candidateEditForm.date,
+      description: this.candidateEditForm.description.trim(),
+      reference: this.candidateEditForm.reference ? this.candidateEditForm.reference.trim() : null,
+      debit: debit && debit > 0 ? debit : null,
+      credit: credit && credit > 0 ? credit : null,
+      balance: this.candidateEditForm.balance,
+      reason: this.candidateEditForm.reason
+    };
+
+    this.statementService.correctUniversalTransaction(this.uploadResult.fileId, this.editingCandidate.id, request).subscribe({
+      next: (updatedReview: UniversalReviewDto) => {
+        this.universalReview = updatedReview;
+        this.isSavingCandidate = false;
+        this.closeEditCandidate();
+        this.successNotice = 'Candidate transaction updated and revalidated successfully.';
+        setTimeout(() => { this.successNotice = null; this.cdr.markForCheck(); }, 4000);
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        this.isSavingCandidate = false;
+        this.candidateEditError = err?.error?.detail || err?.error?.title || 'Failed to update candidate transaction.';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  approveAndConvert(): void {
+    if (!this.uploadResult?.fileId) return;
+
+    this.isApprovingReview = true;
+    this.approvalError = null;
+    this.cdr.markForCheck();
+
+    this.statementService.approveUniversalReview(this.uploadResult.fileId).subscribe({
+      next: (res: ApproveUniversalReviewResponse) => {
+        this.isApprovingReview = false;
+        this.isUniversalReview = false;
+        this.universalReview = null;
+        this.successNotice = `Statement approved! ${res.convertedCount} transaction(s) converted to Excel workbook ready for export.`;
+        setTimeout(() => { this.successNotice = null; this.cdr.markForCheck(); }, 5000);
+        this.loadReviewTransactions(1);
+        this.currentStep = 3;
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        this.isApprovingReview = false;
+        this.approvalError = err?.error?.detail || err?.error?.title || 'Approval failed. Please verify that all transactions have valid dates and amounts.';
+        this.cdr.markForCheck();
+      }
+    });
   }
 }

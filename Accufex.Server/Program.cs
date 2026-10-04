@@ -113,6 +113,14 @@ builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankStatementParse
 builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankStatementParser, Accufex.Server.Parsing.Parsers.PNBStatementParser>();
 builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankStatementParser, Accufex.Server.Parsing.Parsers.BOBStatementParser>();
 builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankParserRegistry, Accufex.Server.Parsing.BankParserRegistry>();
+builder.Services.AddScoped<Accufex.Server.Parsing.Universal.Interfaces.IUniversalColumnDetector, Accufex.Server.Parsing.Universal.Services.UniversalColumnDetector>();
+builder.Services.AddScoped<Accufex.Server.Parsing.Universal.Interfaces.IStatementStructureAnalyzer, Accufex.Server.Parsing.Universal.Services.StatementStructureAnalyzer>();
+builder.Services.AddScoped<Accufex.Server.Parsing.Universal.Interfaces.IUniversalRowSegmenter, Accufex.Server.Parsing.Universal.Services.UniversalRowSegmenter>();
+builder.Services.AddScoped<Accufex.Server.Parsing.Universal.Interfaces.IFinancialValidator, Accufex.Server.Parsing.Universal.Services.FinancialValidator>();
+builder.Services.AddScoped<Accufex.Server.Parsing.Universal.Interfaces.IUniversalConfidenceCalculator, Accufex.Server.Parsing.Universal.Services.UniversalConfidenceCalculator>();
+builder.Services.AddScoped<Accufex.Server.Parsing.Universal.Interfaces.IUniversalStatementEngine, Accufex.Server.Parsing.Universal.Services.UniversalStatementEngine>();
+builder.Services.AddScoped<Accufex.Server.Parsing.Universal.Interfaces.IStatementFormatLearner, Accufex.Server.Parsing.Universal.Services.StatementFormatLearner>();
+builder.Services.AddScoped<Accufex.Server.Parsing.Universal.Interfaces.IUniversalReviewService, Accufex.Server.Parsing.Universal.Services.UniversalReviewService>();
 builder.Services.AddScoped<Accufex.Server.Parsing.Interfaces.IBankParsingService, Accufex.Server.Parsing.BankParsingService>();
 builder.Services.AddScoped<Accufex.Server.Validation.Services.ITransactionCorrectionStore, Accufex.Server.Validation.Services.TransactionCorrectionStore>();
 builder.Services.AddScoped<Accufex.Server.Validation.Services.ITransactionValidationService, Accufex.Server.Validation.Services.TransactionValidationService>();

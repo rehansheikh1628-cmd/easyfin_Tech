@@ -35,6 +35,7 @@ public class StatementsController : ControllerBase
     private readonly IExcelExportService? _excelExportService;
     private readonly ILogger<StatementsController> _logger;
     private readonly IStatementProcessingQueue? _processingQueue;
+    private readonly Accufex.Server.Parsing.Universal.Interfaces.IUniversalReviewService? _universalReviewService;
 
     public StatementsController(
         IStatementService statementService,
@@ -45,7 +46,8 @@ public class StatementsController : ControllerBase
         ITransactionCorrectionStore correctionStore,
         ILogger<StatementsController> logger,
         IExcelExportService? excelExportService = null,
-        IStatementProcessingQueue? processingQueue = null)
+        IStatementProcessingQueue? processingQueue = null,
+        Accufex.Server.Parsing.Universal.Interfaces.IUniversalReviewService? universalReviewService = null)
     {
         _statementService = statementService;
         _pdfExtractionService = pdfExtractionService;
@@ -56,6 +58,7 @@ public class StatementsController : ControllerBase
         _logger = logger;
         _excelExportService = excelExportService;
         _processingQueue = processingQueue;
+        _universalReviewService = universalReviewService;
     }
 
     private Guid GetCurrentUserId()
@@ -286,6 +289,11 @@ public class StatementsController : ControllerBase
                 progress = 25;
                 requiresPassword = true;
                 break;
+            case 6:
+                statusName = "ReviewRequired";
+                stage = runtimeInfo?.Stage ?? "ReviewRequired";
+                progress = runtimeInfo?.Progress ?? 90;
+                break;
             default:
                 statusName = "Unknown";
                 stage = "Unknown";
@@ -337,8 +345,8 @@ public class StatementsController : ControllerBase
             });
         }
 
-        // Reject cancellation of terminal jobs (Completed, Failed, or already Cancelled)
-        if (record.ProcessingStatus is 2 or 3 or 4)
+        // Reject cancellation of terminal jobs (Completed, Failed, Cancelled, or ReviewRequired)
+        if (record.ProcessingStatus is 2 or 3 or 4 or 6)
         {
             return BadRequest(new ProblemDetails
             {
@@ -1315,5 +1323,288 @@ public class StatementsController : ControllerBase
         Response.Headers.Append("Access-Control-Expose-Headers", "Content-Disposition");
 
         return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", safeFileName);
+    }
+
+    /// <summary>
+    /// Retrieve Universal Review state including candidate transactions, detected columns, and financial validation.
+    /// Strictly verifies user/tenant ownership before returning.
+    /// </summary>
+    [HttpGet("{id:guid}/universal-review")]
+    [ProducesResponseType(typeof(UniversalReviewDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetUniversalReview(Guid id, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = GetCurrentUserId();
+
+        var fileRecord = await _dbContext.FileRecords
+            .AsNoTracking()
+            .Include(f => f.Client)
+            .FirstOrDefaultAsync(f => f.Id == id && f.Client.UserId == currentUserId, cancellationToken);
+
+        if (fileRecord == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Statement Not Found",
+                Detail = $"Statement with ID {id} was not found or is not accessible.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        if (_universalReviewService == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Service Unavailable",
+                Detail = "Universal Review service is not available.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        var session = await _universalReviewService.GetReviewSessionAsync(id, cancellationToken);
+        if (session == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Review Session Not Found",
+                Detail = $"No universal review session found for statement {id}.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        var dto = new UniversalReviewDto
+        {
+            FileId = session.FileRecordId,
+            FileName = session.FileName,
+            Status = session.Status,
+            DetectedBank = session.DetectedBank,
+            Confidence = session.Confidence,
+            FinancialValidation = session.FinancialValidation,
+            Columns = session.Columns,
+            Transactions = session.CandidateTransactions,
+            Warnings = session.Warnings,
+            RowsRequiringAttention = session.RowsRequiringAttention,
+            IsApprovalRequired = session.IsApprovalRequired,
+            IsConversionAllowed = session.IsConversionAllowed,
+            UpdatedAt = session.UpdatedAtUtc
+        };
+
+        return Ok(dto);
+    }
+
+    /// <summary>
+    /// Correct candidate transaction fields with audit history and re-validation.
+    /// Strictly verifies user/tenant ownership.
+    /// </summary>
+    [HttpPut("{id:guid}/universal-review/transactions/{candidateId:guid}")]
+    [ProducesResponseType(typeof(UniversalReviewDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CorrectUniversalTransaction(
+        Guid id,
+        Guid candidateId,
+        [FromBody] CorrectUniversalTransactionRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var currentUserId = GetCurrentUserId();
+
+        var fileRecord = await _dbContext.FileRecords
+            .AsNoTracking()
+            .Include(f => f.Client)
+            .FirstOrDefaultAsync(f => f.Id == id && f.Client.UserId == currentUserId, cancellationToken);
+
+        if (fileRecord == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Statement Not Found",
+                Detail = $"Statement with ID {id} was not found or is not accessible.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        if (_universalReviewService == null)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Service Unavailable",
+                Detail = "Universal Review service is not available.",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        try
+        {
+            var updatedSession = await _universalReviewService.UpdateTransactionAsync(id, candidateId, request, cancellationToken);
+            var dto = new UniversalReviewDto
+            {
+                FileId = updatedSession.FileRecordId,
+                FileName = updatedSession.FileName,
+                Status = updatedSession.Status,
+                DetectedBank = updatedSession.DetectedBank,
+                Confidence = updatedSession.Confidence,
+                FinancialValidation = updatedSession.FinancialValidation,
+                Columns = updatedSession.Columns,
+                Transactions = updatedSession.CandidateTransactions,
+                Warnings = updatedSession.Warnings,
+                RowsRequiringAttention = updatedSession.RowsRequiringAttention,
+                IsApprovalRequired = updatedSession.IsApprovalRequired,
+                IsConversionAllowed = updatedSession.IsConversionAllowed,
+                UpdatedAt = updatedSession.UpdatedAtUtc
+            };
+
+            return Ok(dto);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Validation Error",
+                Detail = ex.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Not Found",
+                Detail = ex.Message,
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+    }
+
+    /// <summary>
+    /// Update detected column layout and reprocess candidate transaction extraction.
+    /// Strictly verifies user/tenant ownership.
+    /// </summary>
+    [HttpPost("{id:guid}/universal-review/columns")]
+    [ProducesResponseType(typeof(UniversalReviewDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateUniversalColumns(
+        Guid id,
+        [FromBody] UpdateUniversalColumnsRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var currentUserId = GetCurrentUserId();
+
+        var fileRecord = await _dbContext.FileRecords
+            .AsNoTracking()
+            .Include(f => f.Client)
+            .FirstOrDefaultAsync(f => f.Id == id && f.Client.UserId == currentUserId, cancellationToken);
+
+        if (fileRecord == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Statement Not Found",
+                Detail = $"Statement with ID {id} was not found or is not accessible.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        if (_universalReviewService == null)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Service Unavailable",
+                Detail = "Universal Review service is not available.",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        try
+        {
+            var updatedSession = await _universalReviewService.UpdateColumnsAndReprocessAsync(id, request.Columns, cancellationToken);
+            var dto = new UniversalReviewDto
+            {
+                FileId = updatedSession.FileRecordId,
+                FileName = updatedSession.FileName,
+                Status = updatedSession.Status,
+                DetectedBank = updatedSession.DetectedBank,
+                Confidence = updatedSession.Confidence,
+                FinancialValidation = updatedSession.FinancialValidation,
+                Columns = updatedSession.Columns,
+                Transactions = updatedSession.CandidateTransactions,
+                Warnings = updatedSession.Warnings,
+                RowsRequiringAttention = updatedSession.RowsRequiringAttention,
+                IsApprovalRequired = updatedSession.IsApprovalRequired,
+                IsConversionAllowed = updatedSession.IsConversionAllowed,
+                UpdatedAt = updatedSession.UpdatedAtUtc
+            };
+
+            return Ok(dto);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Not Found",
+                Detail = ex.Message,
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+    }
+
+    /// <summary>
+    /// Final Approve & Convert: converts verified candidate transactions into canonical records.
+    /// Strictly verifies user/tenant ownership, validates integrity, and enforces idempotency.
+    /// </summary>
+    [HttpPost("{id:guid}/universal-review/approve")]
+    [ProducesResponseType(typeof(ApproveUniversalReviewResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ApproveUniversalReview(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var currentUserId = GetCurrentUserId();
+
+        if (_universalReviewService == null)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Service Unavailable",
+                Detail = "Universal Review service is not available.",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        var (success, error, transactions, fingerprintHash) = await _universalReviewService.ApproveAndConvertAsync(
+            id,
+            currentUserId,
+            cancellationToken);
+
+        if (!success)
+        {
+            if (error?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true ||
+                error?.Contains("not accessible", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Statement Not Found",
+                    Detail = error,
+                    Status = StatusCodes.Status404NotFound
+                });
+            }
+
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Approval Failed",
+                Detail = error ?? "Unable to approve and convert statement transactions.",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        return Ok(new ApproveUniversalReviewResponse
+        {
+            Success = true,
+            Message = "Statement approved and converted successfully.",
+            FileId = id,
+            ConvertedCount = transactions.Count,
+            LearnedFingerprintHash = fingerprintHash
+        });
     }
 }

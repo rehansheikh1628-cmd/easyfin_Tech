@@ -171,7 +171,7 @@ public class BackgroundProcessingTests : IClassFixture<CustomWebApplicationFacto
         // Dummy PDFs reach terminal Failed because they lack real bank structure.
         // This test validates the background worker pipeline reaches a terminal state.
         Assert.True(finalStatus.IsTerminal);
-        Assert.Contains(finalStatus.Status, new[] { "Completed", "Failed" });
+        Assert.Contains(finalStatus.Status, new[] { "Completed", "Failed", "ReviewRequired" });
         Assert.False(finalStatus.RequiresPassword);
 
         // Check SQL database reflects a terminal processing status
@@ -179,7 +179,7 @@ public class BackgroundProcessingTests : IClassFixture<CustomWebApplicationFacto
         var db = scope.ServiceProvider.GetRequiredService<AccufexDbContext>();
         var record = await db.FileRecords.FirstOrDefaultAsync(f => f.Id == uploadRes.FileId);
         Assert.NotNull(record);
-        Assert.Contains(record.ProcessingStatus, new[] { 2, 3 }); // 2 = Completed, 3 = Failed
+        Assert.Contains(record.ProcessingStatus, new[] { 2, 3, 6 }); // 2 = Completed, 3 = Failed, 6 = ReviewRequired
     }
 
     // =========================================================================
@@ -355,7 +355,7 @@ public class BackgroundProcessingTests : IClassFixture<CustomWebApplicationFacto
         // (Dummy PDF content won't pass bank detection, so it reaches Failed — that's expected)
         var completedStatus = await PollUntilTerminalAsync(client, uploadRes.JobId, 15);
         Assert.True(completedStatus.IsTerminal);
-        Assert.Contains(completedStatus.Status, new[] { "Completed", "Failed" });
+        Assert.Contains(completedStatus.Status, new[] { "Completed", "Failed", "ReviewRequired" });
 
         // 5. Zero persistence security check: verify password was NEVER written to database or disk
         using var scope = _factory.Services.CreateScope();

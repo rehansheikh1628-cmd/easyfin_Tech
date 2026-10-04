@@ -1692,3 +1692,127 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ========================================================================= */
+/* 9. UNIVERSAL STATEMENT ENGINE REVIEW WORKBENCH (PHASE 3) */
+/* ========================================================================= */
+.universal-workbench-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.universal-review-card {
+  padding: 1.75rem 2rem;
+  border: 1.5px solid var(--ef-border);
+  border-radius: var(--ef-radius-md, 10px);
+  background: #ffffff;
+}
+
+.universal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.universal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ef-primary-950);
+  margin: 0.35rem 0 0.5rem 0;
+}
+
+.universal-desc {
+  color: var(--ef-text-muted);
+  font-size: 0.875rem;
+  max-width: 650px;
+  margin: 0;
+}
+
+.universal-header-badges {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.review-status-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.status-lbl {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ef-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.universal-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.universal-kpi-box {
+  display: flex;
+  flex-direction: column;
+  padding: 0.875rem 1rem;
+  background-color: var(--ef-bg-subtle);
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-sm, 6px);
+}
+
+.kpi-lbl {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ef-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.kpi-val {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ef-primary-950);
+}
+
+.detected-columns-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  background: var(--ef-bg-subtle);
+  border: 1px dashed var(--ef-border);
+  border-radius: var(--ef-radius-sm, 6px);
+}
+
+.col-pill-list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.col-pill {
+  padding: 0.2rem 0.5rem;
+  background: #ffffff;
+  border: 1px solid var(--ef-border);
+  border-radius: 4px;
+}
+
+.row-attention {
+  background-color: rgba(220, 38, 38, 0.05) !important;
+}
+
+@media (max-width: 768px) {
+  .universal-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+

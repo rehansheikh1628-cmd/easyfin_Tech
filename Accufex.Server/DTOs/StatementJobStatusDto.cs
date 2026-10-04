@@ -26,7 +26,7 @@ public class StatementJobStatusDto
 
     public bool RequiresPassword { get; set; }
 
-    public bool IsTerminal => Status is "Completed" or "Failed" or "Cancelled";
+    public bool IsTerminal => Status is "Completed" or "Failed" or "Cancelled" or "ReviewRequired";
 
     public string? DetectedBankName { get; set; }
 

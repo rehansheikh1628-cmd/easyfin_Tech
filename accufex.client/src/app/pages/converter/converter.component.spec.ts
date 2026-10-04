@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
 import { ConverterComponent } from './converter.component';
-import { StatementService, StatementUploadResponse } from '../../services/statement.service';
+import { StatementService, StatementUploadResponse, UniversalReviewDto } from '../../services/statement.service';
 import { of, from, throwError, NEVER } from 'rxjs';
 import { HttpEvent, HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -27,6 +27,10 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
     cancelJob: ReturnType<typeof vi.fn>;
     retryJob: ReturnType<typeof vi.fn>;
     unlockJob: ReturnType<typeof vi.fn>;
+    getUniversalReview: ReturnType<typeof vi.fn>;
+    correctUniversalTransaction: ReturnType<typeof vi.fn>;
+    updateUniversalColumns: ReturnType<typeof vi.fn>;
+    approveUniversalReview: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -36,7 +40,7 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
       extractStatement: vi.fn(),
       getStatementExtraction: vi.fn(),
       parseStatement: vi.fn(),
-      getTransactions: vi.fn(),
+      getTransactions: vi.fn().mockReturnValue(of({ transactions: [], totalCount: 0, page: 1, pageSize: 50 })),
       getTransactionById: vi.fn(),
       correctTransaction: vi.fn(),
       getValidationSummary: vi.fn(),
@@ -75,7 +79,11 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
         progressPercent: 15,
         isTerminal: false,
         requiresPassword: false
-      }))
+      })),
+      getUniversalReview: vi.fn(),
+      correctUniversalTransaction: vi.fn(),
+      updateUniversalColumns: vi.fn(),
+      approveUniversalReview: vi.fn()
     };
 
     await TestBed.configureTestingModule({
@@ -1102,5 +1110,371 @@ describe('ConverterComponent (Phase 2 & Phase 3)', () => {
     expect(component.showPasswordModal).toBe(false);
     expect(component.modalPassword).toBe('');
     expect(component.statementPassword).toBe('');
+  });
+
+  // =========================================================================
+  // Phase 3: Universal Statement Engine (Review -> Approve -> Convert -> Learn)
+  // =========================================================================
+  describe('Phase 3: Universal Review & Approval Flow', () => {
+    const mockUniversalReview: UniversalReviewDto = {
+      fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+      fileName: 'unknown_bank_sample.pdf',
+      status: 'ReviewRequired',
+      detectedBank: 'Federal Bank Format',
+      confidence: {
+        headerConfidence: 0.9,
+        columnConfidence: 0.85,
+        dataContinuityConfidence: 0.8,
+        overallScore: 0.82,
+        level: 'Medium',
+        reviewReasons: ['Minor balance gap on row 2']
+      },
+      financialValidation: {
+        totalRowsChecked: 2,
+        reconciledRowsCount: 1,
+        failedRowsCount: 1,
+        missingBalanceCount: 0,
+        missingAmountCount: 0,
+        totalDebits: 500,
+        totalCredits: 5000,
+        openingBalance: 10000,
+        closingBalance: 14500,
+        isFullyReconciled: false,
+        reconciliationRate: 0.5,
+        discrepancies: ['Row 2: Balance mismatch detected']
+      },
+      columns: [
+        { columnIndex: 0, columnType: 'Date', headerText: 'Txn Date', leftX: 40, rightX: 100, confidence: 0.9 },
+        { columnIndex: 1, columnType: 'Description', headerText: 'Particulars', leftX: 100, rightX: 280, confidence: 0.85 },
+        { columnIndex: 2, columnType: 'Reference', headerText: 'Ref No', leftX: 280, rightX: 350, confidence: 0.8 },
+        { columnIndex: 3, columnType: 'Debit', headerText: 'Withdrawals', leftX: 350, rightX: 420, confidence: 0.85 },
+        { columnIndex: 4, columnType: 'Credit', headerText: 'Deposits', leftX: 420, rightX: 490, confidence: 0.85 },
+        { columnIndex: 5, columnType: 'Balance', headerText: 'Balance', leftX: 490, rightX: 580, confidence: 0.9 }
+      ],
+      transactions: [
+        {
+          id: 'cand-001',
+          rowNumber: 1,
+          pageNumber: 1,
+          date: '2026-04-01T00:00:00Z',
+          description: 'UPI / CLIENT SERVICES PAYMENT',
+          reference: 'REF98765',
+          debit: 500,
+          credit: null,
+          amount: 500,
+          balance: 9500,
+          direction: 'Debit',
+          isDateAmbiguous: false,
+          isDirectionAmbiguous: false,
+          isBalanceMismatch: false,
+          validationWarnings: [],
+          validationErrors: [],
+          isUserEdited: false
+        },
+        {
+          id: 'cand-002',
+          rowNumber: 2,
+          pageNumber: 1,
+          date: '2026-04-02T00:00:00Z',
+          description: 'SALARY / VENDOR CREDIT',
+          reference: 'REF98766',
+          debit: null,
+          credit: 5000,
+          amount: 5000,
+          balance: 14500,
+          direction: 'Credit',
+          isDateAmbiguous: false,
+          isDirectionAmbiguous: false,
+          isBalanceMismatch: true,
+          validationWarnings: ['Row 2: Balance mismatch detected from previous balance'],
+          validationErrors: [],
+          isUserEdited: false
+        }
+      ],
+      warnings: ['Row 2: Balance mismatch detected from previous balance'],
+      rowsRequiringAttention: [2],
+      isApprovalRequired: true,
+      isConversionAllowed: true,
+      totalTransactions: 2,
+      attentionCount: 1,
+      updatedAt: '2026-10-04T20:00:00Z'
+    };
+
+    it('1. should render review screen when job status reaches ReviewRequired', () => {
+      mockStatementService.getUniversalReview.mockReturnValue(of(mockUniversalReview));
+
+      component.uploadResult = {
+        success: true,
+        message: 'Uploaded',
+        fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        jobId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        originalFileName: 'unknown_bank_sample.pdf',
+        storedFileName: 'stored_sample.pdf',
+        fileSizeBytes: 2048,
+        fileSizeFormatted: '2 KB',
+        contentType: 'application/pdf',
+        uploadedAt: '2026-10-04T20:00:00Z',
+        status: 'Processing',
+        processingStatus: 1,
+        isDuplicate: false,
+        fileHash: 'abcdef',
+        clientId: 'TENANT-1',
+        financialYearId: 'FY-1'
+      };
+      component.jobStatus = {
+        jobId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        fileName: 'unknown_bank_sample.pdf',
+        status: 'ReviewRequired',
+        statusCode: 6,
+        stage: 'ReviewRequired',
+        progressPercent: 90,
+        isTerminal: true,
+        requiresPassword: false
+      };
+
+      component.loadUniversalReview('9A7E688C-841D-4C64-9D0C-8B988CCD63F8');
+      fixture.detectChanges();
+
+      expect(component.isUniversalReview).toBe(true);
+      expect(component.universalReview).toEqual(mockUniversalReview);
+      expect(component.currentStep).toBe(3);
+
+      const workbench = fixture.nativeElement.querySelector('.universal-workbench-container');
+      expect(workbench).toBeTruthy();
+
+      const title = fixture.nativeElement.querySelector('.universal-title');
+      expect(title.textContent).toContain('Federal Bank Format');
+    });
+
+    it('2. should display candidate transactions with amounts and confidence metrics', () => {
+      mockStatementService.getUniversalReview.mockReturnValue(of(mockUniversalReview));
+      component.loadUniversalReview('9A7E688C-841D-4C64-9D0C-8B988CCD63F8');
+      fixture.detectChanges();
+
+      const rows = fixture.nativeElement.querySelectorAll('.financial-table tbody tr');
+      expect(rows.length).toBe(2);
+
+      const firstRowDesc = rows[0].querySelector('.narration-main');
+      expect(firstRowDesc.textContent).toContain('UPI / CLIENT SERVICES PAYMENT');
+
+      const kpis = fixture.nativeElement.querySelectorAll('.universal-kpi-box');
+      expect(kpis.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('3. should display warnings and attention badges on problematic rows', () => {
+      mockStatementService.getUniversalReview.mockReturnValue(of(mockUniversalReview));
+      component.loadUniversalReview('9A7E688C-841D-4C64-9D0C-8B988CCD63F8');
+      fixture.detectChanges();
+
+      const attentionPills = fixture.nativeElement.querySelectorAll('.badge-warning');
+      expect(attentionPills.length).toBeGreaterThan(0);
+
+      const warningItems = fixture.nativeElement.querySelectorAll('.warning-list li');
+      expect(warningItems.length).toBeGreaterThan(0);
+      expect(warningItems[0].textContent).toContain('Balance mismatch detected');
+    });
+
+    it('4. should open candidate edit modal and allow user to correct values', () => {
+      component.isUniversalReview = true;
+      component.universalReview = { ...mockUniversalReview };
+      component.uploadResult = {
+        success: true,
+        message: 'Uploaded',
+        fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        jobId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        originalFileName: 'unknown_bank_sample.pdf',
+        storedFileName: 'stored_sample.pdf',
+        fileSizeBytes: 2048,
+        fileSizeFormatted: '2 KB',
+        contentType: 'application/pdf',
+        uploadedAt: '2026-10-04T20:00:00Z',
+        status: 'Processing',
+        processingStatus: 1,
+        isDuplicate: false,
+        fileHash: 'abcdef',
+        clientId: 'TENANT-1',
+        financialYearId: 'FY-1'
+      };
+      component.currentStep = 3;
+      fixture.detectChanges();
+
+      const targetCandidate = mockUniversalReview.transactions[1];
+      component.openEditCandidate(targetCandidate);
+      fixture.detectChanges();
+
+      expect(component.isEditingCandidate).toBe(true);
+      expect(component.editingCandidate?.id).toBe('cand-002');
+      expect(component.candidateEditForm.description).toBe('SALARY / VENDOR CREDIT');
+
+      // Update form
+      component.candidateEditForm.description = 'CORRECTED SALARY CREDIT';
+      component.candidateEditForm.credit = 5000;
+      component.candidateEditForm.debit = null;
+
+      const updatedReview: UniversalReviewDto = {
+        ...mockUniversalReview,
+        transactions: [
+          mockUniversalReview.transactions[0],
+          {
+            ...targetCandidate,
+            description: 'CORRECTED SALARY CREDIT',
+            isUserEdited: true,
+            isBalanceMismatch: false,
+            validationWarnings: []
+          }
+        ]
+      };
+
+      mockStatementService.correctUniversalTransaction.mockReturnValue(of(updatedReview));
+
+      component.saveCandidateEdit();
+
+      expect(mockStatementService.correctUniversalTransaction).toHaveBeenCalledWith(
+        '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        'cand-002',
+        expect.objectContaining({
+          description: 'CORRECTED SALARY CREDIT',
+          credit: 5000
+        })
+      );
+      expect(component.isEditingCandidate).toBe(false);
+      expect(component.universalReview?.transactions[1].description).toBe('CORRECTED SALARY CREDIT');
+    });
+
+    it('5. should reject simultaneous Debit and Credit in candidate editing', () => {
+      component.isUniversalReview = true;
+      component.universalReview = { ...mockUniversalReview };
+      component.uploadResult = {
+        success: true,
+        message: 'Uploaded',
+        fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        jobId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        originalFileName: 'unknown_bank_sample.pdf',
+        storedFileName: 'stored_sample.pdf',
+        fileSizeBytes: 2048,
+        fileSizeFormatted: '2 KB',
+        contentType: 'application/pdf',
+        uploadedAt: '2026-10-04T20:00:00Z',
+        status: 'Processing',
+        processingStatus: 1,
+        isDuplicate: false,
+        fileHash: 'abcdef',
+        clientId: 'TENANT-1',
+        financialYearId: 'FY-1'
+      };
+      const targetCandidate = mockUniversalReview.transactions[0];
+      component.openEditCandidate(targetCandidate);
+
+      component.candidateEditForm.debit = 1000;
+      component.candidateEditForm.credit = 2000;
+
+      component.saveCandidateEdit();
+
+      expect(component.candidateEditError).toContain('cannot be entered simultaneously');
+      expect(mockStatementService.correctUniversalTransaction).not.toHaveBeenCalled();
+    });
+
+    it('6. should execute Approve & Convert and transition to approved state', () => {
+      mockStatementService.approveUniversalReview.mockReturnValue(of({
+        success: true,
+        fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        convertedCount: 2,
+        learnedFingerprintHash: 'FINGERPRINT-HASH-12345',
+        message: 'Successfully approved and persisted 2 transactions.'
+      }));
+
+      component.uploadResult = {
+        success: true,
+        message: 'Uploaded',
+        fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        jobId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        originalFileName: 'unknown_bank_sample.pdf',
+        storedFileName: 'stored_sample.pdf',
+        fileSizeBytes: 2048,
+        fileSizeFormatted: '2 KB',
+        contentType: 'application/pdf',
+        uploadedAt: '2026-10-04T20:00:00Z',
+        status: 'Processing',
+        processingStatus: 1,
+        isDuplicate: false,
+        fileHash: 'abcdef',
+        clientId: 'TENANT-1',
+        financialYearId: 'FY-1'
+      };
+      component.isUniversalReview = true;
+      component.universalReview = mockUniversalReview;
+      component.currentStep = 3;
+      fixture.detectChanges();
+
+      component.approveAndConvert();
+
+      expect(component.isApprovingReview).toBe(false);
+      expect(mockStatementService.approveUniversalReview).toHaveBeenCalledWith('9A7E688C-841D-4C64-9D0C-8B988CCD63F8');
+      expect(component.isUniversalReview).toBe(false);
+      expect(component.successNotice).toContain('Statement approved!');
+    });
+
+    it('7. should handle approval API error gracefully without transitioning to success', () => {
+      mockStatementService.approveUniversalReview.mockReturnValue(
+        throwError(() => ({ error: { detail: 'Statement has 1 unresolved critical balance conflict.' } }))
+      );
+
+      component.uploadResult = {
+        success: true,
+        message: 'Uploaded',
+        fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        jobId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        originalFileName: 'unknown_bank_sample.pdf',
+        storedFileName: 'stored_sample.pdf',
+        fileSizeBytes: 2048,
+        fileSizeFormatted: '2 KB',
+        contentType: 'application/pdf',
+        uploadedAt: '2026-10-04T20:00:00Z',
+        status: 'Processing',
+        processingStatus: 1,
+        isDuplicate: false,
+        fileHash: 'abcdef',
+        clientId: 'TENANT-1',
+        financialYearId: 'FY-1'
+      };
+      component.isUniversalReview = true;
+      component.universalReview = mockUniversalReview;
+
+      component.approveAndConvert();
+
+      expect(component.isApprovingReview).toBe(false);
+      expect(component.isUniversalReview).toBe(true);
+      expect(component.approvalError).toContain('Statement has 1 unresolved critical balance conflict.');
+    });
+
+    it('8. should show loading indicator while approval is in flight', () => {
+      mockStatementService.approveUniversalReview.mockReturnValue(NEVER);
+
+      component.uploadResult = {
+        success: true,
+        message: 'Uploaded',
+        fileId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        jobId: '9A7E688C-841D-4C64-9D0C-8B988CCD63F8',
+        originalFileName: 'unknown_bank_sample.pdf',
+        storedFileName: 'stored_sample.pdf',
+        fileSizeBytes: 2048,
+        fileSizeFormatted: '2 KB',
+        contentType: 'application/pdf',
+        uploadedAt: '2026-10-04T20:00:00Z',
+        status: 'Processing',
+        processingStatus: 1,
+        isDuplicate: false,
+        fileHash: 'abcdef',
+        clientId: 'TENANT-1',
+        financialYearId: 'FY-1'
+      };
+      component.isUniversalReview = true;
+      component.universalReview = mockUniversalReview;
+      component.currentStep = 3;
+
+      component.approveAndConvert();
+      expect(component.isApprovingReview).toBe(true);
+    });
   });
 });

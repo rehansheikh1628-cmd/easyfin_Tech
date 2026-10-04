@@ -9,6 +9,8 @@ using Accufex.Server.DTOs;
 using Accufex.Server.Models;
 using Accufex.Server.Parsing.Interfaces;
 using Accufex.Server.Parsing.Models;
+using Accufex.Server.Parsing.Universal.Interfaces;
+using Accufex.Server.Parsing.Universal.Models;
 using Accufex.Server.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -23,6 +25,8 @@ public class BankParsingService : IBankParsingService
     private readonly IPdfExtractionService _pdfExtractionService;
     private readonly IBankDetector _bankDetector;
     private readonly IBankParserRegistry _parserRegistry;
+    private readonly IUniversalStatementEngine? _universalEngine;
+    private readonly Accufex.Server.Parsing.Universal.Interfaces.IUniversalReviewService? _universalReviewService;
     private readonly Accufex.Server.Validation.Services.ITransactionCorrectionStore? _correctionStore;
     private readonly ILogger<BankParsingService> _logger;
 
@@ -31,6 +35,8 @@ public class BankParsingService : IBankParsingService
         IPdfExtractionService pdfExtractionService,
         IBankDetector bankDetector,
         IBankParserRegistry parserRegistry,
+        IUniversalStatementEngine? universalEngine,
+        Accufex.Server.Parsing.Universal.Interfaces.IUniversalReviewService? universalReviewService,
         Accufex.Server.Validation.Services.ITransactionCorrectionStore? correctionStore,
         ILogger<BankParsingService> logger)
     {
@@ -38,6 +44,8 @@ public class BankParsingService : IBankParsingService
         _pdfExtractionService = pdfExtractionService;
         _bankDetector = bankDetector;
         _parserRegistry = parserRegistry;
+        _universalEngine = universalEngine;
+        _universalReviewService = universalReviewService;
         _correctionStore = correctionStore;
         _logger = logger;
     }
@@ -47,8 +55,31 @@ public class BankParsingService : IBankParsingService
         IPdfExtractionService pdfExtractionService,
         IBankDetector bankDetector,
         IBankParserRegistry parserRegistry,
+        IUniversalStatementEngine? universalEngine,
+        Accufex.Server.Validation.Services.ITransactionCorrectionStore? correctionStore,
         ILogger<BankParsingService> logger)
-        : this(dbContext, pdfExtractionService, bankDetector, parserRegistry, null, logger)
+        : this(dbContext, pdfExtractionService, bankDetector, parserRegistry, universalEngine, null, correctionStore, logger)
+    {
+    }
+
+    public BankParsingService(
+        AccufexDbContext dbContext,
+        IPdfExtractionService pdfExtractionService,
+        IBankDetector bankDetector,
+        IBankParserRegistry parserRegistry,
+        Accufex.Server.Validation.Services.ITransactionCorrectionStore? correctionStore,
+        ILogger<BankParsingService> logger)
+        : this(dbContext, pdfExtractionService, bankDetector, parserRegistry, null, null, correctionStore, logger)
+    {
+    }
+
+    public BankParsingService(
+        AccufexDbContext dbContext,
+        IPdfExtractionService pdfExtractionService,
+        IBankDetector bankDetector,
+        IBankParserRegistry parserRegistry,
+        ILogger<BankParsingService> logger)
+        : this(dbContext, pdfExtractionService, bankDetector, parserRegistry, null, null, null, logger)
     {
     }
 
@@ -104,8 +135,83 @@ public class BankParsingService : IBankParsingService
             var detection = _bankDetector.DetectBank(extraction);
             if (!detection.IsSupported || detection.DetectedBank == BankType.Unknown)
             {
-                _logger.LogWarning("Statement {FileId} rejected: bank is unsupported or unrecognized.", fileRecordId);
-                return (false, "The statement bank format was not recognized as a supported bank format (Supported: HDFC Bank, YES BANK, Axis Bank, Central Bank of India, ICICI Bank, State Bank of India, Bank of India, Kotak Mahindra Bank, Punjab National Bank, Bank of Baroda).", null);
+                _logger.LogInformation("Statement {FileId} is from an unknown/unsupported bank format. Routing to Universal Statement Engine fallback.", fileRecordId);
+
+                if (_universalEngine == null)
+                {
+                    _logger.LogWarning("Statement {FileId} rejected: Universal Statement Engine is not registered and bank is unsupported.", fileRecordId);
+                    return (false, "The statement bank format was not recognized as a supported bank format (Supported: HDFC Bank, YES BANK, Axis Bank, Central Bank of India, ICICI Bank, State Bank of India, Bank of India, Kotak Mahindra Bank, Punjab National Bank, Bank of Baroda).", null);
+                }
+
+                var universalResult = await _universalEngine.ProcessStatementAsync(extraction, detection, cancellationToken);
+                var bankParsingResult = universalResult.ToBankParsingResult();
+
+                // Phase 3 Review Policy:
+                // Unknown statements require user review before conversion into trusted financial records.
+                if (!universalResult.Success || universalResult.NeedsReview || universalResult.Confidence.Level != UniversalConfidenceLevel.High || universalResult.Transactions.Count == 0)
+                {
+                    _logger.LogInformation("Universal Engine determined statement {FileId} requires review before conversion. Confidence: {Level} ({Score:F1}%)",
+                        fileRecordId, universalResult.Confidence.Level, universalResult.Confidence.OverallScore * 100);
+
+                    if (_universalReviewService != null)
+                    {
+                        await _universalReviewService.CreateOrUpdateReviewSessionAsync(fileRecordId, universalResult, fileRecord.OriginalFileName, cancellationToken);
+                    }
+
+                    fileRecord.ProcessingStatus = 6; // ReviewRequired
+                    fileRecord.ProcessingError = "Statement format requires review before conversion.";
+                    fileRecord.UpdatedAt = DateTime.UtcNow;
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+
+                    var message = universalResult.StatusMessage ?? "This statement format requires review before conversion.";
+                    return (false, message, bankParsingResult);
+                }
+
+                // If in future phases high confidence automatic extraction is supported:
+                bool universalPersistenceSucceeded = false;
+                string? universalPersistenceError = null;
+                bool isUniversalInMemory = _dbContext.Database.ProviderName?.Contains("InMemory", StringComparison.OrdinalIgnoreCase) == true;
+
+                if (isUniversalInMemory)
+                {
+                    try
+                    {
+                        await PersistValidatedTransactionsAsync(fileRecord, bankParsingResult, (int)BankType.Universal, detection.AccountNumber, startedAt, cancellationToken);
+                        universalPersistenceSucceeded = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to persist universal transactions for statement {FileId} in in-memory database.", fileRecordId);
+                        universalPersistenceError = "Failed to store validated transactions in the database.";
+                    }
+                }
+                else
+                {
+                    var strategy = _dbContext.Database.CreateExecutionStrategy();
+                    await strategy.ExecuteAsync(async () =>
+                    {
+                        await using var dbTransaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+                        try
+                        {
+                            await PersistValidatedTransactionsAsync(fileRecord, bankParsingResult, (int)BankType.Universal, detection.AccountNumber, startedAt, cancellationToken);
+                            await dbTransaction.CommitAsync(cancellationToken);
+                            universalPersistenceSucceeded = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            await dbTransaction.RollbackAsync(cancellationToken);
+                            _logger.LogError(ex, "Failed to persist universal transactions for statement {FileId}. Database rolled back.", fileRecordId);
+                            universalPersistenceError = "Failed to store validated transactions in the database.";
+                        }
+                    });
+                }
+
+                if (!universalPersistenceSucceeded)
+                {
+                    return (false, universalPersistenceError ?? "Database persistence failed.", bankParsingResult);
+                }
+
+                return (true, null, bankParsingResult);
             }
 
             // 4. Resolve Bank Parser
