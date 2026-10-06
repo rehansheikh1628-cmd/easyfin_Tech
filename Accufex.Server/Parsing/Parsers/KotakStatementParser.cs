@@ -74,6 +74,8 @@ public class KotakStatementParser : IBankStatementParser
         string? detectedAccount = detection?.AccountNumber;
         string? customerName = detection?.CustomerName;
 
+        double detectedDescColX = 115.0; // Kotak standard boundary between Date column and Description column
+
         foreach (var page in extraction.Pages.OrderBy(p => p.PageNumber))
         {
             if (statementEnded)
@@ -163,6 +165,18 @@ public class KotakStatementParser : IBankStatementParser
                 }
             }
 
+            if (headerLineIdx >= 0)
+            {
+                var descHdr = lines[headerLineIdx].FirstOrDefault(w =>
+                    w.Text.Contains("Description", StringComparison.OrdinalIgnoreCase) ||
+                    w.Text.Contains("Narration", StringComparison.OrdinalIgnoreCase) ||
+                    w.Text.Contains("Particulars", StringComparison.OrdinalIgnoreCase));
+                if (descHdr != null && descHdr.X > 50)
+                {
+                    detectedDescColX = descHdr.X;
+                }
+            }
+
             double headerBottomY = 0;
             if (headerLineIdx >= 0)
             {
@@ -170,9 +184,9 @@ public class KotakStatementParser : IBankStatementParser
                 for (int i = headerLineIdx + 1; i < Math.Min(lines.Count, headerLineIdx + 3); i++)
                 {
                     var lineWords = lines[i];
-                    bool isTxn = HasTransactionDateAndAmounts(lineWords, out _, out _, out _) ||
-                                 (lineWords.Count > 0 && DateRegex.IsMatch(lineWords[0].Text)) ||
-                                 (lineWords.Count > 1 && int.TryParse(lineWords[0].Text, out _) && DateRegex.IsMatch(lineWords[1].Text));
+                    bool isTxn = HasTransactionDateAndAmounts(lineWords, detectedDescColX, out _, out _, out _) ||
+                                 (lineWords.Count > 0 && IsInDateColumn(lineWords[0], detectedDescColX) && DateRegex.IsMatch(lineWords[0].Text)) ||
+                                 (lineWords.Count > 1 && int.TryParse(lineWords[0].Text, out _) && (lineWords[0].X <= 0 || lineWords[0].X < 65.0) && IsInDateColumn(lineWords[1], detectedDescColX) && DateRegex.IsMatch(lineWords[1].Text));
                     if (isTxn)
                     {
                         break;
@@ -307,10 +321,17 @@ public class KotakStatementParser : IBankStatementParser
 
                 // Check if line represents the start of a new transaction
                 // In Kotak: line may start with Sr No (e.g. "1") or directly Date ("05 Oct 2022")
-                bool startsWithSrNo = sortedWords.Count > 1 && int.TryParse(sortedWords[0].Text, out _) && (DateRegex.IsMatch(sortedWords[1].Text) || (sortedWords.Count > 3 && DateRegex.IsMatch($"{sortedWords[1].Text} {sortedWords[2].Text} {sortedWords[3].Text}")));
-                bool startsWithDate = DateRegex.IsMatch(sortedWords[0].Text) || (sortedWords.Count >= 3 && DateRegex.IsMatch($"{sortedWords[0].Text} {sortedWords[1].Text} {sortedWords[2].Text}"));
+                // A transaction date must reside strictly within the Date column boundaries (X < descColX).
+                bool startsWithSrNo = sortedWords.Count > 1 &&
+                    int.TryParse(sortedWords[0].Text, out _) &&
+                    (sortedWords[0].X <= 0 || sortedWords[0].X < 65.0) &&
+                    IsInDateColumn(sortedWords[1], detectedDescColX) &&
+                    (DateRegex.IsMatch(sortedWords[1].Text) || (sortedWords.Count > 3 && DateRegex.IsMatch($"{sortedWords[1].Text} {sortedWords[2].Text} {sortedWords[3].Text}")));
 
-                if (startsWithSrNo || startsWithDate || HasTransactionDateAndAmounts(sortedWords, out _, out _, out _))
+                bool startsWithDate = IsInDateColumn(sortedWords[0], detectedDescColX) &&
+                    (DateRegex.IsMatch(sortedWords[0].Text) || (sortedWords.Count >= 3 && DateRegex.IsMatch($"{sortedWords[0].Text} {sortedWords[1].Text} {sortedWords[2].Text}")));
+
+                if (startsWithSrNo || startsWithDate || HasTransactionDateAndAmounts(sortedWords, detectedDescColX, out _, out _, out _))
                 {
                     // If we had a previous transaction being constructed, finalize it
                     if (currentTx != null)
@@ -320,19 +341,99 @@ public class KotakStatementParser : IBankStatementParser
                     }
 
                     // Parse new transaction row
-                    currentTx = ParseTransactionRow(sortedWords, rowIndexCounter++, page.PageNumber);
+                    currentTx = ParseTransactionRow(sortedWords, rowIndexCounter++, page.PageNumber, detectedDescColX);
                 }
                 else if (currentTx != null)
                 {
-                    // Multi-line narration continuation
+                    // Multi-line narration / continuation line
                     // Ensure it's not a repeating column header or page artifact
                     if (!lineText.Contains("Withdrawal", StringComparison.OrdinalIgnoreCase) &&
                         !lineText.Contains("Deposit", StringComparison.OrdinalIgnoreCase) &&
-                        !lineText.Contains("Balance", StringComparison.OrdinalIgnoreCase) &&
                         !lineText.Contains("Chq/Ref", StringComparison.OrdinalIgnoreCase) &&
-                        !lineText.Contains("Kotak Mahindra Bank", StringComparison.OrdinalIgnoreCase))
+                        !lineText.Contains("Kotak Mahindra Bank", StringComparison.OrdinalIgnoreCase) &&
+                        !lineText.Contains("Statement Generated on", StringComparison.OrdinalIgnoreCase) &&
+                        !lineText.Contains("Account Statement", StringComparison.OrdinalIgnoreCase))
                     {
-                        currentTx.Description = (currentTx.Description + " " + lineText).Trim();
+                        var contAmountWords = new List<(int Index, PdfTextBlock Block, decimal Value)>();
+                        var contDescWords = new List<string>();
+
+                        for (int i = 0; i < sortedWords.Count; i++)
+                        {
+                            var w = sortedWords[i];
+                            if ((w.X >= 340 || (w.X <= 0 && i >= sortedWords.Count - 2)) &&
+                                !Regex.IsMatch(w.Text.Trim(), @"^\d{4,16}$") &&
+                                TryParseAmount(w.Text, out var val))
+                            {
+                                contAmountWords.Add((i, w, val));
+                            }
+                            else
+                            {
+                                contDescWords.Add(w.Text.Trim());
+                            }
+                        }
+
+                        // Attach continuation narration
+                        if (contDescWords.Count > 0)
+                        {
+                            var continuationText = string.Join(" ", contDescWords).Trim();
+                            if (!string.IsNullOrWhiteSpace(continuationText))
+                            {
+                                currentTx.Description = (currentTx.Description + " " + continuationText).Trim();
+                            }
+                        }
+
+                        // If this continuation line carries amounts for the transaction
+                        if (contAmountWords.Count >= 2)
+                        {
+                            // Typically Balance is the last amount
+                            if (!currentTx.Balance.HasValue)
+                            {
+                                currentTx.Balance = contAmountWords.Last().Value;
+                            }
+
+                            // The other amount is Debit or Credit
+                            if (!currentTx.Debit.HasValue && !currentTx.Credit.HasValue)
+                            {
+                                var amtTuple = contAmountWords[contAmountWords.Count - 2];
+                                if (amtTuple.Block.X > 0 && amtTuple.Block.X < 425)
+                                {
+                                    currentTx.Debit = amtTuple.Value;
+                                    currentTx.Amount = amtTuple.Value;
+                                    currentTx.TransactionType = "Debit";
+                                }
+                                else if (amtTuple.Block.X >= 425)
+                                {
+                                    currentTx.Credit = amtTuple.Value;
+                                    currentTx.Amount = amtTuple.Value;
+                                    currentTx.TransactionType = "Credit";
+                                }
+                            }
+                        }
+                        else if (contAmountWords.Count == 1)
+                        {
+                            var singleAmt = contAmountWords[0];
+                            if (!currentTx.Balance.HasValue && (currentTx.Debit.HasValue || currentTx.Credit.HasValue || singleAmt.Block.X >= 500))
+                            {
+                                currentTx.Balance = singleAmt.Value;
+                            }
+                            else if (!currentTx.Debit.HasValue && !currentTx.Credit.HasValue)
+                            {
+                                if (singleAmt.Block.X > 0 && singleAmt.Block.X < 425)
+                                {
+                                    currentTx.Debit = singleAmt.Value;
+                                    currentTx.Amount = singleAmt.Value;
+                                    currentTx.TransactionType = "Debit";
+                                }
+                                else if (singleAmt.Block.X >= 425)
+                                {
+                                    currentTx.Credit = singleAmt.Value;
+                                    currentTx.Amount = singleAmt.Value;
+                                    currentTx.TransactionType = "Credit";
+                                }
+                            }
+                        }
+
+                        currentTx.RawSourceText = (currentTx.RawSourceText + " " + lineText).Trim();
                     }
                 }
             }
@@ -469,7 +570,20 @@ public class KotakStatementParser : IBankStatementParser
         return new List<List<PdfTextBlock>>();
     }
 
+    private static bool IsInDateColumn(PdfTextBlock block, double descColX)
+    {
+        if (block != null && block.X > 0)
+        {
+            double maxDateX = descColX > 50 ? descColX - 5.0 : 110.0;
+            return block.X < maxDateX;
+        }
+        return true; // Fallback for coordinate-less synthetic rows
+    }
+
     private static bool HasTransactionDateAndAmounts(List<PdfTextBlock> words, out DateTime txnDate, out int dateEndIdx, out List<int> amountIndices)
+        => HasTransactionDateAndAmounts(words, 115.0, out txnDate, out dateEndIdx, out amountIndices);
+
+    private static bool HasTransactionDateAndAmounts(List<PdfTextBlock> words, double descColX, out DateTime txnDate, out int dateEndIdx, out List<int> amountIndices)
     {
         txnDate = default;
         dateEndIdx = -1;
@@ -488,24 +602,54 @@ public class KotakStatementParser : IBankStatementParser
             return false;
         }
 
-        // Look for date in words
-        for (int i = 0; i < Math.Min(5, words.Count); i++)
+        // Look for date in words strictly located in the Date column
+        // Case 1: Row starts directly with Date
+        if (words.Count > 0 && IsInDateColumn(words[0], descColX))
         {
-            if (TryParseDate(words[i].Text, out txnDate))
+            if (TryParseDate(words[0].Text, out txnDate))
             {
-                dateEndIdx = i;
-                break;
+                dateEndIdx = 0;
             }
-            if (i + 2 < words.Count && TryParseDate($"{words[i].Text} {words[i + 1].Text} {words[i + 2].Text}", out txnDate))
+            else if (words.Count >= 3 && TryParseDate($"{words[0].Text} {words[1].Text} {words[2].Text}", out txnDate))
             {
-                dateEndIdx = i + 2;
-                break;
+                dateEndIdx = 2;
+            }
+        }
+
+        // Case 2: Row starts with Sr No (< 65.0) followed by Date in Date column
+        if (dateEndIdx < 0 && words.Count > 1 && int.TryParse(words[0].Text, out _) && (words[0].X <= 0 || words[0].X < 65.0) && IsInDateColumn(words[1], descColX))
+        {
+            if (TryParseDate(words[1].Text, out txnDate))
+            {
+                dateEndIdx = 1;
+            }
+            else if (words.Count >= 4 && TryParseDate($"{words[1].Text} {words[2].Text} {words[3].Text}", out txnDate))
+            {
+                dateEndIdx = 3;
+            }
+        }
+
+        // Fallback for coordinate-less synthetic rows
+        if (dateEndIdx < 0 && words.Any(w => w.X <= 0))
+        {
+            for (int i = 0; i < Math.Min(3, words.Count); i++)
+            {
+                if (TryParseDate(words[i].Text, out txnDate))
+                {
+                    dateEndIdx = i;
+                    break;
+                }
+                if (i + 2 < words.Count && TryParseDate($"{words[i].Text} {words[i + 1].Text} {words[i + 2].Text}", out txnDate))
+                {
+                    dateEndIdx = i + 2;
+                    break;
+                }
             }
         }
 
         if (dateEndIdx < 0) return false;
 
-        // Check if there are amounts with decimals towards the right of the row
+        // Check if there are amounts with decimals towards the right of the row (X >= 340)
         for (int i = dateEndIdx + 1; i < words.Count; i++)
         {
             var text = words[i].Text.Trim();
@@ -520,28 +664,44 @@ public class KotakStatementParser : IBankStatementParser
         return amountIndices.Count >= 1;
     }
 
-    public ParsedTransaction ParseTransactionRow(List<PdfTextBlock> words, int rowIndex, int pageNumber)
+    public ParsedTransaction ParseTransactionRow(List<PdfTextBlock> words, int rowIndex, int pageNumber, double descColX = 115.0)
     {
-        // 1. Identify Date
+        // 1. Identify Date strictly within the Date column
         DateTime txnDate = DateTime.MinValue;
         int descStartIdx = 0;
 
-        if (words.Count > 1 && int.TryParse(words[0].Text, out _))
+        if (words.Count > 1 && int.TryParse(words[0].Text, out _) && (words[0].X <= 0 || words[0].X < 65.0))
         {
             descStartIdx = 1;
         }
 
-        for (int i = descStartIdx; i < Math.Min(descStartIdx + 4, words.Count); i++)
+        if (descStartIdx < words.Count && IsInDateColumn(words[descStartIdx], descColX))
         {
-            if (TryParseDate(words[i].Text, out txnDate))
+            if (TryParseDate(words[descStartIdx].Text, out txnDate))
             {
-                descStartIdx = i + 1;
-                break;
+                descStartIdx += 1;
             }
-            if (i + 2 < words.Count && TryParseDate($"{words[i].Text} {words[i + 1].Text} {words[i + 2].Text}", out txnDate))
+            else if (descStartIdx + 2 < words.Count && TryParseDate($"{words[descStartIdx].Text} {words[descStartIdx + 1].Text} {words[descStartIdx + 2].Text}", out txnDate))
             {
-                descStartIdx = i + 3;
-                break;
+                descStartIdx += 3;
+            }
+        }
+
+        // Fallback for coordinate-less synthetic rows if date was not at descStartIdx
+        if (txnDate == DateTime.MinValue && words.Any(w => w.X <= 0))
+        {
+            for (int i = descStartIdx; i < Math.Min(descStartIdx + 4, words.Count); i++)
+            {
+                if (TryParseDate(words[i].Text, out txnDate))
+                {
+                    descStartIdx = i + 1;
+                    break;
+                }
+                if (i + 2 < words.Count && TryParseDate($"{words[i].Text} {words[i + 1].Text} {words[i + 2].Text}", out txnDate))
+                {
+                    descStartIdx = i + 3;
+                    break;
+                }
             }
         }
 
@@ -634,8 +794,21 @@ public class KotakStatementParser : IBankStatementParser
         }
         else if (amountWords.Count == 1)
         {
-            balance = amountWords[0].Value;
-            descEndIdx = amountWords[0].Index - 1;
+            var singleAmt = amountWords[0];
+            descEndIdx = singleAmt.Index - 1;
+
+            if (singleAmt.Block.X > 0 && singleAmt.Block.X < 425)
+            {
+                debit = singleAmt.Value;
+            }
+            else if (singleAmt.Block.X >= 425 && singleAmt.Block.X < 500)
+            {
+                credit = singleAmt.Value;
+            }
+            else
+            {
+                balance = singleAmt.Value;
+            }
         }
 
         // 3. Separate Reference and Narration from remaining words

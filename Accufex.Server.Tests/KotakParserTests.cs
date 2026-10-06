@@ -17,6 +17,7 @@ using Accufex.Server.Parsing;
 using Accufex.Server.Parsing.Interfaces;
 using Accufex.Server.Parsing.Models;
 using Accufex.Server.Parsing.Parsers;
+using Accufex.Server.Validation.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Logging.Abstractions;
 using UglyToad.PdfPig;
@@ -1011,4 +1012,267 @@ public class KotakParserTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     #endregion
+
+    #region Embedded Date in Narration Regression Tests
+
+    [Fact]
+    public void Kotak_RealStatement_EmbeddedDateInNarration_DoesNotCreatePhantomTransaction_AndMaintainsContinuity()
+    {
+        // Recreates the real statement sequence:
+        // Opening Balance: 56.59
+        // 1. 01/09/2026 Credit 20     Balance 76.59
+        // 2. 01/09/2026 Credit 265    Balance 341.59
+        // 3. 01/09/2026 Debit 231     Balance 110.59
+        // 4. 01/09/2026 Credit 150    Balance 260.59
+        // 5. 01/09/2026 Debit 7.66    Balance 252.93 (REM CHRG: DCC FEE FOR 3301 ECOM / TXN ON 09-JUL-2026)
+        // 6. 02/09/2026 Credit 80     Balance 332.93
+        var extraction = BuildSyntheticKotakExtraction(pages =>
+        {
+            var rows = new List<PdfCandidateRow>
+            {
+                CreateRow(1, 30.0, [("Kotak", 40.0), ("Mahindra", 80.0), ("Bank", 135.0)]),
+                CreateRow(1, 45.0, [("Account", 40.0), ("Number", 85.0), (":", 130.0), ("6245778582", 140.0)]),
+                CreateRow(1, 60.0, [
+                    ("#", 40.0), ("Date", 65.0), ("Description", 135.0), ("Chq/Ref.", 285.0), ("No.", 330.0),
+                    ("Withdrawal", 390.0), ("(Dr.)", 445.0), ("Deposit", 485.0), ("(Cr.)", 525.0), ("Balance", 570.0)
+                ]),
+                // Opening balance
+                CreateRow(1, 75.0, [
+                    ("-", 40.0), ("-", 65.0), ("Opening", 135.0), ("Balance", 185.0), ("56.59", 570.0)
+                ]),
+                // Tx 1: 01/09/2026 +20 -> 76.59
+                CreateRow(1, 90.0, [
+                    ("1", 40.0), ("01/09/2026", 65.0), ("UPI/HUSAIN/112233", 135.0),
+                    ("UPI-112233", 285.0), ("20.00", 490.0), ("76.59", 570.0)
+                ]),
+                // Tx 2: 01/09/2026 +265 -> 341.59
+                CreateRow(1, 105.0, [
+                    ("2", 40.0), ("01/09/2026", 65.0), ("UPI/Razorpay/out/445566", 135.0),
+                    ("UPI-445566", 285.0), ("265.00", 490.0), ("341.59", 570.0)
+                ]),
+                // Tx 3: 01/09/2026 -231 -> 110.59
+                CreateRow(1, 120.0, [
+                    ("3", 40.0), ("01/09/2026", 65.0), ("UPI/Flipkart/778899", 135.0),
+                    ("UPI-778899", 285.0), ("231.00", 400.0), ("110.59", 570.0)
+                ]),
+                // Tx 4: 01/09/2026 +150 -> 260.59
+                CreateRow(1, 135.0, [
+                    ("4", 40.0), ("01/09/2026", 65.0), ("UPI/SHAILENDRA/334455", 135.0),
+                    ("UPI-334455", 285.0), ("150.00", 490.0), ("260.59", 570.0)
+                ]),
+                // Tx 5: Line 1 (Date, Description line 1, Debit 7.66)
+                CreateRow(1, 150.0, [
+                    ("5", 40.0), ("01/09/2026", 65.0), ("REM CHRG: DCC FEE FOR 3301 ECOM", 135.0),
+                    ("7.66", 400.0)
+                ]),
+                // Tx 5: Line 2 (Continuation narration with embedded date 09-JUL-2026, Balance 252.93)
+                CreateRow(1, 162.0, [
+                    ("TXN", 135.0), ("ON", 160.0), ("09-JUL-2026", 180.0),
+                    ("252.93", 570.0)
+                ]),
+                // Tx 6: 02/09/2026 +80 -> 332.93
+                CreateRow(1, 175.0, [
+                    ("6", 40.0), ("02/09/2026", 65.0), ("UPI/Mrs NANDINI/998877", 135.0),
+                    ("UPI-998877", 285.0), ("80.00", 490.0), ("332.93", 570.0)
+                ])
+            };
+            pages.Add(CreatePage(1, rows));
+        });
+
+        var detection = _detector.DetectBank(extraction);
+        var result = _kotakParser.Parse(extraction, detection);
+
+        Assert.True(result.Success);
+        // Must produce exactly 6 transactions, NOT 7!
+        Assert.Equal(6, result.Transactions.Count);
+
+        // Phantom transaction with date 09/07/2026 must NOT exist
+        Assert.DoesNotContain(result.Transactions, t => t.TransactionDate == new DateTime(2026, 7, 9));
+
+        // Legitimate transaction 5 verification
+        var tx5 = result.Transactions[4];
+        Assert.Equal(new DateTime(2026, 9, 1), tx5.TransactionDate);
+        Assert.Contains("09-JUL-2026", tx5.Description);
+        Assert.Contains("REM CHRG: DCC FEE FOR 3301 ECOM TXN ON 09-JUL-2026", tx5.Description);
+        Assert.Equal(7.66m, tx5.Debit);
+        Assert.Null(tx5.Credit);
+        Assert.Equal(7.66m, tx5.Amount);
+        Assert.Equal(252.93m, tx5.Balance);
+
+        // Verification with TransactionValidationService:
+        // Prior to the fix, phantom 09/07/2026 row sorted first with 252.93 balance, causing 196.34 false discrepancy.
+        var validationService = new Accufex.Server.Validation.Services.TransactionValidationService();
+        var rawTransactions = result.Transactions.Select(t => new Transaction
+        {
+            Id = t.Id,
+            TransactionDate = t.TransactionDate,
+            Description = t.Description,
+            Debit = t.Debit,
+            Credit = t.Credit,
+            Amount = t.Amount,
+            Balance = t.Balance,
+            Reference = t.Reference,
+            Utr = t.Utr,
+            TransactionType = t.TransactionType,
+            BankCode = t.BankCode
+        }).ToList();
+
+        var enriched = validationService.ValidateAndEnrichStatement(rawTransactions, null);
+        var summary = validationService.ComputeSummary(Guid.NewGuid(), 8, "Kotak Mahindra Bank", "KOTAK-v1", enriched);
+
+        Assert.Equal(6, summary.TotalTransactions);
+        Assert.Equal(0, summary.InvalidCount);
+        Assert.DoesNotContain(enriched, e => e.ValidationWarnings.Any(w => w.Contains("196.34")));
+        Assert.DoesNotContain(enriched, e => e.BalanceStatus == BalanceStatus.Mismatch);
+    }
+
+    [Fact]
+    public void Kotak_NarrationWithEmbeddedDate_Test1_RemChrg09Jul2026_PreservesSingleTransaction()
+    {
+        // Test 1: "REM CHRG: DCC FEE FOR 3301 ECOM TXN ON 09-JUL-2026"
+        // Expected: Transaction date = 01/09/2026, Narration contains 09-JUL-2026, No second transaction created.
+        var extraction = BuildSyntheticKotakExtraction(pages =>
+        {
+            var rows = new List<PdfCandidateRow>
+            {
+                CreateRow(1, 30.0, [("Kotak", 40.0), ("Mahindra", 80.0), ("Bank", 135.0)]),
+                CreateRow(1, 50.0, [
+                    ("#", 40.0), ("Date", 65.0), ("Description", 135.0), ("Chq/Ref.", 285.0), ("No.", 330.0),
+                    ("Withdrawal", 390.0), ("(Dr.)", 445.0), ("Deposit", 485.0), ("(Cr.)", 525.0), ("Balance", 570.0)
+                ]),
+                CreateRow(1, 70.0, [
+                    ("1", 40.0), ("01/09/2026", 65.0), ("REM CHRG: DCC FEE FOR 3301 ECOM", 135.0),
+                    ("7.66", 400.0)
+                ]),
+                CreateRow(1, 82.0, [
+                    ("TXN ON 09-JUL-2026", 135.0),
+                    ("252.93", 570.0)
+                ])
+            };
+            pages.Add(CreatePage(1, rows));
+        });
+
+        var detection = _detector.DetectBank(extraction);
+        var result = _kotakParser.Parse(extraction, detection);
+
+        Assert.True(result.Success);
+        Assert.Single(result.Transactions);
+
+        var tx = result.Transactions[0];
+        Assert.Equal(new DateTime(2026, 9, 1), tx.TransactionDate);
+        Assert.Contains("09-JUL-2026", tx.Description);
+        Assert.Equal(7.66m, tx.Debit);
+        Assert.Equal(252.93m, tx.Balance);
+    }
+
+    [Fact]
+    public void Kotak_NarrationWithEmbeddedDate_Test2_BillDate15Aug2026_RemainsNarration()
+    {
+        // Test 2: "PAYMENT FOR BILL DATE 15-AUG-2026"
+        // Expected: The embedded date remains narration. No second transaction created.
+        var extraction = BuildSyntheticKotakExtraction(pages =>
+        {
+            var rows = new List<PdfCandidateRow>
+            {
+                CreateRow(1, 30.0, [("Kotak", 40.0), ("Mahindra", 80.0), ("Bank", 135.0)]),
+                CreateRow(1, 50.0, [
+                    ("#", 40.0), ("Date", 65.0), ("Description", 135.0), ("Chq/Ref.", 285.0), ("No.", 330.0),
+                    ("Withdrawal", 390.0), ("(Dr.)", 445.0), ("Deposit", 485.0), ("(Cr.)", 525.0), ("Balance", 570.0)
+                ]),
+                CreateRow(1, 70.0, [
+                    ("1", 40.0), ("01/09/2026", 65.0), ("ELECTRICITY BILL PAYMENT", 135.0),
+                    ("500.00", 400.0), ("5,000.00", 570.0)
+                ]),
+                CreateRow(1, 82.0, [
+                    ("PAYMENT FOR BILL DATE 15-AUG-2026", 135.0)
+                ])
+            };
+            pages.Add(CreatePage(1, rows));
+        });
+
+        var detection = _detector.DetectBank(extraction);
+        var result = _kotakParser.Parse(extraction, detection);
+
+        Assert.True(result.Success);
+        Assert.Single(result.Transactions);
+
+        var tx = result.Transactions[0];
+        Assert.Equal(new DateTime(2026, 9, 1), tx.TransactionDate);
+        Assert.Contains("PAYMENT FOR BILL DATE 15-AUG-2026", tx.Description);
+        Assert.DoesNotContain(result.Transactions, t => t.TransactionDate == new DateTime(2026, 8, 15));
+    }
+
+    [Fact]
+    public void Kotak_NarrationWithEmbeddedDate_Test3_TxnDate20Oct2026_DoesNotCreateNewTransaction()
+    {
+        // Test 3: "TXN DATE 20-OCT-2026 REF ABC123"
+        // Expected: The embedded date does not create another transaction.
+        var extraction = BuildSyntheticKotakExtraction(pages =>
+        {
+            var rows = new List<PdfCandidateRow>
+            {
+                CreateRow(1, 30.0, [("Kotak", 40.0), ("Mahindra", 80.0), ("Bank", 135.0)]),
+                CreateRow(1, 50.0, [
+                    ("#", 40.0), ("Date", 65.0), ("Description", 135.0), ("Chq/Ref.", 285.0), ("No.", 330.0),
+                    ("Withdrawal", 390.0), ("(Dr.)", 445.0), ("Deposit", 485.0), ("(Cr.)", 525.0), ("Balance", 570.0)
+                ]),
+                CreateRow(1, 70.0, [
+                    ("1", 40.0), ("01/09/2026", 65.0), ("REFUND FROM MERCHANT", 135.0),
+                    ("150.00", 490.0), ("1,150.00", 570.0)
+                ]),
+                CreateRow(1, 82.0, [
+                    ("TXN DATE 20-OCT-2026 REF ABC123", 135.0)
+                ])
+            };
+            pages.Add(CreatePage(1, rows));
+        });
+
+        var detection = _detector.DetectBank(extraction);
+        var result = _kotakParser.Parse(extraction, detection);
+
+        Assert.True(result.Success);
+        Assert.Single(result.Transactions);
+
+        var tx = result.Transactions[0];
+        Assert.Equal(new DateTime(2026, 9, 1), tx.TransactionDate);
+        Assert.Contains("TXN DATE 20-OCT-2026 REF ABC123", tx.Description);
+        Assert.DoesNotContain(result.Transactions, t => t.TransactionDate == new DateTime(2026, 10, 20));
+    }
+
+    [Fact]
+    public void Kotak_NormalTransaction_Test4_DateColumnRecognizedCorrectly()
+    {
+        // Test 4: A normal transaction where the actual Date column contains 02 Sep 2026.
+        // Expected: 02 Sep 2026 is correctly recognized as the transaction date.
+        var extraction = BuildSyntheticKotakExtraction(pages =>
+        {
+            var rows = new List<PdfCandidateRow>
+            {
+                CreateRow(1, 30.0, [("Kotak", 40.0), ("Mahindra", 80.0), ("Bank", 135.0)]),
+                CreateRow(1, 50.0, [
+                    ("#", 40.0), ("Date", 65.0), ("Description", 135.0), ("Chq/Ref.", 285.0), ("No.", 330.0),
+                    ("Withdrawal", 390.0), ("(Dr.)", 445.0), ("Deposit", 485.0), ("(Cr.)", 525.0), ("Balance", 570.0)
+                ]),
+                CreateRow(1, 70.0, [
+                    ("1", 40.0), ("02 Sep 2026", 65.0), ("UPI/Mrs NANDINI/998877", 135.0),
+                    ("UPI-998877", 285.0), ("80.00", 490.0), ("332.93", 570.0)
+                ])
+            };
+            pages.Add(CreatePage(1, rows));
+        });
+
+        var detection = _detector.DetectBank(extraction);
+        var result = _kotakParser.Parse(extraction, detection);
+
+        Assert.True(result.Success);
+        Assert.Single(result.Transactions);
+
+        var tx = result.Transactions[0];
+        Assert.Equal(new DateTime(2026, 9, 2), tx.TransactionDate);
+        Assert.Equal(80.00m, tx.Credit);
+        Assert.Equal(332.93m, tx.Balance);
+    }
+
+    #endregion
 }
+
